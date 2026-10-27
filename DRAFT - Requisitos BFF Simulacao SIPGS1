@@ -1,0 +1,208 @@
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+SIPGS — BFF de Simulação
+
+ 
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+28/09/2026		1.0	Elaboração a partir das HUs do Simulador e das histórias correlatas
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. DESCRIÇÃO
+Como plataforma, preciso de uma camada de retaguarda dedicada às telas do Simulador, responsável por montar a sessão de simulação, entregar os parâmetros vigentes e os totalizadores da base escolhida, receber as alterações de parâmetros, orquestrar o recálculo e devolver ao front-end o comparativo entre o cenário original e o cenário projetado, de modo que a interface não conheça as bases, as regras de cálculo nem as regras de acesso.
+O BFF de Simulação é o ponto em que se resolve o problema de desempenho que atravessa praticamente todas as histórias do Simulador: a exigência de que todos os indicadores sejam atualizados automaticamente a cada movimento de parâmetro, sobre bases de volumetria nacional. A solução adotada neste documento é a sessão de simulação com linha de base pré-apurada, descrita na seção 5.3, que permite responder ao movimento do parâmetro sem varrer novamente a base a cada interação.
+Este componente é distinto do BFF Agente, que atende ao assistente de Inteligência Artificial. Ambos consomem os mesmos serviços de domínio e compartilham as regras de escopo, mas atendem a interfaces e a padrões de uso diferentes. A fronteira entre eles está declarada na seção 4.
+ 
+3. PREMISSAS ADOTADAS
+As premissas abaixo decorrem de decisões ainda não formalizadas e estão declaradas para que sua eventual alteração seja rastreável.
+Nº	Premissa adotada	Origem da pendência
+P01	A identidade e a abrangência do usuário chegam ao BFF por token emitido pelo provedor de identidade da plataforma, validado a cada requisição.	Autenticação não especificada em nenhuma HU
+P02	Existe camada de dados consultável, estruturada a partir das bases ingeridas, apta a produzir agregações.	Não tratado nas HUs de ingestão
+P03	As regras de elegibilidade e de cálculo dos benefícios estão disponíveis como serviço de domínio invocável, e não apenas como comportamento de tela.	STRY00070086 e Módulo de Utilização
+P04	O cliente aceita que o recálculo do cenário completo ocorra sobre uma linha de base pré-apurada no início da sessão, e não por varredura integral a cada movimento de parâmetro.	Ponto de atenção registrado em cinco HUs
+P05	Os parâmetros vigentes do programa são obtidos da funcionalidade de Parametrização do Programa, exposta como serviço.	HU de Parametrização não recebida
+P06	A persistência e a comparação de cenários são responsabilidade do serviço de cenários, consumido pelo BFF.	HU de Salvamento e Comparação de Cenários
+ 
+4. ESCOPO
+4.1 Está no escopo
+•	Abertura e manutenção da sessão de simulação, com linha de base pré-apurada.
+•	Entrega do catálogo de parâmetros vigentes e das travas aplicáveis.
+•	Entrega dos totalizadores da base ou da combinação de bases selecionada.
+•	Recepção e validação das alterações de parâmetros e orquestração do recálculo.
+•	Composição do comparativo entre cenário original e cenário projetado.
+•	Aplicação da abrangência do usuário em toda consulta e todo recálculo.
+•	Invalidação da sessão diante de eventos que alterem a base ou os parâmetros vigentes.
+•	Orquestração do salvamento, da comparação e da exportação de cenários.
+•	Trilha de auditoria e observabilidade das operações de simulação.
+4.2 Não está no escopo
+•	Interface do Simulador, incluindo sliders, campos digitáveis e renderização de gráficos.
+•	Regras de elegibilidade e de cálculo dos benefícios, consumidas como serviço de domínio.
+•	Persistência e comparação de cenários, delegadas ao serviço de cenários.
+•	Alteração dos parâmetros vigentes, privativa da funcionalidade de Parametrização.
+•	Ingestão e validação das bases, tratadas nas HUs correspondentes.
+•	Consultas em linguagem natural, atendidas pelo BFF Agente.
+4.3 Fronteira com o BFF Agente
+Aspecto	BFF de Simulação	BFF Agente
+Interface atendida	Telas do Simulador	Assistente de IA
+Entrada	Parâmetros estruturados	Pergunta em linguagem natural
+Padrão de uso	Sessão longa, com muitas interações sobre a mesma base	Requisições pontuais e independentes
+Estratégia de execução	Linha de base pré-apurada e recálculo incremental	Plano de consulta produzido e executado por requisição
+Serviços consumidos	Elegibilidade, cálculo, cenários e parametrização	Os mesmos, acrescidos do modelo de linguagem
+Regras compartilhadas	Escopo do usuário, catálogo semântico e auditoria	Idênticas
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Identidade e escopo
+•	RF01 — Validação da Identidade: O BFF deve validar o token de identidade a cada requisição e derivar dele o perfil, a abrangência territorial e os produtos autorizados do usuário.
+•	RF02 — Programas Disponíveis: O BFF deve devolver ao front-end apenas os programas sociais aos quais o perfil do usuário possua autorização e vínculo de acesso.
+•	RF03 — Injeção Obrigatória de Escopo: Toda consulta e todo recálculo devem ter os predicados de abrangência injetados pelo BFF, não sendo admitida execução sem eles.
+5.2 Catálogo de parâmetros
+•	RF04 — Parâmetros Vigentes: O BFF deve devolver o catálogo de parâmetros do programa selecionado, com valor vigente, limites mínimo e máximo, granularidade de variação, unidade e rótulo de exibição, de modo que o front-end monte os controles sem conhecer as regras.
+•	RF05 — Travas e Dependências: O catálogo deve declarar as dependências entre parâmetros, notadamente a sincronização entre a faixa etária do BPI e a do BV Criança, para que a interface impeça a composição de cenários inconsistentes.
+•	RF06 — Validação no Servidor: O BFF deve validar os valores recebidos contra os limites, a granularidade e as dependências declaradas, rejeitando a alteração quando houver violação, independentemente da validação realizada na interface.
+•	RF07 — Rótulos de Exibição: Os rótulos de campos e a tradução dos códigos de domínio devem ser obtidos do cadastro De x Para, conforme a STRY00083689, não sendo admitida rotulagem fixa no front-end.
+5.3 Sessão de simulação e linha de base
+•	RF08 — Abertura da Sessão: Ao selecionar o programa e a base ou combinação de bases, o BFF deve abrir sessão de simulação, identificada de forma única, vinculada ao usuário, ao escopo, ao programa e às referências das bases selecionadas.
+•	RF09 — Apuração da Linha de Base: Na abertura da sessão, o BFF deve apurar e reter a linha de base do cenário original, compreendendo os totalizadores e as estruturas agregadas necessárias ao recálculo.
+•	RF10 — Totalizadores por Base: O BFF deve devolver os totalizadores correspondentes à base selecionada, observadas as composições distintas da Base Municipal e da folha, e a regra de que a seleção combinada adota a visualização da folha.
+•	RF11 — Indicação de Progresso: Quando a apuração da linha de base exceder o tempo de resposta síncrono, o BFF deve devolver identificação da sessão e permitir ao front-end acompanhar o progresso até a conclusão.
+•	RF12 — Reaproveitamento da Sessão: A sessão deve permanecer disponível durante o período parametrizado de inatividade, permitindo que o usuário retome a simulação sem nova apuração da linha de base.
+5.4 Aplicação de parâmetros e recálculo
+•	RF13 — Aplicação de Parâmetros: O BFF deve receber um ou mais parâmetros alterados simultaneamente e devolver o cenário projetado correspondente.
+•	RF14 — Recálculo sobre a Linha de Base: O recálculo deve ser executado sobre as estruturas agregadas da sessão, sem nova varredura integral da base, salvo quando a alteração modificar o universo de famílias considerado.
+•	RF15 — Identificação de Alteração Estrutural: O BFF deve identificar as alterações que modificam o universo considerado — notadamente as que incidem sobre critérios de elegibilidade — e, nesses casos, reapurar o universo antes do recálculo dos valores.
+•	RF16 — Estado Corrente do Cenário: O BFF deve manter o conjunto corrente de parâmetros alterados da sessão, de modo que cada nova alteração componha com as anteriores e não as substitua.
+•	RF17 — Desfazer e Restaurar: O BFF deve permitir remover uma alteração específica e restaurar o cenário aos parâmetros vigentes, sem encerrar a sessão.
+•	RF18 — Cancelamento de Recálculo: Recálculo em andamento deve poder ser cancelado quando o usuário alterar novamente o parâmetro, prevalecendo sempre a última solicitação.
+5.5 Elegibilidade e orçamento
+•	RF19 — Aplicação do Critério de Elegibilidade: Quando a simulação utilizar a Base Municipal com a opção de critério de elegibilidade ativada, o BFF deve invocar o serviço de elegibilidade e compor o universo conforme a STRY00070086.
+•	RF20 — Movimentação de Famílias: O BFF deve apurar e devolver a quantidade de famílias que ingressam, permanecem e saem do programa em decorrência das alterações, em relação à linha de base.
+•	RF21 — Simulação por Orçamento: O BFF deve aceitar valor de orçamento adicional, identificado por benefício, e devolver o resultado da simulação correspondente, delegando ao serviço de domínio a regra de priorização.
+•	RF22 — Período de Projeção: O BFF deve aceitar a seleção do período considerado na apuração do custo projetado e refletir essa seleção em todos os indicadores dependentes.
+5.6 Contrato de resposta
+•	RF23 — Composição da Resposta: Toda resposta de recálculo deve conter os elementos da seção 7.2, apresentando lado a lado o valor original, o valor projetado e as variações absoluta e percentual de cada indicador.
+•	RF24 — Transparência da Apuração: A resposta deve identificar as bases utilizadas com as respectivas datas de referência, os parâmetros correntes da sessão e o momento da apuração.
+•	RF25 — Formato Neutro: O BFF deve devolver os indicadores em formato estruturado, cabendo ao front-end a decisão de apresentação, sem que o BFF produza renderização.
+•	RF26 — Sinalização de Resultado Parcial: Quando algum indicador não puder ser apurado, o BFF deve identificá-lo explicitamente, sem omiti-lo nem substituí-lo por zero.
+5.7 Cenários e exportação
+•	RF27 — Salvamento do Cenário: O BFF deve orquestrar o salvamento do cenário corrente, entregando ao serviço de cenários os parâmetros, as referências das bases, a abrangência, o período e o resultado apurado.
+•	RF28 — Recuperação e Reexecução: O BFF deve recuperar cenário salvo e, mediante ação expressa do usuário, abrir nova sessão reexecutando-o sobre as bases vigentes, observadas as regras da HU de Salvamento e Comparação de Cenários.
+•	RF29 — Comparação de Cenários: O BFF deve orquestrar a comparação de cenários, aplicando previamente a validação de compatibilidade e devolvendo o comparativo composto.
+•	RF30 — Exportação Assíncrona: A exportação deve ser processada de forma assíncrona, devolvendo identificador de acompanhamento e disponibilizando o arquivo ao término, sem bloquear a sessão.
+5.8 Invalidação e concorrência
+•	RF31 — Invalidação da Sessão: O BFF deve invalidar a sessão de simulação diante dos eventos relacionados na seção 7.3, informando ao usuário a razão e preservando os parâmetros correntes para nova apuração.
+•	RF32 — Verificação de Referência: A cada recálculo, o BFF deve verificar se as referências das bases da sessão permanecem vigentes, impedindo que uma sessão iniciada antes da substituição de carga produza resultado sobre base já substituída sem ciência do usuário.
+•	RF33 — Concorrência de Sessões: O BFF deve admitir mais de uma sessão simultânea do mesmo usuário, mantendo-as isoladas entre si.
+5.9 Auditoria e observabilidade
+•	RF34 — Registro das Operações: O BFF deve registrar a abertura de sessão, as alterações de parâmetros, os recálculos, o salvamento, a comparação e a exportação, com usuário, data, hora, escopo aplicado e referências das bases.
+•	RF35 — Correlação: Cada requisição deve possuir identificador de correlação que permita relacionar a interação do usuário, as invocações aos serviços de domínio e a resposta devolvida.
+•	RF36 — Métricas de Desempenho: O BFF deve medir separadamente o tempo de apuração da linha de base e o tempo de recálculo, de modo a permitir a verificação objetiva das metas de desempenho.
+5.10 Resiliência
+•	RF37 — Indisponibilidade de Serviço de Domínio: Na indisponibilidade do serviço de elegibilidade, de cálculo ou de cenários, o BFF deve devolver resposta explícita de indisponibilidade, identificando a operação afetada.
+•	RF38 — Degradação Controlada: Falha parcial na apuração não pode produzir resposta que aparente completude. O BFF deve sinalizar o indicador não apurado, conforme o RF26.
+ 
+6. REGRAS DE NEGÓCIO
+•	RN01 — Escopo Aplicado pelo Servidor: A delimitação territorial e por produto é aplicada pelo BFF na execução, jamais pelo front-end. Nenhuma requisição pode ampliar o escopo do usuário.
+•	RN02 — Imutabilidade dos Parâmetros Vigentes: Nenhuma operação do BFF altera os parâmetros vigentes do programa. A alteração é privativa da funcionalidade de Parametrização.
+•	RN03 — Delegação das Regras de Domínio: As regras de elegibilidade, de cálculo dos benefícios e de priorização orçamentária pertencem aos serviços de domínio. O BFF as orquestra, não as replica.
+•	RN04 — Vínculo da Sessão com a Base: A sessão de simulação é indissociável das referências das bases sobre as quais a linha de base foi apurada.
+•	RN05 — Prevalência da Última Solicitação: Havendo recálculos concorrentes na mesma sessão, prevalece sempre o resultado correspondente ao conjunto de parâmetros mais recente.
+•	RN06 — Composição Cumulativa dos Parâmetros: As alterações de parâmetros compõem-se cumulativamente na sessão, até que sejam expressamente removidas ou o cenário seja restaurado.
+•	RN07 — Coerência do Comparativo: O cenário original apresentado no comparativo é sempre a linha de base apurada na abertura da sessão, sobre as mesmas referências e o mesmo escopo do cenário projetado.
+•	RN08 — Natureza Exploratória: Os resultados produzidos constituem projeção para estudo técnico, não gerando direito, obrigação de pagamento ou alteração na folha real.
+•	RN09 — Auditoria Obrigatória: O registro das operações é obrigatório e não pode ser suprimido pelo usuário.
+•	RN10 — Rotulagem Centralizada: Rótulos de campos e descrições de domínio são fornecidos pelo BFF a partir do cadastro De x Para, garantindo que alterações de nomenclatura se reflitam sem nova entrega do front-end.
+ 
+7. TABELAS DE APOIO
+7.1 Capacidades expostas ao front-end
+Capacidade	Descrição	Origem da regra
+listar_programas	Programas disponíveis ao perfil do usuário	STRY00069681, STRY00064433
+listar_bases	Bases carregadas, com máscaras e datas de referência	STRY00069681
+abrir_sessao	Abertura da sessão e apuração da linha de base	Esta HU
+obter_catalogo_parametros	Parâmetros vigentes, limites, travas e rótulos	Módulo de Utilização, STRY00083689
+obter_totalizadores	Totalizadores da base ou combinação selecionada	STRY00069681
+aplicar_parametros	Aplicação de um ou mais parâmetros e recálculo	HUs do Simulador
+restaurar_cenario	Remoção de alterações e retorno aos valores vigentes	Esta HU
+aplicar_elegibilidade	Composição do universo pelo critério de elegibilidade	STRY00070086
+simular_orcamento	Simulação a partir de orçamento adicional por benefício	HU consolidada, RF29
+salvar_cenario	Persistência do cenário corrente	HU de Salvamento e Comparação
+comparar_cenarios	Comparativo entre cenários salvos e a referência	HU de Salvamento e Comparação
+exportar	Exportação assíncrona em PDF, CSV ou Excel	STRY00071242, STRY00111044
+7.2 Contrato de resposta do recálculo
+Elemento	Conteúdo	Requisito de origem
+id_sessao	Identificador da sessão de simulação	RF08
+indicadores	Para cada indicador: valor original, valor projetado, variação absoluta e variação percentual	RF23
+movimentacao	Famílias que ingressam, permanecem e saem	RF20
+parametros_correntes	Parâmetros alterados na sessão, com valor vigente e valor simulado	RF16, RF24
+bases	Bases utilizadas, com tipo, competência e data de referência	RF24
+abrangencia	Recorte territorial aplicado	RF03
+periodo_projecao	Período considerado no custo projetado	RF22
+momento_apuracao	Data e hora do recálculo	RF24
+avisos	Indicadores não apurados, truncamentos e sessão invalidada	RF26, RF31
+7.3 Eventos que invalidam a sessão
+Evento	Efeito	Origem
+Substituição da Pré-folha ou da Folha	Invalida a sessão; parâmetros preservados para nova apuração	STRY00069681, RN03
+Nova carga da Base Municipal	Invalida a sessão; parâmetros preservados	STRY00062314
+Alteração de parâmetro vigente do programa	Invalida a sessão; linha de base deixa de ser válida	Funcionalidade de Parametrização
+Alteração do cadastro De x Para	Não invalida; rótulos são atualizados na resposta seguinte	STRY00083689
+Revogação de perfil, abrangência ou produto	Encerra a sessão imediatamente	STRY00064433
+Expiração por inatividade	Encerra a sessão; nova apuração necessária	Esta HU
+7.4 Limites operacionais a parametrizar
+Limite	Finalidade	Situação
+Tempo máximo de apuração da linha de base	Define o momento de adotar resposta assíncrona	Valor a definir
+Tempo máximo de recálculo	Meta de resposta ao movimento do parâmetro	Valor a definir
+Tempo de inatividade da sessão	Liberação de recursos retidos	Valor a definir
+Sessões simultâneas por usuário	Controle de consumo	Valor a definir
+Sessões simultâneas na plataforma	Dimensionamento de infraestrutura	Volumetria a definir
+ 
+8. PONTOS DE ATENÇÃO PARA REFINAMENTO
+8.1 Estratégia de recálculo
+•	Confirmação da premissa P04: a linha de base pré-apurada é o que torna viável a atualização automática exigida em cinco histórias. Caso o negócio exija varredura integral a cada movimento, o requisito de resposta imediata precisa ser substituído por ação explícita de aplicação da simulação. Essa é a decisão mais relevante deste documento.
+•	Alterações que modificam o universo (RF15): é necessário classificar, parâmetro a parâmetro, quais afetam apenas valores e quais alteram o conjunto de famílias elegíveis. Os primeiros permitem recálculo incremental; os segundos exigem reapuração. A classificação depende das regras da STRY00070086 e do Módulo de Utilização.
+•	Granularidade das estruturas agregadas: definir em que nível a linha de base é retida — por município, por faixa etária, por tipo de benefício — considerando que o comparativo da HU de cenários exige recortes por região, estado e microrregião.
+•	Envelhecimento da base e projeção: a projeção anual e o eventual envelhecimento da base, pendentes nas HUs do Simulador, alteram substancialmente a estratégia de agregação. A definição precisa preceder a construção.
+8.2 Dependências de serviços
+•	Serviços de domínio (P03, RN03): o BFF pressupõe elegibilidade, cálculo de benefícios, priorização orçamentária e cenários disponíveis como serviços invocáveis. Confirmar se as HUs correspondentes preveem essa exposição ou se hoje descrevem apenas comportamento de tela.
+•	Funcionalidade de Parametrização (P05): os parâmetros vigentes são citados como origem dos valores iniciais em quatro histórias, mas a funcionalidade não possui HU recebida. Sem ela, o RF04 não tem fonte.
+•	Camada de dados (P02): nenhuma HU define contra o que as agregações são executadas. A decisão condiciona a viabilidade das metas de tempo de resposta.
+•	Compartilhamento com o BFF Agente: recomenda-se que a resolução de escopo, o catálogo semântico e a trilha de auditoria sejam componentes comuns aos dois BFF, evitando duas implementações das mesmas regras de acesso.
+8.3 Regras ainda não conciliadas
+•	Divergências entre a HU consolidada e as derivadas: o catálogo de parâmetros do RF04 depende da conciliação das dezenove divergências relacionadas no documento da HU consolidada, notadamente as faixas etárias do BPI, os parâmetros da Regra de Proteção e as faixas de renda dos totalizadores.
+•	Semântica do multiplicador do BRC: o campo utilizado no cálculo é descrito no leiaute como quantidade de pessoas para o cálculo da renda, que pode não equivaler ao número de integrantes. A definição afeta diretamente o resultado devolvido pelo BFF.
+•	Cenário original na Base Municipal (RN07): nas simulações realizadas exclusivamente sobre a Base Municipal não há folha de referência. A linha de base é a própria apuração sobre a BM, conforme adotado na HU de cenários. Confirmar.
+•	Composição do valor da folha: os leiautes determinam que o valor total despreze os descontos. Confirmar o tratamento dos benefícios nas situações Bloqueado e Suspenso na composição dos totalizadores.
+8.4 Requisitos não funcionais
+•	Metas de tempo: estabelecer separadamente a meta de apuração da linha de base e a de recálculo, por nível de abrangência, uma vez que possuem ordens de grandeza distintas.
+•	Volumetria: obter a quantidade de famílias, pessoas e registros de folha por nível de abrangência, informação ainda não fornecida e necessária ao dimensionamento da retenção de sessões.
+•	Consumo de memória por sessão: a retenção da linha de base multiplica-se pelo número de sessões simultâneas. Definir a política de retenção e o comportamento na saturação.
+•	Disponibilidade durante a carga: definir o comportamento das sessões ativas durante a janela de ingestão das bases, em coerência com a seção 7.3.
+ 
+9. RASTREABILIDADE — ORIGEM DOS REQUISITOS
+Requisitos	História de origem	Observação
+RF01 a RF03, RN01	STRY00064433	Abrangência convertida em predicado de execução
+RF04 a RF07, RN10	Módulo de Utilização e STRY00083689	Catálogo de parâmetros e rotulagem centralizada
+RF08 a RF12	Esta HU	Sessão e linha de base, solução para o desempenho apontado nas origens
+RF13 a RF18, RN05, RN06	HUs do Simulador	Aplicação de parâmetros e recálculo
+RF19 a RF22	STRY00070086 e HU consolidada	Elegibilidade, movimentação e orçamento
+RF23 a RF26, RN07	STRY00069681 e STRY00071242	Comparativo entre cenário original e projetado
+RF27 a RF30	HU de Salvamento e Comparação de Cenários	Orquestração da persistência e da exportação
+RF31 a RF33, RN04	STRY00069681 e STRY00062314	Invalidação decorrente da substituição de cargas
+RF34 a RF36, RN09	STRY00071242 e STRY00087376	Auditoria e observabilidade
+RF37, RF38	Esta HU	Resiliência não tratada nas histórias de origem
+
+ 
+10. ACEITE DA DOCUMENTAÇÃO
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o BFF de Simulação do SIPGS. A assinatura abaixo formaliza a aprovação do escopo com base nas premissas declaradas na seção 3 e ressalvados os itens da seção 8. A alteração de qualquer premissa, em especial a relativa à estratégia de recálculo, implica revisão deste documento.
+Data	Nome	Cargo / Área
+		
+		
+
