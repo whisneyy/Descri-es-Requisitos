@@ -1,0 +1,239 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00083689 — RE SIPGS — Ingestão da Base Municipal — De x Para dos campos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	2. Objetivo da solicitação	4
+3	Escopo	5
+3.1	Está no escopo	5
+3.2	Não está no escopo desta HU	5
+4	Requisitos Funcionais	6
+5	Regras de Negócio	7
+6	Dependências	8
+7	Tabelas de apoio	9
+7.1	Conteúdo mínimo proposto do arquivo	9
+7.2	Relação entre os artefatos de saída da validação	9
+8	Pontos de atenção para refinamento	10
+8.1	Pendência bloqueante: anexos não fornecidos	10
+8.2	Ambiguidade na redação	10
+8.3	Regras de geração	10
+8.4	Disponibilização, guarda e proteção	11
+8.5	Coerência entre HUs	11
+8.6	Requisitos não funcionais	12
+9	Rastreabilidade — HU x Requisitos	13
+10	Aceite da documentação	14
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	2. OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos do mapeamento De x Para dos campos da Base Municipal do Cadastro Único, responsável por traduzir a nomenclatura técnica do leiaute enviado pela DATAPREV em nomenclatura de exibição compreensível ao usuário no Simulador e nos Dash-boards da plataforma.
+A finalidade de negócio é permitir que o gestor trabalhe com nomes legíveis em vez de identificadores técnicos, que a plataforma se adapte a alterações de leiaute sem nova entrega de software e que toda alteração de nomenclatura seja controlada, rastreável e restrita ao perfil Ges-tor CAIXA, preservando o vínculo com o nome original do campo.
+Nota sobre o anexo: o mapeamento referido pela HU foi fornecido no arquivo "Leiau-te_DE_Para_BMM_V6_29.xlsx". Além da coluna De/Para com o nome de exibição, a planilha con-tém o próprio leiaute da Base Municipal nas versões 5.31, 5.39, 5.41 e 6.29, servindo também de insumo à STRY00079079. Sua estrutura e volumetria estão nas seções 7.1 e 7.2.
+3	 ESCOPO
+3.1	Está no escopo
+•	Aplicação do mapeamento De x Para na exibição dos campos no Simulador e nos Dashboards.
+•	Aplicação automática do mapeamento a cada nova ingestão da Base Municipal.
+•	Parametrização, inclusão e alteração dos mapeamentos sem alteração de código.
+•	Interface de manutenção dos nomes de exibição, restrita ao perfil Gestor CAIXA.
+•	Preservação do vínculo com o nome original, histórico e registro de auditoria das alterações.
+3.2	Não está no escopo desta HU
+•	Recebimento, validação e processamento da Base Municipal, tratados nas HUs STRY00079079 e STRY00062314.
+•	Definição de quais campos ficam disponíveis para seleção na análise dos resultados, tratada na STRY00071242.
+•	Construção dos Dashboards e do Simulador, tratados nas respectivas HUs.
+•	Alteração do leiaute da Base Municipal, de responsabilidade da DATAPREV.
+ 
+4	REQUISITOS FUNCIONAIS
+4.1	Aplicação do De x Para
+•	RF01 — Exibição conforme o Mapeamento: Os campos da Base Municipal devem ser apresen-tados no Simulador e nos Dashboards conforme o mapeamento De x Para definido para a pla-taforma.
+•	RF02 — Uso da Versão Vigente: A exibição dos campos deve utilizar sempre a versão vigente do mapeamento cadastrado.
+4.2	Aplicação durante a ingestão
+•	RF03 — Aplicação Automática na Ingestão: O mapeamento De x Para deve ser aplicado auto-maticamente a cada nova ingestão da Base Municipal na plataforma.
+•	RF04 — Disponibilização com Nomenclatura Parametrizada: Após o processamento da carga, os campos devem ser disponibilizados ao Simulador e aos Dashboards já com as nomenclaturas parametrizadas.
+4.3	Parametrização do mapeamento
+•	RF05 — Parametrização sem Alteração de Código: Deve ser possível parametrizar o De x Para dos campos da Base Municipal sem necessidade de alteração de código da aplicação.
+•	RF06 — Inclusão de Novos Mapeamentos: Deve ser possível incluir novos mapeamentos, por carga, sempre que houver alteração no leiaute da Base Municipal.
+•	RF07 — Alteração de Mapeamentos Existentes: Deve ser possível alterar mapeamentos exis-tentes sempre que houver necessidade de adequação das nomenclaturas exibidas.
+4.4	Interface de manutenção
+•	RF08 — Interface de Manutenção na Plataforma: A alteração dos campos deve poder ser rea-lizada por meio de interface disponível na própria plataforma.
+•	RF09 — Localização de Campos: A interface deve permitir localizar os campos tanto pelo no-me original, oriundo do leiaute, quanto pelo nome amigável já alterado.
+•	RF10 — Alteração do Nome de Exibição: Deve ser possível alterar o nome de exibição de qual-quer campo a qualquer tempo.
+•	RF11 — Reflexo Automático das Alterações: As alterações realizadas no mapeamento e na in-terface devem ser refletidas automaticamente na plataforma.
+•	RF12 — Visualização Imediata: O usuário deve visualizar imediatamente a nova nomenclatura após a atualização do mapeamento ou da interface.
+•	RF13 — Restrição de Perfil: Somente o perfil Gestor CAIXA deve possuir privilégio para execu-tar as ações de manutenção do mapeamento.
+4.5	Consistência e rastreabilidade
+•	RF14 — Vínculo com o Nome Original: A plataforma deve manter o vínculo entre o nome ori-ginal do campo da Base Municipal e o nome parametrizado para exibição.
+•	RF15 — Histórico de Alterações: Deve ser possível identificar o histórico das alterações reali-zadas no mapeamento e na interface De x Para.
+•	RF16 — Registro para Auditoria: As alterações de parametrização devem ser registradas para fins de auditoria e rastreabilidade.
+•	RF17 — Conteúdo do Registro: Devem ser gravadas, para cada alteração, as seguintes infor-mações: nome anterior do campo, data e hora da alteração e usuário que realizou a alteração.
+ 
+5	REGRAS DE NEGÓCIO
+•	RN01 — Chave Imutável do Mapeamento: O nome original do campo, conforme o layout da Base Municipal, é a chave do mapeamento e não pode ser alterado pelo usuário. Apenas o nome de exibição é editável.
+•	RN02 — Vigência Única: Em qualquer momento existe uma única versão vigente do mapea-mento, que governa toda exibição no Simulador e nos Dashboards.
+•	RN03 — Aplicação Automática: O mapeamento vigente é aplicado automaticamente a cada nova ingestão da Base Municipal, sem intervenção do usuário.
+•	RN04 — Independência de Código: A inclusão e a alteração de mapeamentos constituem ope-ração de parametrização, não podendo depender de entrega de software.
+•	RN05 — Perfil Autorizado: A manutenção do mapeamento é privativa do perfil Gestor CAIXA. Os demais perfis apenas consomem a nomenclatura resultante.
+•	RN06 — Efeito Imediato: A alteração de um nome de exibição produz efeito imediato na plata-forma, independentemente da ocorrência de nova carga da Base Municipal.
+•	RN07 — Conteúdo Mínimo do Registro de Auditoria: Todo registro de alteração deve conter, no mínimo, o nome anterior do campo, a data e a hora da alteração e a identificação do usuá-rio responsável, não podendo ser suprimido ou editado.
+•	RN08 — Abrangência da Aplicação: O mapeamento aplica-se à exibição dos campos no Simu-lador e nos Dashboards, não alterando o dado armazenado nem o nome original do leiaute.
+•	RN09 — Leiaute de Referência: O mapeamento vigente tem como referência a versão 6.29 do leiaute da Base Municipal, único bloco da planilha que contém a coluna De/Para. As versões anteriores (5.31, 5.39 e 5.41) constituem histórico e não governam a exibição.
+
+ 
+6	 DEPENDÊNCIAS
+Artefato	Referência	Situação
+Mapeamento De x Para inicial	Leiaute_DE_Para_BMM_V6_29.xlsx	Fornecido — coluna De/Para do bloco 6.29
+Leiaute vigente da Base Municipal	Leiaute_DE_Para_BMM_V6_29.xlsx	Fornecido — versão 6.29
+Ingestão e processamento da carga	STRY00079079 e STRY00062314	HUs existentes
+Campos parametrizados para análise	STRY00071242 (RF03)	HU existente — verificar sobreposição
+Dashboards da plataforma	A definir	Não especificado nas HUs recebidas
+7	TABELAS DE APOIO
+7.1	Volumetria do mapeamento fornecido
+Apuração realizada sobre o bloco da versão 6.29 do arquivo Leiau-te_DE_Para_BMM_V6_29.xlsx.
+Tipo de registro	Campos	Com De/Para	Conteúdo
+REG_00	6	4	Header do arquivo
+REG_98	7	6	Dados da prefeitura
+REG_01	56	53	Dados da família
+REG_02	17	16	Complemento da família
+REG_03	46	44	Dados da família — bloco priorizado para histórico
+REG_04	44	42	Dados de pessoa
+REG_05	36	32	Documentos da pessoa
+REG_06	20	19	Dados de pessoa
+REG_07	21	20	Dados de pessoa
+REG_08	35	34	Pessoa — bloco renda (priorizado para histórico)
+REG_21	30	29	Pessoa — bloco renda, faixas (priorizado para histórico)
+REG_09	18	17	Dados de pessoa
+REG_11_FS1 / REG_15_FS1	59	57	Formulário suplementar 1
+REG_12_FS2	51	50	Formulário suplementar 2
+REG_13_PEND_OCOR_F	62	61	Pendências e ocorrências da família
+REG_14_PEND_OC_P	64	63	Pendências e ocorrências da pessoa
+REG_16 / REG_17	40	36	Demais blocos
+REG_18 / REG_19 / REG_20	76	73	Demais blocos
+Total	688	656	22 tipos de registro com bloco 6.29
+As abas REG_99 e REG_99_DIARIA não possuem bloco da versão 6.29 e, portanto, não integram o mape-amento. Os 32 campos sem nome de exibição precisam ser tratados conforme definição a ser obtida na seção 8.1.
+7.2	Estrutura do cadastro De x Para
+Colunas efetivamente presentes no bloco 6.29 da planilha fornecida.
+Coluna	Descrição	Tratamento
+REG	Tipo de registro a que o campo pertence	Chave, junto com o nome origi-nal
+campo	Identificador de origem do campo (SIS ou numeração do formulário)	Somente leitura
+Arquivo Base Versão 7	Nome original do campo conforme o leiaute	Chave imutável (RN01)
+De/Para	Nome de exibição apresentado ao usuário	Editável pelo Gestor CAIXA (RF10)
+Pos / Tam / Tipo	Posição inicial, tamanho e tipo do campo no registro	Somente leitura
+Transformação	Regra de transformação aplicável ao campo	A confirmar (ver seção 8.3)
+Domínio/Descrição	Descrição do campo e relação dos valores válidos	Insumo para a tradução de do-mínios (seção 8.3)
+Nulo	Indica se o campo admite valor nulo	Somente leitura
+Observações	Anotações da área gestora sobre o campo	A confirmar se integra o cadastro
+7.3	Conteúdo do registro de auditoria (RF17)
+Informação	Origem	Situação
+Nome anterior do campo	Cadastro De x Para	Exigido pela HU
+Data e hora da alteração	Sistema	Exigido pela HU
+Usuário responsável	Sessão autenticada	Exigido pela HU
+Nome novo do campo	Cadastro De x Para	Proposto — não exigido pela HU
+Nome original do campo	Leiaute da BM	Proposto — necessário para localizar o registro
+ 
+8	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incom-pleta.
+8.1	Pendências remanescentes do mapeamento
+Com a entrega da planilha, a relação de campos e os nomes de exibição deixaram de ser pendência. Permanecem em aberto os itens abaixo.
+•	32 campos sem nome de exibição: dos 688 campos da versão 6.29, 656 possuem De/Para preenchido e 32 não. Definir se esses campos devem receber nomenclatura, ser ocultados ou exibir o nome original.
+•	Abrangência do cadastro: o mapeamento cobre a totalidade dos campos da Base Municipal, inclusive blocos como pendências e ocorrências, que somam 126 campos. Confirmar se todos serão efetivamente expostos no Simulador e nos Dashboards ou se haverá subconjunto habili-tado para exibição.
+•	Abas sem bloco 6.29: as abas REG_99 e REG_99_DIARIA não possuem o bloco da versão vigen-te. Confirmar se esses tipos de registro estão fora do escopo do mapeamento ou se a planilha está incompleta.
+•	Renomeação de campos entre versões: a comparação entre as versões evidencia renomea-ção de campos — o campo DAT-ATUAL-FAM da versão 5.31 corresponde a DAT-ALTERACAO-FAM na versão 5.39. Isso confirma a necessidade do RF06 e exige definir como o cadastro trata a sucessão: o registro anterior é inativado e criado um novo, ou o nome original é atualizado preservando o vínculo com o nome de exibição?
+•	Campos sem mapeamento: quando um campo não possuir nome de exibição cadastrado, o sistema deve apresentar o nome original, ocultar o campo ou impedir seu uso?
+•	Campos novos em leiaute atualizado: ao receber leiaute com campos inéditos, qual o com-portamento padrão até que o Gestor CAIXA cadastre a nomenclatura? Deve haver alerta de campos pendentes de mapeamento?
+•	Campos removidos do layout: o que ocorre com o mapeamento de campo que deixa de existir e com os Dashboards que o utilizavam? O mapeamento é inativado, excluído ou preservado como histórico?
+8.2	Contradição estrutural: momento da aplicação
+•	Aplicação na ingestão x efeito imediato (RF03 x RF11 e RF12): se o mapeamento for aplicado durante a ingestão, materializando a nomenclatura nos dados carregados, uma alteração reali-zada fora da janela de carga só produziria efeito na carga seguinte, o que contraria a exigência de visualização imediata. A leitura tecnicamente consistente é aplicar o mapeamento na ca-mada de apresentação, mantendo o dado armazenado com o nome original. É necessário con-firmar essa interpretação com o negócio, pois ela determina a arquitetura da solução.
+•	Mapeamento "por carga" (RF06): a expressão admite duas leituras: existe um mapeamento distinto por versão de carga, ou existe um mapeamento único que pode ser complementado quando o layout muda? A primeira hipótese conflita com o RF02, que exige o uso sempre da versão vigente.
+•	Versão vigente x histórico (RF02 x RF15): se a exibição usa sempre a versão vigente, um rela-tório exportado anteriormente (STRY00071242) e uma simulação salva passarão a exibir rótu-los diferentes dos originais ao serem reabertos. Confirmar se isso é aceitável ou se documen-tos gerados devem preservar a nomenclatura da época.
+8.3	Escopo do mapeamento
+•	Abrangência do termo "alteração dos campos": o item 4 da HU fala em "alteração dos cam-pos", enquanto os demais itens tratam apenas do nome de exibição. Confirmar que o escopo se limita à nomenclatura e não alcança tipo, formato, máscara, unidade de medida ou casas decimais.
+•	Tradução de domínios: a planilha já traz os domínios na coluna Domínio/Descrição — por exemplo, COD-EST-CADASTRAL-FAM com os valores 1 Em cadastramento, 2 Sem registro civil e 3 Cadastrado. Definir se a tradução do valor integra o escopo desta HU, aproveitando o dado já existente, ou se os Dashboards exibirão o código bruto.
+•	Coluna Transformação: a planilha possui coluna Transformação, hoje não preenchida na maio-ria dos campos. Confirmar sua finalidade e se ela integra o cadastro parametrizável previsto no RF05.
+•	Descrição complementar: o cadastro deve prever descrição ou texto de ajuda por campo, exi-bido ao usuário no Simulador?
+•	Regras de nomenclatura: definir tamanho máximo, conjunto de caracteres permitido e se são admitidos nomes de exibição duplicados entre campos distintos, hipótese que geraria ambigui-dade nos Dashboards.
+•	Reversão: a partir do histórico, deve ser possível restaurar um nome anterior com uma ação, ou a reversão é feita por nova digitação?
+8.4	Governança e propagação
+•	Controle da alteração (RF13): sendo a renomeação privativa do Gestor CAIXA e de efeito ime-diato sobre todos os usuários e Dashboards, confirmar se há necessidade de fluxo de aprova-ção por segunda pessoa, de ambiente de homologação da nomenclatura ou de agendamento da vigência.
+•	Propagação em sessões ativas (RF12): o usuário com tela aberta no momento da alteração deve ver a nova nomenclatura imediatamente, o que exige atualização em tempo real, ou bas-ta que a veja ao recarregar a tela? Definir também o comportamento de eventuais caches.
+•	Notificação aos usuários: alterações de nomenclatura afetam a leitura de relatórios e painéis por todos os entes. Deve haver comunicação aos usuários quando um campo relevante for re-nomeado?
+•	Consulta ao histórico (RF15): haverá tela de consulta ao histórico? Quais perfis podem acessá-la e qual o prazo de retenção dos registros?
+•	Registro do nome novo (RF17): a HU exige gravar apenas o nome anterior. Recomenda-se re-gistrar também o nome novo e o nome original do campo, de modo que o histórico seja legível sem depender da ordem cronológica dos registros.
+8.5	Coerência entre HUs
+•	Sobreposição com a STRY00071242: aquela HU prevê a seleção de "campos previamente pa-rametrizados da Base Municipal" para análise dos resultados. Confirmar se o cadastro é único, com atributos de exibição e de disponibilidade para análise, ou se são dois cadastros distintos, evitando manutenção duplicada.
+•	Especificação dos Dashboards: o termo "Dashboards" aparece nesta HU sem definição prévia nas demais HUs recebidas. Identificar a qual funcionalidade se refere e onde está especificada.
+•	Unificação de nomenclatura técnica: as HUs recebidas utilizam três grafias para o mesmo da-do — QT_PSA_CLCO_RNDA, [QTD-PES-CALC-RND] e [QTD_PES_CALC_RND]. O cadastro De x Para é o instrumento natural para consolidar a nomenclatura oficial e eliminar essa divergên-cia.
+•	Dados sensíveis: atribuir nome amigável a um campo não altera sua natureza. Confirmar que campos com dados pessoais sensíveis permanecem sujeitos às restrições de exibição previstas na STRY00062314, independentemente de constarem do mapeamento.
+8.6	Requisitos não funcionais
+•	Critério de aceite da parametrização (RF05): definir o critério objetivo que comprova a ausên-cia de alteração de código, sob pena de o requisito permanecer intestável.
+•	Tempo de propagação: estabelecer o tempo máximo aceitável entre a gravação da alteração e sua exibição ao usuário.
+•	Desempenho da interface (RF09): a busca deve operar sobre a totalidade dos campos da Base Municipal, com pesquisa parcial por nome original e por nome amigável. Definir o comporta-mento esperado quanto a paginação e tempo de resposta.
+ 
+9	RASTREABILIDADE — HU X REQUISITOS
+Critério de aceitação da HU	Requisito	Regra de negócio
+Apresentar campos conforme o mapeamento De x Para	RF01	RN08
+Utilizar sempre a versão vigente do mapeamento	RF02	RN02
+Aplicar o mapeamento a cada nova ingestão	RF03	RN03
+Disponibilizar campos já com nomenclatura parametri-zada	RF04	RN03, RN08
+Parametrizar sem alteração de código	RF05	RN04
+Incluir novos mapeamentos por carga	RF06	RN02
+Alterar mapeamentos existentes	RF07	RN01
+Interface de alteração na plataforma	RF08	—
+Localizar campos por nome original e amigável	RF09	RN01
+Alterar nome de exibição a qualquer tempo	RF10	RN01
+Refletir alterações automaticamente	RF11	RN06
+Visualização imediata da nova nomenclatura	RF12	RN06
+Ação privativa do Gestor CAIXA	RF13	RN05
+Manter vínculo com o nome original	RF14	RN01
+Identificar histórico das alterações	RF15	RN07
+Registrar alterações para auditoria	RF16	RN07
+Gravar nome anterior, data/hora e usuário	RF17	RN07
+10	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
+
+Data	Nome	Cargo / Área
+		
+		
+
