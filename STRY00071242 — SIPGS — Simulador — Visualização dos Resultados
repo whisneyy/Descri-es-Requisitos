@@ -1,0 +1,178 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00071242 — SIPGS — Simulador — Visualização dos Resultados
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	Objetivo da solicitação	4
+3	Escopo	5
+3.1	Está no escopo	5
+3.2	Não está no escopo desta HU	5
+4	Requisitos Funcionais	6
+4.1	Entrada de parâmetros	6
+4.2	4.2 Visualização dos resultados	6
+4.3	4.3 Persistência das simulações	6
+4.4	Exportação e rastreabilidade	7
+5	5. Regras de Negócio	8
+6	Pontos de atenção para refinamento	9
+6.1	Lacunas do texto da HU	9
+6.2	6.2 Ciclo de vida das simulações salvas	9
+6.3	6.3 Exportação e rastreabilidade	10
+6.4	6.4 Comportamento do sistema	10
+7	Rastreabilidade — HU x Requisitos	12
+8	Aceite da documentação	13
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos relativos à entrada dos parâmetros de simulação, à visualização dos resultados, à comparação de cenários e ao ciclo de vida das simulações no Simu-lador do SIPGS, abrangendo a persistência, a exportação e o registro de rastreabilidade.
+A finalidade de negócio é permitir que o gestor não apenas execute a simulação, mas também analise o resultado sob diferentes recortes, confronte cenários alternativos, preserve os estudos realizados para consulta posterior e gere documento formal que registre integralmente as premissas e os resultados obtidos.
+Esta HU é dependente da STRY00069681 (Simulador Orçamentário), que define a seleção do programa e das bases, e complementa a STRY00070086 (Regras de Elegibilidade) e a STRY00072096 (Módulo de Utilização), que definem os parâmetros passíveis de alteração.
+3	ESCOPO
+3.1	 Está no escopo
+•	Apresentação dos parâmetros vigentes nos sliders e entrada alternativa por campo digitável.
+•	Seleção de campos parametrizados da Base Municipal para análise dos resultados.
+•	Comparativo entre cenário original e cenário projetado, com destaque das variações.
+•	Comparação entre diferentes cenários de simulação.
+•	Salvamento, nomeação, pesquisa e listagem das simulações do usuário.
+•	Exportação do resultado em PDF e registro de rastreabilidade da simulação.
+3.2	Não está no escopo desta HU
+•	Seleção do programa social e das bases de simulação, tratada na STRY00069681.
+•	Definição dos critérios de elegibilidade aplicados, tratada na STRY00070086.
+•	Definição dos parâmetros da cesta de benefícios, tratada na STRY00072096.
+•	Alteração efetiva de parâmetros vigentes, realizada na funcionalidade de Parametrização do Programa.
+ 
+4	REQUISITOS FUNCIONAIS
+4.1	Entrada de parâmetros
+•	RF01 — Exibição dos Parâmetros Vigentes: Toda vez que o usuário acessar o simulador, os sli-ders devem ser apresentados com os valores dos parâmetros vigentes do programa social se-lecionado. Exemplo: para o Bolsa Família, o slider de "Renda per capita" deve ser exibido com R$ 218,00.
+•	RF02 — Campo Digitável Complementar: Além do slider, o sistema deve disponibilizar campo digitável para que o usuário insira diretamente o valor que deseja simular.
+4.2	4.2 Visualização dos resultados
+•	RF03 — Seleção de Campos de Análise: O sistema deve permitir que o usuário selecione cam-pos previamente parametrizados da Base Municipal para a análise dos resultados da simulação.
+•	RF04 — Comparativo entre Cenário Original e Projetado: Toda alteração realizada durante a simulação deve apresentar comparativamente o cenário original e o cenário projetado, desta-cando os valores originais, os novos valores e as variações encontradas.
+•	RF05 — Atualização Automática dos Indicadores: A cada alteração de parâmetro, o sistema deve atualizar automaticamente todos os indicadores exibidos na tela.
+•	RF06 — Comparação entre Cenários: O sistema deve permitir comparar diferentes cenários de simulação, de modo a apoiar estudos e análises técnicas.
+4.3	4.3 Persistência das simulações
+•	RF07 — Salvamento da Simulação: O sistema deve permitir salvar a simulação realizada para consulta posterior.
+•	RF08 — Salvamento sob Demanda: Apenas as simulações expressamente solicitadas pelo usu-ário devem ser salvas no sistema.
+•	RF09 — Nomeação da Simulação: Para salvar, o usuário deve nomear a simulação, em campo com limite de 50 caracteres alfanuméricos.
+•	RF10 — Pesquisa de Simulações Salvas: O sistema deve permitir que o usuário pesquise as si-mulações salvas pelo nome e pela data de criação.
+•	RF11 — Listagem das Simulações Recentes: O sistema deve disponibilizar, na tela inicial, as 10 simulações mais recentes realizadas pelo usuário.
+4.4	Exportação e rastreabilidade
+•	RF12 — Exportação em PDF: O sistema deve permitir exportar os resultados da simulação em formato PDF, em visão amigável e visual, mantendo o padrão visual do simulador.
+•	RF13 — Conteúdo do Relatório: O relatório gerado deve conter todas as informações utiliza-das na construção da simulação, a saber:
+○	Programa social selecionado;
+○	Folha utilizada;
+○	Filtros aplicados;
+○	Parâmetros alterados;
+○	Regras utilizadas;
+○	Resultados encontrados.
+•	RF14 — Registro de Rastreabilidade: O sistema deve registrar as informações necessárias à identificação do usuário responsável pela simulação, a data, a hora e os parâmetros utilizados.
+ 
+5	5. REGRAS DE NEGÓCIO
+•	RN01 — Origem dos Valores Iniciais: Os valores iniciais exibidos nos sliders devem correspon-der aos parâmetros vigentes do programa social selecionado, obtidos da funcionalidade de Pa-rametrização do Programa.
+•	RN02 — Equivalência entre Slider e Campo Digitável: O slider e o campo digitável represen-tam o mesmo parâmetro. A alteração em qualquer um deles deve refletir imediatamente no outro, mantendo um único valor efetivo por parâmetro.
+•	RN03 — Restrição dos Campos de Análise: Somente os campos da Base Municipal previamen-te parametrizados podem ser disponibilizados para seleção pelo usuário na análise dos resulta-dos.
+•	RN04 — Persistência Não Automática: Nenhuma simulação deve ser gravada no sistema sem solicitação expressa do usuário. Simulações não salvas são descartadas ao término da sessão.
+•	RN05 — Formato do Nome da Simulação: O nome da simulação é de preenchimento obriga-tório para o salvamento e está limitado a 50 caracteres alfanuméricos.
+•	RN06 — Visibilidade das Simulações: A listagem das 10 simulações mais recentes na tela inicial deve contemplar exclusivamente as simulações realizadas pelo próprio usuário, ordenadas da mais recente para a mais antiga.
+•	RN07 — Completude do Relatório: O relatório exportado deve reproduzir integralmente as premissas da simulação, de forma que o estudo possa ser compreendido e conferido sem aces-so ao sistema.
+•	RN08 — Fidelidade Visual da Exportação: O PDF gerado deve preservar o padrão visual do si-mulador, mantendo a leitura amigável e os elementos gráficos utilizados em tela.
+•	RN09 — Obrigatoriedade do Registro de Rastreabilidade: O registro de identificação do usuá-rio, data, hora e parâmetros utilizados é obrigatório e não pode ser suprimido ou alterado pelo usuário.
+•	RN10 — Imutabilidade dos Parâmetros Vigentes: A alteração de parâmetros no simulador, por slider ou por campo digitável, produz efeito apenas no cenário simulado, não alterando os parâmetros vigentes do programa.
+ 
+6	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incom-pleta.
+6.1	Lacunas do texto da HU
+•	Impressão (seção da HU): o título da seção é "Exportação, Impressão e Rastreabilidade", mas não há nenhum item que trate de impressão. Confirmar se a impressão se resume à geração do PDF ou se há requisito específico de layout para impressão.
+•	Rol de campos parametrizados (RF03): a HU não informa quais campos da Base Municipal es-tarão disponíveis para análise, quem os define e por qual funcionalidade são parametrizados. Sem esse rol, o requisito não é construível.
+•	Exposição de dados pessoais (RF03): a seleção de campos da Base Municipal pode expor mi-crodado do CadÚnico. Definir se os campos disponíveis produzem apenas visões agregadas ou também listagens individualizadas e, neste caso, obter definição sobre base legal, perfis autori-zados e mascaramento.
+•	Quantidade de cenários comparáveis (RF06): a HU não define quantos cenários podem ser comparados simultaneamente, nem se a comparação ocorre entre cenários da sessão atual, entre simulações salvas, ou entre ambos.
+•	Cenário original na base municipal (RF04): quando a simulação utilizar exclusivamente a Base Municipal não existe folha de referência. Definir qual é a linha de base do comparativo nessa modalidade, em coerência com a STRY00069681.
+•	Caracteres alfanuméricos (RF09, RN05): a restrição a caracteres estritamente alfanuméricos impediria o uso de espaços, acentos e hífens, inviabilizando nomes legíveis. Confirmar o con-junto de caracteres efetivamente permitido.
+6.2	Ciclo de vida das simulações salvas
+•	Reabertura de simulação salva: ao reabrir um estudo, o resultado deve ser exibido congelado, como calculado à época, ou recalculado sobre a base atual? A escolha altera radicalmente o que é persistido (resultado ou apenas parâmetros).
+•	Reprodutibilidade x substituição de cargas: a STRY00069681 determina que a carga mais re-cente substitua as anteriores. Uma simulação salva sobre a Pré-folha 03/2026 deixará de ser reproduzível quando a base for substituída. Definir se haverá guarda de bases históricas ou congelamento do resultado.
+•	Limites de armazenamento: há limite de quantidade de simulações salvas por usuário? Existe prazo de expurgo automático? Quem pode excluir uma simulação salva?
+•	Edição e duplicidade: o usuário pode renomear, sobrescrever ou duplicar uma simulação sal-va? Nomes repetidos são permitidos para o mesmo usuário?
+•	Compartilhamento: uma simulação salva é visível apenas ao autor, ou pode ser compartilhada com outros usuários do mesmo ente, com o Gestor CAIXA ou com órgãos de controle?
+•	Critérios de pesquisa (RF10): a pesquisa por nome admite busca parcial? A pesquisa por data admite faixa de datas? Há necessidade de filtrar por programa, base utilizada ou abrangência territorial?
+6.3	Exportação e rastreabilidade
+•	Escopo do registro de rastreabilidade (RF14): o registro deve alcançar todas as simulações executadas ou apenas as salvas? Deve incluir também as exportações realizadas?
+•	Retenção e acesso ao registro: por quanto tempo o registro de rastreabilidade deve ser manti-do e quais perfis podem consultá-lo? Haverá tela de auditoria ou o dado fica restrito à base?
+•	Outros formatos de exportação: a HU prevê apenas PDF. Confirmar se há necessidade de ex-portação em formato analítico (XLSX ou CSV) para tratamento posterior dos dados pelo gestor.
+•	Identificação e marca d’água: o PDF gerado deve conter identificação do usuário, data, hora e classificação da informação, de modo a permitir rastreio em caso de circulação indevida?
+•	Aviso de projeção: o relatório deve conter aviso explícito de que os valores constituem proje-ção e não geram obrigação de pagamento, evitando uso indevido do documento?
+•	Volume do relatório: se o relatório incluir listagens dos campos selecionados no RF03, é ne-cessário definir limite de linhas, paginação e comportamento quando o volume exceder esse limite.
+6.4	Comportamento do sistema
+•	Atualização automática x desempenho (RF05): o recálculo de todos os indicadores a cada al-teração de parâmetro pode inviabilizar o tempo de resposta sobre bases de abrangência naci-onal. Definir se o cliente aceita ação explícita de "Aplicar simulação" ou se será necessária pré-agregação de dados.
+•	Validação do campo digitável (RF02): definir domínio de valores aceitos, limites mínimo e má-ximo, máscara monetária, número de casas decimais e comportamento quando o valor digita-do estiver fora do intervalo do slider.
+•	Granularidade do slider: qual o incremento de cada slider (centavos, reais, anos, meses)? O campo digitável admite valores fora dessa granularidade?
+•	Comparação entre cenários heterogêneos (RF06): é permitido comparar cenários construídos sobre bases ou referências diferentes? Em caso positivo, o sistema deve sinalizar a divergência de base ao usuário.
+•	Requisitos não funcionais: não há definição de tempo máximo de resposta, volumetria, quan-tidade de usuários simultâneos, acessibilidade (eMAG ou WCAG) e navegadores suportados, todos necessários ao aceite da funcionalidade.
+ 
+7	 RASTREABILIDADE — HU X REQUISITOS
+Item da HU	Requisito	Regra de negócio
+Sliders com parâmetros vigentes ao acessar	RF01	RN01
+Campo digitável para o valor desejado	RF02	RN02
+Selecionar campos parametrizados da BM	RF03	RN03
+Comparativo entre cenário original e projetado	RF04	—
+Atualização automática dos indicadores	RF05	—
+Comparar diferentes cenários de simulação	RF06	—
+Salvar a simulação para consulta posterior	RF07	—
+Salvar apenas as simulações solicitadas	RF08	RN04
+Nomear a simulação em até 50 caracteres	RF09	RN05
+Pesquisar simulações por nome e data	RF10	—
+Exibir as 10 simulações mais recentes	RF11	RN06
+Exportar os resultados em PDF	RF12	RN08
+Conteúdo integral do relatório	RF13	RN07
+Registro de usuário, data, hora e parâmetros	RF14	RN09
+8	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
+
+Data	Nome	Cargo / Área
+		
+		
+
