@@ -1,0 +1,183 @@
+
+	
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+BFF Agente 
+
+
+ 
+	
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração a partir da STRY00111044 e das demais HUs do SIPGS
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. Descrição
+Como plataforma, preciso de uma camada de retaguarda dedicada ao assistente de Inteligência Artificial, capaz de receber a pergunta do usuário em linguagem natural, interpretá-la com apoio de um modelo de linguagem, planejar e executar a consulta correspondente sobre as bases autorizadas dentro do escopo de acesso daquele usuário, e devolver o resultado acompanhado das informações de transparência exigidas, de modo que o front-end não conheça as bases, as regras de acesso nem o modelo de linguagem.
+O BFF Agente é o componente que torna demonstrável o cumprimento dos requisitos de segurança da STRY00111044: por ser ele, e não o modelo, quem aplica o escopo do usuário e executa a consulta, a aderência aos perfis deixa de depender da instrução dada ao modelo e passa a ser controle verificável.
+Condição de validade deste documento: a especificação a seguir adota as premissas declaradas na seção 3, decorrentes das decisões relacionadas no documento "BFF Agente — Insumos disponíveis e decisões prévias". Alteradas as premissas, especialmente as relativas ao papel do modelo e à autenticação, este documento deve ser revisto.
+3. Premissas adotadas
+As premissas abaixo correspondem às decisões que ainda não foram formalizadas. Estão declaradas expressamente para que sua eventual alteração seja rastreável.
+Nº	Premissa adotada	Decisão correspondente
+P01	O modelo de linguagem apenas interpreta a pergunta e produz um plano de consulta estruturado. O BFF valida e executa o plano; o modelo não acessa as bases.	D01 — papel do modelo
+P02	A identidade e a abrangência do usuário chegam ao BFF por token emitido pelo provedor de identidade da plataforma, validado a cada requisição.	D03 — autenticação
+P03	Existe camada de dados consultável estruturada, sobre a qual o plano é executado.	D04 — camada de dados
+P04	O agente opera sobre a carga vigente das bases. Comparações com períodos anteriores dependem de guarda de histórico e estão fora desta entrega.	D05 — bases históricas
+P05	A superfície de dados exposta é uma allowlist explícita de campos, derivada do cadastro De x Para.	D06 — superfície de dados
+P06	A geração de folha interna não é responsabilidade do BFF Agente, que apenas entrega o público-alvo ao componente responsável.	D08 — fronteira da folha
+
+4. Escopo
+4.1 Está no escopo
+•	Recepção da pergunta em linguagem natural e do contexto da sessão.
+•	Interpretação da pergunta e produção de plano de consulta estruturado.
+•	Validação do plano contra a allowlist de campos e contra o escopo do usuário.
+•	Injeção obrigatória dos predicados de abrangência e execução da consulta.
+•	Composição da resposta com os dados de transparência exigidos.
+•	Manutenção do contexto conversacional da sessão e aplicação de refinamentos.
+•	Exposição das capacidades do agente como catálogo de operações.
+•	Registro de auditoria, observabilidade e aplicação dos limites operacionais.
+4.2 Não está no escopo
+•	Interface do assistente e renderização de gráficos, tabelas e mapas, tratadas no front-end.
+•	Treinamento, ajuste fino ou hospedagem do modelo de linguagem.
+•	Ingestão e validação das bases, tratadas nas HUs STRY00079079, STRY00062314 e STRY00081356.
+•	Cadastro de usuários, concessão de perfis e autenticação, ainda sem HU identificada.
+•	Geração da folha interna no leiaute do SIPBS, tratada na STRY00111130.
+•	Regras de cálculo dos benefícios, que permanecem nas funcionalidades do Simulador e são consumidas pelo BFF como serviço.
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Identidade e escopo
+•	RF01 — Validação da Identidade: O BFF deve validar o token de identidade a cada requisição, rejeitando requisições sem identidade válida, e derivar dele o perfil, a abrangência territorial e os produtos autorizados do usuário.
+•	RF02 — Resolução do Escopo Efetivo: O BFF deve resolver, antes de qualquer execução, o escopo efetivo do usuário, compreendendo a delimitação territorial, a autorização por produto e as permissões do perfil, conforme a STRY00064433.
+•	RF03 — Injeção Obrigatória de Escopo: Todo plano de consulta executado deve ter os predicados de escopo injetados pelo BFF, não sendo admitida execução de plano que não os contenha.
+5.2 Catálogo semântico
+•	RF04 — Dicionário de Campos: O BFF deve manter dicionário de campos consultáveis, contendo nome técnico, nome de exibição, tipo, domínio de valores e base de origem, alimentado pelo cadastro De x Para da STRY00083689.
+•	RF05 — Allowlist de Campos: Somente os campos constantes da allowlist podem compor filtros, agrupamentos ou colunas de retorno. Campo ausente da allowlist deve ser rejeitado, ainda que exista na base.
+•	RF06 — Tradução de Domínios: O BFF deve traduzir os códigos de domínio em suas descrições tanto na interpretação da pergunta quanto na composição da resposta, de modo que o usuário não seja exposto a códigos.
+•	RF07 — Atualização do Catálogo: Alterações no cadastro De x Para devem refletir-se no catálogo do BFF sem necessidade de nova entrega de software.
+5.3 Interpretação e planejamento
+•	RF08 — Produção do Plano de Consulta: O BFF deve submeter a pergunta ao modelo de linguagem, acompanhada do catálogo semântico pertinente, e obter plano de consulta estruturado contendo bases, campos, filtros, agrupamentos, ordenação e agregações.
+•	RF09 — Validação do Plano: O plano produzido deve ser validado quanto à existência dos campos, à aderência à allowlist, à compatibilidade de tipos e domínios e aos limites operacionais, antes de qualquer execução.
+•	RF10 — Rejeição Controlada: Plano inválido, ambíguo ou fora da allowlist não deve ser executado. O BFF deve devolver resposta que informe a impossibilidade e a razão, sem expor estrutura interna das bases.
+•	RF11 — Pedido de Esclarecimento: Quando a pergunta admitir mais de uma interpretação relevante, o BFF deve devolver pedido de esclarecimento ao usuário em vez de arbitrar a interpretação.
+5.4 Execução
+•	RF12 — Execução do Plano: O BFF deve executar o plano validado sobre a camada de dados, aplicando os predicados de escopo e os limites operacionais.
+•	RF13 — Limites de Volume e Tempo: A execução deve observar limite máximo de registros retornados e tempo máximo de execução, interrompendo a consulta e informando o usuário quando o limite for atingido.
+•	RF14 — Supressão de Pequenas Contagens: Resultados agregados cujo contingente seja inferior ao limite mínimo parametrizado não devem ser exibidos, a fim de impedir a reidentificação por combinação de filtros.
+•	RF15 — Paginação: Resultados extensos devem ser devolvidos de forma paginada, preservando o plano para as páginas subsequentes sem nova submissão ao modelo.
+5.5 Capacidades do agente
+•	RF16 — Catálogo de Capacidades: O BFF deve expor ao agente um catálogo de operações executáveis, conforme a seção 6.1, sendo vedada a execução de operação não declarada no catálogo.
+•	RF17 — Delegação às Funcionalidades Existentes: As operações que correspondam a regras já especificadas em outras histórias — aplicação de critério de elegibilidade, simulação de parâmetros e composição de público-alvo — devem ser delegadas aos serviços responsáveis, não podendo ser reimplementadas no BFF.
+5.6 Contrato de resposta
+•	RF18 — Composição da Resposta: Toda resposta devolvida pelo BFF deve conter os elementos relacionados na seção 6.2, incluindo os dados de transparência exigidos pelos RF09 e RF10 da STRY00111044.
+•	RF19 — Explicação da Construção: A resposta deve conter explicação em linguagem natural sobre como o resultado foi construído, coerente com o plano efetivamente executado.
+•	RF20 — Identificação das Bases: A resposta deve identificar cada base utilizada e a respectiva data de referência, conforme a RN10 da STRY00111044.
+•	RF21 — Formato Neutro de Apresentação: O BFF deve devolver o resultado em formato estruturado que permita ao front-end renderizá-lo como indicador, tabela, gráfico, mapa ou lista, indicando a forma de apresentação sugerida sem produzir a renderização.
+
+5.7 Contexto conversacional
+•	RF22 — Manutenção do Contexto: O BFF deve manter o contexto da sessão de análise, permitindo que perguntas subsequentes se refiram a resultados anteriores.
+•	RF23 — Refinamento Incremental: Comandos complementares devem ser aplicados sobre o plano da consulta anterior, sem reinício da análise, e devem produzir novo plano validado pelas mesmas regras.
+•	RF24 — Encerramento do Contexto: O contexto deve ser encerrado ao término da sessão e não pode ser recuperado por outro usuário nem por nova sessão do mesmo usuário, salvo quando a consulta houver sido expressamente salva.
+•	RF25 — Persistência do Plano: Ao salvar uma consulta, o BFF deve persistir o plano estruturado, e não apenas o texto da pergunta, de modo que a reexecução independa do modelo de linguagem.
+5.8 Auditoria e observabilidade
+•	RF26 — Registro da Consulta: O BFF deve registrar toda consulta recebida, com identificação do usuário, data e hora, pergunta, plano gerado, plano efetivamente executado, escopo aplicado, volume retornado e tempo de execução.
+•	RF27 — Correlação: Cada requisição deve possuir identificador de correlação que permita relacionar a pergunta, a chamada ao modelo, a execução da consulta e a resposta devolvida.
+•	RF28 — Registro de Rejeições: Planos rejeitados e tentativas de acesso fora do escopo devem ser registrados de forma distinta das consultas bem-sucedidas, para permitir a análise de segurança.
+5.9 Resiliência
+•	RF29 — Indisponibilidade do Modelo: Na indisponibilidade do serviço de modelo, o BFF deve informar a limitação ao usuário e permanecer apto a reexecutar consultas salvas, cujos planos já estejam persistidos.
+•	RF30 — Degradação Controlada: Falhas na camada de dados devem produzir resposta explícita de indisponibilidade, sem retorno de resultado parcial que possa ser interpretado como completo.
+ 
+6. REGRAS DE NEGÓCIO
+•	RN01 — Escopo Aplicado pelo Sistema: A delimitação de acesso é aplicada pelo BFF na execução da consulta, jamais por instrução dirigida ao modelo de linguagem. Nenhuma formulação de pergunta pode ampliar o escopo do usuário.
+•	RN02 — Vedação de Campo Fora da Allowlist: Campo ausente da allowlist não pode ser filtrado, agrupado, agregado nem retornado, ainda que conste da base e que o modelo o tenha indicado no plano.
+•	RN03 — Coerência entre Explicação e Execução: A explicação apresentada ao usuário deve descrever o plano efetivamente executado. É vedado apresentar explicação gerada independentemente do plano.
+•	RN04 — Transparência Obrigatória: Nenhuma resposta pode ser devolvida sem as informações de variáveis utilizadas, filtros aplicados, origem dos dados, data de referência das bases e data e hora da geração.
+•	RN05 — Registro Independente do Desfecho: O registro de auditoria é obrigatório para toda consulta recebida, inclusive as rejeitadas, as interrompidas por limite e as que não retornaram resultado.
+•	RN06 — Contexto Restrito à Sessão e ao Usuário: O contexto conversacional é privativo da sessão e do usuário que a iniciou.
+•	RN07 — Reexecução sob o Escopo do Executor: Consulta salva ou compartilhada, ao ser reexecutada, aplica o escopo do usuário que a executa naquele momento, e não o do autor original.
+•	RN08 — Delegação de Regras de Negócio: As regras de elegibilidade, de cálculo dos benefícios e de composição de público-alvo pertencem às respectivas funcionalidades. O BFF as consome, não as replica.
+•	RN09 — Limite Mínimo de Agregação: Resultados agregados abaixo do contingente mínimo parametrizado devem ser suprimidos, com indicação da supressão ao usuário.
+•	RN10 — Natureza do Resultado: O resultado produzido constitui informação para análise. A conversão em público-alvo e em folha interna observa os ritos próprios das histórias correspondentes.
+ 
+7. TABELAS DE APOIO
+7.1 Catálogo de capacidades do agente
+Capacidade	Descrição	Origem da regra
+consultar	Recuperar registros conforme filtros, dentro do escopo do usuário	Esta HU
+agregar	Produzir contagens, somas e médias com agrupamento	Esta HU
+descrever_campos	Informar quais campos existem e o que significam	STRY00083689
+aplicar_elegibilidade	Aplicar os critérios de elegibilidade do PBF sobre a Base Municipal	STRY00070086
+simular_parametros	Simular alteração de parâmetros e apurar impacto	HUs do Simulador
+compor_publico_alvo	Converter resultado em público-alvo parametrizado	STRY00111044
+exportar	Produzir arquivo em PDF, CSV ou Excel	STRY00111044
+comparar_periodos	Comparar bases de referências distintas	Depende da decisão D05 — fora desta entrega
+gerar_folha_interna	Converter público-alvo em folha no leiaute do SIPBS	STRY00111130 — fora do BFF
+7.2 Contrato de resposta
+Elemento	Conteúdo	Requisito de origem
+resultado	Dados apurados, em formato estruturado e paginado	RF21, RF15
+apresentacao_sugerida	Indicador, tabela, gráfico, mapa ou lista	RF21
+variaveis_utilizadas	Campos que compuseram a resposta, com nome de exibição	STRY00111044, RF09
+filtros_aplicados	Filtros da pergunta e os predicados de escopo injetados	STRY00111044, RF09
+origem_dos_dados	Bases consultadas	STRY00111044, RF09
+data_referencia	Data de referência de cada base utilizada	STRY00111044, RF09
+data_hora_geracao	Momento da execução	STRY00111044, RF09
+explicacao	Descrição em linguagem natural do plano executado	RF19, RN03
+id_correlacao	Identificador que vincula pergunta, plano, execução e resposta	RF27
+avisos	Supressão por contingente mínimo, truncamento por limite e demais ressalvas	RF13, RF14
+7.3 Limites operacionais a parametrizar
+Limite	Finalidade	Situação
+Máximo de registros retornados	Evitar consultas de alto custo	Valor a definir — decisão D09
+Tempo máximo de execução	Preservar a disponibilidade da camada de dados	Valor a definir — decisão D09
+Contingente mínimo para agregação	Impedir reidentificação	Valor a definir — decisão D06
+Quota de consultas por usuário	Controlar custo do serviço de modelo	Valor a definir — decisão D09
+Tamanho do contexto conversacional	Limitar o histórico submetido ao modelo	Valor a definir
+ 
+8. Pontos de atenção para refinamento
+Além das decisões relacionadas no documento de insumos, permanecem em aberto os itens abaixo, específicos deste componente.
+8.1 Qualidade da interpretação
+•	Critério de aceite: é necessário estabelecer conjunto de perguntas de homologação, com resultado esperado conhecido, e taxa de acerto mínima aceitável. Os quatro cenários de uso da STRY00111044, já acompanhados da origem dos dados, servem de ponto de partida.
+•	Reteste a cada mudança: atualizações do modelo, do catálogo semântico ou do leiaute da Base Municipal alteram o comportamento da interpretação. Definir a periodicidade do reteste e o gatilho para execução.
+•	Determinismo: definir se a mesma pergunta, sobre a mesma base, deve necessariamente produzir o mesmo plano. A reprodutibilidade é condição para o uso do resultado em estudo técnico.
+•	Tratamento de pergunta fora de domínio: definir o comportamento diante de perguntas que não digam respeito às bases, inclusive tentativas de uso do assistente para finalidade diversa.
+8.2 Segurança
+•	Tentativa de extrapolação por formulação: estabelecer conjunto de testes de segurança com perguntas deliberadamente construídas para induzir acesso fora do escopo, cuja aprovação seja condição de entrada em produção.
+•	Conteúdo enviado ao modelo: definir se o catálogo semântico submetido ao modelo contém apenas metadados ou também exemplos de valores, hipótese em que dados pessoais passariam a integrar a requisição.
+•	Registro da pergunta (RF26): a pergunta em linguagem natural pode conter dados pessoais. Definir o mascaramento aplicável ao registro, o prazo de retenção e os perfis autorizados à sua consulta.
+8.3 Fronteiras e coerência
+•	Sobreposição com o salvamento existente: a STRY00071242 já define salvamento, nomeação e pesquisa de simulações. Definir se as consultas do agente compartilham o mesmo repositório e as mesmas regras.
+•	Compartilhamento entre abrangências: a RN07 determina a reexecução sob o escopo de quem executa. Confirmar essa leitura com o negócio, uma vez que ela implica que o destinatário pode ver resultado diferente do visto pelo autor.
+•	Serviços consumidos: os serviços de elegibilidade, simulação e composição de público-alvo precisam existir como interface consumível. Confirmar se as HUs correspondentes preveem essa exposição ou se hoje são apenas telas.
+8.4 Requisitos não funcionais
+•	Tempo de resposta: definir a meta considerando a soma do tempo de interpretação pelo modelo e do tempo de execução da consulta, que possuem naturezas distintas e devem ser medidos separadamente.
+•	Concorrência: estimar usuários simultâneos e definir o comportamento na saturação, inclusive enfileiramento.
+•	Custo: havendo serviço de modelo remunerado por uso, definir o modelo de custo, o teto e o comportamento ao atingi-lo.
+ 
+9. Rastreabilidade — origem dos requisitos
+Requisitos	HU de origem	Observação
+RF01 a RF03, RN01	STRY00064433	Abrangência e perfis convertidos em predicado de execução
+RF04 a RF07, RN02	STRY00083689	Cadastro De x Para consumido como catálogo semântico
+RF08 a RF11	STRY00111044	Interpretação e conversão da pergunta em consulta
+RF12 a RF15, RN09	STRY00111044	Execução, com limites acrescidos por esta HU
+RF16, RF17, RN08	HUs do Simulador	Capacidades delegadas aos serviços existentes
+RF18 a RF21, RN03, RN04	STRY00111044	Contrato de transparência dos resultados
+RF22 a RF25, RN06, RN07	STRY00111044	Contexto conversacional e persistência do plano
+RF26 a RF28, RN05	STRY00111044 e STRY00064433	Auditoria e rastreabilidade
+RF29, RF30	Esta HU	Resiliência não tratada nas histórias de origem
+
+ 
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o BFF Agente do SIPGS. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas declaradas na seção 3 e ressalvados os itens da seção 8. A alteração de qualquer premissa da seção 3 implica revisão deste documento.
+
+Data	Nome	Cargo / Área
+		
+		
+
