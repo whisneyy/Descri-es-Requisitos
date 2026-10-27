@@ -1,0 +1,88 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+
+
+
+
+Simulador de Programas Sociais para a Plataforma de Benefícios
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	Objetivo da solicitação	4
+3	Requisitos Funcionais	4
+3.1	Regras de Negócio	4
+3.2	Requisitos Não Funcionais	5
+3.3	Pontos de Atenção para Refinamento	5
+4	Aceite da documentação	6
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+01/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	Objetivo da solicitação
+
+O objetivo desta solicitação é estruturar o processo de recebimento, armazenamento e disponibilização da Base Municipal do Cadastro Único, oriunda da DATAPREV. A ingestão segura e rastreável dessa fundação de dados atuará como alicerce para a Plataforma de Benefícios Sociais, garantindo a confiabilidade das informações utilizadas nas rotinas de qualificação de elegibilidade, cálculo de pagamentos e nas simulações de cenários de programas sociais.
+
+3	Requisitos Funcionais 
+
+•	RF01 - Recepção e Validação: O sistema deve receber o arquivo da Base Municipal (DATA-PREV) e executar uma validação estrutural e de integridade antes de iniciar a ingestão.
+•	RF02 - Registro de Rejeição: Em caso de falha na validação, o sistema deve abortar o pro-cessamento, registrar o motivo detalhado em log e manter a última base válida ativa.
+•	RF03 - Carga Inicial: O sistema deve executar a primeira ingestão processando 100% dos registros, classificando todos como "Inclusão", para estabelecer a linha de base (baseline).
+•	RF04 - Carga Incremental: Nas cargas subsequentes, o sistema deve comparar o arquivo recebido com a linha de base, ignorando registros inalterados e processando apenas os del-tas.
+•	RF05 - Data Lake / Storage: O sistema deve armazenar a versão original do arquivo recebi-do para fins de recuperação e rastreabilidade.
+•	RF06 - Painel de Auditoria: O sistema deve disponibilizar uma interface de monitoramento com o histórico de cargas (data, hora, tipo, status) e totalizadores (incluídos, alterados, ex-cluídos, rejeitados).
+•	RF07 - Rastreabilidade de Campos: O sistema deve gravar o histórico de cada campo alte-rado, armazenando: nome do campo, valor anterior, novo valor e data/hora da alteração.
+•	RF08 - Apresentação Dinâmica: O sistema deve permitir que o usuário selecione dinamica-mente quais campos da BM e da Folha deseja visualizar na interface.
+3.1	Regras de Negócio 
+•	RN01 - Classificação de Movimentação: Durante a carga incremental, o motor de ingestão deve classificar automaticamente cada linha como Inclusão, Alteração ou Exclusão (caso o registro deixe de vir na base, se aplicável).
+•	RN02 - Data da Operação: Para o histórico de alterações, o sistema deve utilizar a da-ta/hora da modificação fornecida pelo arquivo. Na ausência desta, assume-se a data de in-gestão da carga.
+•	RN03 - Autorização por CNPJ: A disponibilização dos dados processados para a interface da plataforma deve ser filtrada, garantindo que o usuário só visualize os dados se o seu CNPJ vinculado possuir autorização ativa.
+3.2	Requisitos Não Funcionais 
+•	RNF01 - Resiliência e Rollback: Falhas durante o processamento incremental não podem corromper a base. O sistema deve garantir que a plataforma continue consumindo a última versão válida até que a nova carga seja concluída com sucesso.
+•	RNF02 - Proteção LGPD: Dados classificados como sensíveis (biometria, etnia, saúde, orien-tação sexual) devem receber tratamento de segurança específico em conformidade com a LGPD.
+3.3	Pontos de Atenção para Refinamento
+•	Tratamento de Rejeição (Nota SG1): O critério pede que o motivo vá para o log, mas qual é a ação de negócio? O sistema enviará um e-mail/alerta para a equipe de operação da CAI-XA? Se o arquivo for rejeitado, o processo de simulação dos gestores continuará usando a base do mês anterior sem nenhum aviso em tela de que a base está desatualizada?
+•	Validação de Layout (Nota SG1): O critério diz "Quero que seja possível ajustar o proces-samento... caso haja alteração no layout". Isso significa que haverá uma tela de "Mapea-mento de Dados" para o usuário reconfigurar colunas de/para, ou isso será um ajuste via código/banco de dados pela equipe técnica? Se for via tela, é uma funcionalidade gigantes-ca que precisa de uma HU própria.
+•	Autoria da Alteração: O critério exige "identificar o usuário responsável pela alteração". Como a base vem de um sistema externo (DATAPREV), esse "usuário" é o operador do CRAS (se essa informação vier no arquivo) ou será apenas gravado um usuário de sistema (ex: sys_integracao_dataprev)?
+•	Estratégia LGPD: O RNF exige proteção, mas como isso se traduz na arquitetura? Será feita criptografia em repouso no banco de dados, mascaramento dinâmico na tela (ex: ***), ou restrição de acesso à coluna via banco? Isso afeta diretamente o esforço de desenvolvi-mento.
+•	Conflito de Escopo (Nota SG2): A parte de "seleção e exibição de campos" pertence mais à camada de Front-End/Visualização do Simulador (a HU anterior) do que a esta HU de Fun-dação de Dados. Recomendo extrair essa parte daqui.
+4	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
