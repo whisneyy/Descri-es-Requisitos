@@ -1,0 +1,191 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+SIPGS — Widget de Chat IA
+
+ 
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração a partir da STRY00111044 e do contrato do BFF Agente
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. DESCRIÇÃO
+Como gestor de programas sociais, quero um componente de conversa na Plataforma de Benefícios em que eu possa escrever perguntas em linguagem natural sobre as bases de dados, receber a resposta em forma de indicador, tabela, gráfico, mapa ou lista, entender como aquele resultado foi construído e refinar a análise com novas perguntas, sem precisar conhecer a estrutura dos dados nem sair da tela em que estou trabalhando.
+O Widget de Chat IA é a interface do assistente especificado na STRY00111044. Ele não interpreta perguntas, não consulta bases e não aplica regras: tudo isso é responsabilidade do BFF Agente, que devolve o resultado já acompanhado das informações de transparência. O papel do widget é apresentar esse conteúdo de forma compreensível, conduzir a conversa e oferecer as ações disponíveis sobre o resultado.
+A qualidade desta interface é determinante para a confiança na funcionalidade. Como o assistente produz análises que podem instruir decisões de política pública, o widget precisa deixar permanentemente visível o que sustenta cada resultado, em vez de apresentar apenas o número.
+ 
+3. PREMISSAS ADOTADAS
+Nº	Premissa adotada	Origem
+P01	O widget consome exclusivamente o BFF Agente, não acessando bases, serviços de domínio nem o modelo de linguagem.	Documento do BFF Agente
+P02	A identidade e o escopo do usuário trafegam no token validado pelo API Gateway; o widget não envia perfil, abrangência nem produto.	HU de API Gateway e JWT
+P03	O contrato de resposta consumido é o da seção 7.2 do documento do BFF Agente, que já traz os dados de transparência exigidos.	Documento do BFF Agente
+P04	Os rótulos de campos e a tradução de domínios vêm do BFF, a partir do cadastro De x Para, não sendo fixados no front-end.	STRY00083689
+P05	As ações que produzem efeito operacional, como a geração de folha interna, não são executadas pelo widget.	STRY00111044 e STRY00111130
+ 
+4. ESCOPO
+4.1 Está no escopo
+•	Componente de conversa com entrada de pergunta em linguagem natural.
+•	Apresentação da resposta conforme a forma de visualização indicada pelo BFF.
+•	Exibição do bloco de transparência e da explicação de cada resultado.
+•	Condução da conversa, com refinamento e histórico da sessão.
+•	Tratamento de pedidos de esclarecimento, avisos e erros.
+•	Ações sobre o resultado: salvar, exportar e encaminhar para composição de público-alvo.
+•	Acessibilidade, responsividade e comportamento em espera.
+4.2 Não está no escopo
+•	Interpretação da pergunta e execução da consulta, atribuídas ao BFF Agente.
+•	Regras de elegibilidade, de cálculo e de composição de público-alvo.
+•	Autenticação e autorização, tratadas na HU de API Gateway e JWT.
+•	Geração de folha interna, tratada na STRY00111130.
+•	Telas do Simulador paramétrico, atendidas pelo BFF de Simulação.
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Composição do widget
+•	RF01 — Área de Conversa: O widget deve apresentar área de conversa em que as perguntas do usuário e as respostas do assistente sejam exibidas em ordem cronológica, identificando claramente a autoria de cada mensagem.
+•	RF02 — Campo de Pergunta: O widget deve disponibilizar campo de texto livre para a formulação da pergunta, com envio por ação explícita do usuário.
+•	RF03 — Orientação Inicial: Na abertura, o widget deve apresentar orientação sucinta sobre o que o assistente é capaz de responder e exemplos de perguntas, evitando que o usuário precise descobrir os limites por tentativa.
+•	RF04 — Identificação do Contexto: O widget deve exibir permanentemente o programa social e a abrangência sob os quais a conversa ocorre, de modo que o usuário saiba a que universo as respostas se referem.
+•	RF05 — Nova Conversa: O usuário deve poder iniciar nova conversa, encerrando o contexto anterior, sem sair da funcionalidade.
+5.2 Estados da interação
+•	RF06 — Sinalização de Estados: O widget deve sinalizar ao usuário o estado corrente da interação, conforme a seção 7.1, distinguindo a interpretação da pergunta da execução da consulta.
+•	RF07 — Espera Prolongada: Quando a resposta exceder o tempo de espera parametrizado, o widget deve manter a indicação de progresso e informar que a consulta prossegue, sem sugerir falha.
+•	RF08 — Cancelamento: O usuário deve poder cancelar uma consulta em andamento, retornando ao estado de espera de nova pergunta.
+•	RF09 — Bloqueio de Envio Concorrente: Enquanto houver consulta em andamento, o widget deve impedir o envio de nova pergunta ou substituir expressamente a anterior, sem permitir que duas respostas se sobreponham na conversa.
+5.3 Apresentação do resultado
+•	RF10 — Forma de Visualização: O widget deve apresentar o resultado na forma indicada pelo BFF — indicador, tabela, gráfico, mapa ou lista — conforme a seção 7.3.
+•	RF11 — Alternância de Visualização: Quando o resultado admitir mais de uma forma de apresentação, o usuário deve poder alternar entre elas sem reformular a pergunta.
+•	RF12 — Rótulos de Exibição: Os nomes de campos e as descrições de domínio exibidos devem ser os fornecidos pelo BFF, sendo vedada a rotulagem fixa no front-end.
+•	RF13 — Paginação e Volume: Resultados extensos devem ser apresentados de forma paginada, informando o total de registros e a quantidade exibida.
+•	RF14 — Formatação de Valores: Valores monetários, percentuais, quantidades e datas devem ser apresentados conforme o padrão da plataforma, preservando a precisão devolvida pelo BFF.
+5.4 Transparência
+•	RF15 — Bloco de Transparência: Toda resposta deve ser acompanhada de bloco que apresente as variáveis utilizadas, os filtros aplicados, a origem dos dados, a data de referência de cada base e a data e hora da geração, conforme a seção 7.2.
+•	RF16 — Explicação da Construção: O widget deve exibir a explicação fornecida pelo BFF sobre como o resultado foi construído, acessível a partir da própria resposta.
+•	RF17 — Vedação de Omissão: O bloco de transparência não pode ser suprimido nem depender de configuração do usuário. É admitida a apresentação recolhida, desde que sempre disponível e sinalizada.
+•	RF18 — Exibição dos Avisos: Os avisos devolvidos pelo BFF — supressão por contingente mínimo, truncamento por limite e demais ressalvas — devem ser exibidos junto ao resultado, de forma visível e não como nota secundária.
+•	RF19 — Aviso de Projeção: Quando o resultado envolver projeção ou estimativa, o widget deve informar que se trata de projeção para estudo técnico, sem gerar direito ou obrigação de pagamento.
+5.5 Conversa e refinamento
+•	RF20 — Refinamento: O usuário deve poder complementar a análise com nova pergunta que se refira ao resultado anterior, sem reiniciar a conversa.
+•	RF21 — Histórico da Sessão: O widget deve manter visível o histórico da conversa em curso, permitindo a consulta às respostas anteriores e às suas informações de transparência.
+•	RF22 — Pedido de Esclarecimento: Quando o BFF devolver pedido de esclarecimento, o widget deve apresentá-lo como pergunta ao usuário e, sempre que possível, oferecer as alternativas de interpretação para escolha direta.
+•	RF23 — Reaproveitamento da Pergunta: O usuário deve poder editar e reenviar uma pergunta anterior, sem redigitá-la.
+•	RF24 — Indicação de Refinamento: As respostas obtidas por refinamento devem indicar sobre qual consulta anterior foram construídas.
+5.6 Ações sobre o resultado
+•	RF25 — Salvar Consulta: O usuário deve poder salvar a consulta, nomeando-a, observadas as regras da HU de Salvamento e Comparação de Cenários.
+•	RF26 — Exportar: O usuário deve poder exportar o resultado nos formatos disponibilizados pelo BFF, com indicação de que a exportação é processada e do momento em que o arquivo estiver disponível.
+•	RF27 — Copiar: O usuário deve poder copiar o resultado apresentado, preservando as informações de transparência.
+•	RF28 — Encaminhar para Público-Alvo: Quando o resultado for elegível, o widget deve oferecer a ação de convertê-lo em público-alvo, encaminhando o usuário à funcionalidade responsável.
+•	RF29 — Ações Condicionadas à Permissão: As ações devem ser exibidas apenas quando o BFF as indicar como disponíveis ao usuário, não cabendo ao widget presumir permissões.
+5.7 Erros e indisponibilidade
+•	RF30 — Mensagem de Erro Compreensível: Erros devolvidos pelo BFF devem ser apresentados em linguagem compreensível ao gestor, sem exposição de estrutura interna, identificadores técnicos ou nomes de campos de banco.
+•	RF31 — Consulta Não Atendida: Quando a pergunta não puder ser atendida, o widget deve informar a razão e, quando possível, orientar a reformulação.
+•	RF32 — Indisponibilidade do Assistente: Na indisponibilidade do serviço, o widget deve informar a limitação e preservar o histórico da conversa em curso.
+•	RF33 — Identificador de Correlação: Em situações de erro, o widget deve disponibilizar ao usuário o identificador de correlação, para uso no acionamento do suporte.
+5.8 Acessibilidade e responsividade
+•	RF34 — Acessibilidade: O widget deve observar os requisitos de acessibilidade aplicáveis a sistemas governamentais, incluindo navegação por teclado, compatibilidade com leitores de tela e contraste adequado.
+•	RF35 — Alternativa Textual para Visualizações: Gráficos e mapas devem possuir alternativa textual ou tabular equivalente, de modo que o conteúdo seja acessível sem depender da percepção visual.
+•	RF36 — Responsividade: O widget deve adaptar-se às resoluções suportadas pela plataforma, preservando a legibilidade das visualizações e do bloco de transparência.
+•	RF37 — Posicionamento na Plataforma: O widget deve ser utilizável a partir das telas em que o gestor trabalha, sem exigir a interrupção da atividade em curso.
+5.9 Proteção de dados no cliente
+•	RF38 — Vedação de Persistência Local: O widget não deve armazenar no navegador perguntas, respostas ou quaisquer dados pessoais retornados pelo assistente.
+•	RF39 — Encerramento da Sessão: Ao encerrar a sessão ou a conversa, o conteúdo exibido deve ser descartado da memória do navegador.
+•	RF40 — Identificação em Cópias e Exportações: Conteúdo copiado ou exportado deve conservar a identificação das bases, das datas de referência e do momento da geração.
+ 
+6. Regras de Negócio
+•	RN01 — Ausência de Regra no Front-end: O widget não interpreta perguntas, não calcula, não filtra e não aplica regras de acesso. Apresenta o que o BFF devolve.
+•	RN02 — Transparência Indissociável do Resultado: Nenhum resultado pode ser apresentado, copiado ou exportado desacompanhado das informações de variáveis, filtros, origem, data de referência e momento da geração.
+•	RN03 — Fidelidade ao Conteúdo Devolvido: O widget não pode alterar, arredondar, completar nem interpretar os valores devolvidos pelo BFF, limitando-se à formatação de apresentação.
+•	RN04 — Ausência de Valor Presumido: Indicadores assinalados pelo BFF como não apurados devem ser exibidos como tal, sendo vedada a substituição por zero, traço ou omissão silenciosa.
+•	RN05 — Permissões Fornecidas pelo Servidor: As ações disponíveis são determinadas pelo BFF. A ausência de indicação equivale à indisponibilidade da ação.
+•	RN06 — Contexto Restrito à Sessão: O histórico da conversa pertence à sessão e ao usuário, não sendo recuperável por outra sessão nem por outro usuário, salvo quando a consulta houver sido salva.
+•	RN07 — Natureza do Resultado: Os resultados apresentados destinam-se a análise e apoio à decisão, não constituindo ato administrativo nem autorização de pagamento.
+•	RN08 — Rotulagem Centralizada: A nomenclatura exibida é a fornecida pelo BFF, de modo que alterações no cadastro De x Para se reflitam sem nova entrega do front-end.
+ 
+7. TABELAS DE APOIO
+7.1 Estados da interação
+Estado	Caracterização	Comportamento do widget
+Aguardando pergunta	Nenhuma consulta em curso	Campo de pergunta habilitado
+Interpretando	Pergunta submetida, plano em elaboração	Indicação de progresso, envio bloqueado
+Consultando	Plano em execução sobre as bases	Indicação de progresso, cancelamento disponível
+Concluído	Resultado devolvido	Resultado, transparência, avisos e ações
+Esclarecimento	BFF solicitou desambiguação	Pergunta ao usuário, com alternativas quando houver
+Não atendido	Consulta recusada ou sem resultado	Razão e orientação para reformulação
+Erro	Falha na execução ou indisponibilidade	Mensagem compreensível e identificador de correlação
+7.2 Elementos consumidos do contrato do BFF
+Elemento do contrato	Uso no widget	Requisito
+resultado	Conteúdo apresentado ao usuário	RF10, RF13
+apresentacao_sugerida	Define a visualização inicial	RF10, RF11
+variaveis_utilizadas	Bloco de transparência	RF15
+filtros_aplicados	Bloco de transparência	RF15
+origem_dos_dados	Bloco de transparência	RF15
+data_referencia	Bloco de transparência e exportações	RF15, RF40
+data_hora_geracao	Bloco de transparência e exportações	RF15, RF40
+explicacao	Explicação da construção do resultado	RF16
+avisos	Exibição destacada junto ao resultado	RF18
+id_correlacao	Acionamento do suporte em caso de erro	RF33
+7.3 Formas de apresentação
+Forma	Aplicação	Exigência complementar
+Indicador	Valor único, com rótulo e unidade	Exibir a variação quando houver comparação
+Tabela	Conjunto de registros ou agregados	Paginação, ordenação e total de registros
+Gráfico	Distribuições e comparações	Alternativa tabular equivalente
+Mapa	Recortes territoriais	Alternativa tabular e respeito à abrangência do usuário
+Lista	Relação de itens	Paginação e total de registros
+7.4 Avisos exibidos ao usuário
+Aviso	Situação	Origem
+Resultado suprimido	Contingente inferior ao mínimo, para impedir reidentificação	BFF Agente, RF14
+Resultado truncado	Limite de registros atingido	BFF Agente, RF13
+Consulta interrompida	Tempo máximo de execução excedido	BFF Agente, RF13
+Base desatualizada	Data de referência anterior à carga vigente	STRY00062314
+Projeção	Resultado que envolve estimativa	RF19
+ 
+8. PONTOS DE ATENÇÃO PARA REFINAMENTO
+8.1 Comportamento da conversa
+•	Resposta progressiva ou única: definir se a resposta é apresentada de uma só vez ao término da execução ou de forma progressiva, com a explicação exibida antes dos dados. A escolha afeta a percepção de tempo de espera e o contrato com o BFF.
+•	Tempo de espera aceitável (RF07): a espera do assistente soma o tempo de interpretação e o de execução da consulta. Definir a partir de quanto tempo a interface passa a informar que a consulta prossegue e se há limite após o qual é encerrada.
+•	Perguntas sugeridas (RF03): definir se as sugestões são fixas, obtidas do BFF ou derivadas do contexto do usuário, e quem as mantém.
+•	Substituição de consulta em andamento (RF09): confirmar se o comportamento esperado é bloquear o envio ou cancelar a consulta anterior e assumir a nova.
+8.2 Apresentação e dados pessoais
+•	Exibição de microdado: a STRY00111044 prevê, no seu cenário 2, relação de registros elegíveis. Definir se o widget exibe listagem nominal em tela, se ela é restrita a determinados perfis e se há marca de identificação do usuário na tela, dada a possibilidade de captura.
+•	Limite de exibição em tela: definir a quantidade máxima de registros apresentada e se listagens extensas devem ser oferecidas apenas por exportação.
+•	Granularidade dos mapas (RF10): definir os recortes suportados e a origem da malha geográfica, tema também pendente na STRY00111044.
+•	Vedação de persistência local (RF38): confirmar com segurança da informação, observando que a vedação impede recursos usuais de conforto, como a recuperação da conversa após atualização acidental da página.
+8.3 Integração com as demais funcionalidades
+•	Salvamento compartilhado (RF25): recomenda-se que consultas do assistente e cenários do Simulador compartilhem repositório e regras de nome, pesquisa, compartilhamento e auditoria, conforme registrado na HU de Salvamento e Comparação de Cenários.
+•	Encaminhamento para público-alvo (RF28): definir se o widget apenas encaminha o usuário à funcionalidade responsável ou se compõe o público-alvo em linha, e qual o ponto de confirmação antes de qualquer efeito operacional.
+•	Convivência com o Simulador: definir se o widget é acessível a partir das telas do Simulador e se pode receber o contexto da simulação em curso, o que exigiria contrato adicional entre os dois BFF.
+•	Posicionamento na plataforma (RF37): definir se o widget ocupa tela própria, painel lateral ou componente flutuante, decisão que condiciona o desenho da área de conversa e das visualizações.
+8.4 Confiança e uso
+•	Percepção de autoridade do resultado: respostas em linguagem natural tendem a ser percebidas como conclusivas. Avaliar recursos de interface que preservem a postura crítica do gestor, como o destaque permanente da data de referência e da explicação.
+•	Retorno de qualidade: avaliar a inclusão de mecanismo pelo qual o usuário sinalize resposta incorreta, alimentando o processo de melhoria previsto como pendência na STRY00111044.
+•	Tom e idioma: confirmar que o assistente opera exclusivamente em português e definir o tom das mensagens, evitando personificação que sugira interlocutor humano.
+•	Orientação sobre limites: definir como a interface comunica o que o assistente não é capaz de responder, reduzindo tentativas frustradas.
+8.5 Requisitos não funcionais
+•	Acessibilidade (RF34, RF35): confirmar a norma aplicável e o nível de conformidade exigido, bem como a forma de verificação no aceite.
+•	Navegadores e resoluções: definir a matriz de navegadores suportados e as resoluções mínimas, pendência comum a todas as HUs.
+•	Desempenho da renderização: definir o comportamento com resultados extensos, considerando que tabelas e gráficos volumosos degradam a resposta do navegador.
+ 
+9. RASTREABILIDADE — ORIGEM DOS REQUISITOS
+Requisitos	Origem	Observação
+RF01 a RF05	STRY00111044	Assistente de consultas em linguagem natural
+RF06 a RF09	Esta HU	Estados da interação, não tratados na origem
+RF10 a RF14, RN03	STRY00111044, RF03	Formas de apresentação do resultado
+RF15 a RF19, RN02	STRY00111044, RF09 e RF10	Transparência e rastreabilidade dos resultados
+RF20 a RF24, RN06	STRY00111044	Consultas conversacionais e refinamento
+RF25 a RF29, RN05	STRY00111044 e HU de Cenários	Salvamento, exportação e público-alvo
+RF30 a RF33	Documento do BFF Agente	Tratamento de rejeições e indisponibilidade
+RF34 a RF37	Esta HU	Acessibilidade e responsividade, pendentes em todas as HUs
+RF38 a RF40, RN07	STRY00062314 e STRY00111044	Proteção de dados e natureza do resultado
+RF12, RN08	STRY00083689	Rotulagem a partir do cadastro De x Para
+
+ 
+10. ACEITE DA DOCUMENTAÇÃO
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o Widget de Chat IA do SIPGS. A assinatura formaliza a aprovação do escopo com base nas premissas da seção 3 e ressalvados os itens da seção 8, em especial a definição sobre a exibição de microdado em tela e o posicionamento do widget na plataforma.
+Data	Nome	Cargo / Área
+		
+		
+
