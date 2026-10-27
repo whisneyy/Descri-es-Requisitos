@@ -1,0 +1,237 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00079079 — ER SIPGS — Ingestão da Base Municipal do Ca-dastro Único
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	4
+1.1	Registro de mudanças	4
+1.2	Revisão do cliente	4
+2	Objetivo da solicitação	5
+3	Escopo	6
+3.1	Está no escopo	6
+3.2	Não está no escopo desta HU	6
+4	Requisitos Funcionais	7
+4.1	Recebimento	7
+4.2	Validação inicial do arquivo	7
+4.3	Validação da Base Municipal	7
+4.4	Saídas do processamento	8
+4.5	Tratamento de dados	8
+5	Regras de Negócio	9
+5.1	Rejeição e escopo	9
+5.2	Critérios de validação	9
+5.3	Registro das ocorrências	10
+5.4	Tratamento de dados	10
+6	Dependências	11
+7	Tabelas de apoio	12
+7.1	Tipos de registro sujeitos à Regra de Ordem	12
+7.2	Matriz das regras de verificação	12
+7.3	Estados cadastrais considerados	13
+7.4	Domínio completo do estado cadastral	13
+8	Pontos de atenção para refinamento	14
+8.1	Lacunas que impedem a construção	14
+8.2	Contradição central: rejeição do arquivo x rejeição da linha	15
+8.3	Precisão das validações	15
+8.4	Tratamento de nulos	16
+8.5	Operação, segurança e desempenho	16
+9	Aceite da documentação	18
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos de recebimento, validação, armazenamento e disponibilização da Base Municipal (BM) do Cadastro Único enviada pela DATAPREV à Plataforma de Benefícios Sociais.
+A finalidade de negócio é assegurar que os dados ingeridos estejam íntegros e estrutural-mente conformes antes de serem utilizados nos processos de qualificação básica de elegibilidade, cálculo de benefícios e simulação dos programas sociais, de modo que toda ocorrência identificada seja registrada, quantificada e disponibilizada ao Gestor CAIXA para tratamento.
+3	ESCOPO
+3.1	Está no escopo
+•	Recebimento do arquivo da Base Municipal enviado pela DATAPREV e seu registro para audito-ria.
+•	Validação de integridade e estrutura do arquivo antes do processamento.
+•	Aplicação das 22 regras de verificação sobre os tipos de registro indicados.
+•	Rejeição do arquivo, identificação das ocorrências e registro dos motivos em log.
+•	Carga integral dos campos e dados da Base Municipal.
+•	Tratamento de campos numéricos nulos.
+3.2	Não está no escopo desta HU
+•	Geração do arquivo analítico de validação da extração do Cadastro Único, tratada na STRY00081356.
+•	Geração do relatório sintético de validação da extração do Cadastro Único, cuja HU ainda será aberta.
+•	Construção do Painel de Monitoramento da Plataforma, cuja HU ainda será criada.
+•	Uso dos dados ingeridos nos processos de elegibilidade, cálculo e simulação, tratados nas HUs do Simulador.
+ 
+4	REQUISITOS FUNCIONAIS
+4.1	Recebimento
+•	RF01 — Recebimento da Base Municipal: A plataforma deve estar apta a receber a Base Mu-nicipal do Cadastro Único enviada pela DATAPREV, armazená-la e disponibilizá-la para uso nos processos da plataforma.
+•	RF02 — Registro do Recebimento: O recebimento da Base Municipal deve ser registrado para fins de auditoria e rastreabilidade.
+•	RF03 — Adaptação a Alterações de Leiaute: O sistema deve permitir o ajuste do processamen-to de carga caso haja qualquer alteração no leiaute da Base Municipal enviado pela DATAPREV.
+4.2	 Validação inicial do arquivo
+•	RF04 — Validação de Integridade e Estrutura: O sistema deve validar a integridade e a estrutu-ra do arquivo recebido antes de iniciar o processamento.
+•	RF05 — Registro do Motivo da Rejeição: Os arquivos rejeitados devem ter o motivo da rejei-ção registrado em log.
+•	RF06 — Carga Integral dos Dados: Ainda que as validações incidam apenas sobre os tipos e campos relacionados na seção 7, todos os campos e dados da Base Municipal devem ser car-regados no processo de ingestão.
+4.3	Validação da Base Municipal
+•	RF07 — Aplicação das Regras de Verificação: O arquivo da Base Municipal deve ser validado ou rejeitado pelo processo de ingestão conforme as 22 regras de verificação relacionadas na seção 7.2.
+•	RF08 — Autorização Excepcional do Gestor: Quando a validação do código IBGE da prefeitura (Tipo 98, campos COD-MUNIC-IBGE-2-PRE e COD-MUNIC-IBGE-5-PRE) localizar um código não esperado, o sistema deve permitir que o gestor autorize o processamento da Base Municipal.
+•	RF09 — Identificação das Ocorrências: O processamento deve verificar as linhas com conteú-do não esperado e identificar a regra correspondente à ocorrência. A verificação deve alcançar a totalidade do arquivo, identificando todas as linhas com uma ou mais ocorrências.
+•	RF10 — Verificação de Ordenação: A verificação de ordenação do arquivo deve ocorrer so-mente para os tipos de registro relacionados na seção 7.1. Identificada falha de ordenação, a verificação do arquivo deve ser interrompida, listando-se no arquivo analítico as linhas com ocorrências até o momento da identificação da falha.
+4.4	 Saídas do processamento
+•	RF11 — Registro Analítico das Ocorrências: Todas as rejeições e ocorrências identificadas de-vem ser registradas no "Arquivo analítico de validação da extração do Cadastro Único" (STRY00081356).
+•	RF12 — Quantificação Sintética: As ocorrências devem ser quantificadas no "Relatório sintéti-co de validação da extração do Cadastro Único", objeto de HU a ser aberta.
+•	RF13 — Exibição no Painel de Monitoramento: Todos os resultados do processamento devem ser exibidos no Painel de Monitoramento da Plataforma, objeto de HU a ser criada, para aces-so visual pelo Gestor CAIXA.
+4.5	Tratamento de dados
+•	RF14 — Conversão de Campos Nulos: Todos os campos numéricos utilizados pelo SIBEC que aceitem valor nulo devem ter o valor nulo transformado em zeros pelo sistema.
+ 
+5	REGRAS DE NEGÓCIO
+5.1	Rejeição e escopo
+•	RN01 — Rejeição do Arquivo: Quando houver regra não atendida em qualquer das regras de verificação, o processo de ingestão da BM não deve ser iniciado e o arquivo deve ser rejeitado.
+•	RN02 — Exceção da Validação do Código IBGE: Constitui exceção à RN01 o tratamento da va-lidação do código IBGE da prefeitura (Tipo 98), hipótese em que o gestor pode autorizar o pro-cessamento da Base Municipal mesmo diante de código não esperado.
+•	RN03 — Escopo das Verificações: Os tipos e registros não citados nas regras 1 a 22 não devem ser verificados. A posição dos campos no arquivo deve ser consultada a partir do leiaute vigen-te.
+•	RN04 — Verificação na Totalidade do Arquivo: A verificação deve abranger todo o arquivo, e todas as linhas com uma ou mais ocorrências devem ser identificadas, ressalvada a interrupção prevista na RN08.
+5.2	Critérios de validação
+•	RN05 — Campos de Texto Obrigatórios: Os campos de texto obrigatórios devem conter pelo menos um caractere.
+•	RN06 — Validade de Datas: As datas verificadas devem existir no calendário do ano corres-pondente. Exemplos: 29/02/2024 é válida; 29/02/2025 é inválida; 31/06/2025 é inválida.
+•	RN07 — Composição da Regra de Ordem: A ordem esperada dos campos é: CHV-NATURAL-PREFEITURA, COD-FAMILIAR-FAM, NUM-MEMBRO-FMLA, dois campos ou espaços vazios e NUM-REG-ARQUIVO. A verificação aplica-se exclusivamente aos tipos de registro relacionados na seção 7.1, identificados pelo campo NUM-REG-ARQUIVO; os demais tipos devem ser des-considerados nessa verificação.
+•	RN08 — Interrupção por Falha de Ordenação: Identificada falha de ordenação, a verificação do arquivo deve ser interrompida, registrando-se no arquivo analítico apenas as linhas com ocorrências apuradas até aquele ponto.
+•	RN09 — Filtro por Estado Cadastral: Nos Tipos 01, 04 e 05, somente devem ser avaliados os registros cujo estado cadastral seja CADASTRADO (código 3) ou SEM REGISTRO CIVIL (código 2).
+5.3	Registro das ocorrências
+•	RN10 — Identificação da Regra no Arquivo Analítico: O número da regra, de 1 a 22, indica no arquivo analítico a posição do registro rejeitado.
+•	RN11 — Acumulação de Ocorrências: Uma mesma linha pode ser contabilizada por mais de uma regra. As regras 3 e 6 podem ser apresentadas e contabilizadas simultaneamente na rejei-ção da mesma linha ou registro, tanto no arquivo analítico quanto no sintético.
+•	RN12 — Vínculo entre a Regra 16 e a Regra de Ordem: A rejeição do campo COD-FAMILIAR-FAM no Tipo 04 (regra 16) resulta em erro pela Regra 1 (Regra de Ordem).
+5.4	Tratamento de dados
+•	RN13 — Conversão de Nulos em Zeros: Campos numéricos utilizados pelo SIBEC que admitam valor nulo devem ter esse valor convertido em zeros na ingestão.
+ 
+6	DEPENDÊNCIAS
+Artefato	Referência	Situação
+Arquivo analítico de validação da extração do Cadastro Único	STRY00081356	HU existente
+Relatório sintético de validação da extração do Cadastro Único	A definir	HU a ser aberta
+Painel de Monitoramento da Plataforma	A definir	HU a ser criada
+Leiaute vigente da Base Municipal	Leiaute_DE_Para_BMM_V6_29.xlsx	Fornecido — versão 6.29, 688 campos
+Cadastro de códigos IBGE	SIICO	Sistema externo — regra 5
+Cadastro de chaves naturais de prefeituras	SIISO	Sistema externo — regra 6
+Base de chaves naturais de referência	SIBEC	Sistema externo — regra 6, consulta primária
+Leiaute do relatório de validação	leiaute_rel_validacao_extra_bm.xlsx	Fornecido — detalha as regras 1 a 22
+ 
+7	TABELAS DE APOIO
+7.1	Tipos de registro sujeitos à Regra de Ordem
+A verificação de ordenação aplica-se exclusivamente aos tipos abaixo, identificados pelo campo NUM-REG-ARQUIVO. Os demais tipos, a exemplo dos tipos 16 e 17, são desconsiderados nessa verificação.
+Tipos aplicáveis	Ordem esperada dos campos
+00, 98, 01, 02, 03, 09, 11, 13, 04, 05, 14	1) CHV-NATURAL-PREFEITURA; 2) COD-FAMILIAR-FAM; 3) NUM-MEMBRO-FMLA; 4) dois campos/espaços vazios; 5) NUM-REG-ARQUIVO
+7.2	Matriz das regras de verificação
+Nº	Tipo	Campo	Validações
+1	00, 98, 01, 02, 03, 09, 11, 13, 04, 05, 14	Regra de Ordem	O arquivo deve estar na ordem esperada dos campos: CHV-NATURAL-PREFEITURA, COD-FAMILIAR-FAM, NUM-MEMBRO-FMLA, dois cam-pos/espaços vazios e NUM-REG-ARQUIVO. Aplicável somente aos tipos de registro indicados.
+2	00	Não informado	A HU não especifica a regra 2. A seção "Tipo 00" está assinalada como complementar. Pendência (ver seção 8.1).
+3	98	CHV-NATURAL-PREFEITURA	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. O valor deve ser maior que 0.
+4	98	COD-MUNIC-IBGE-2-PRE	1. Informação obrigatória. 2. Somente caracteres numéricos.
+5	98	COD-MUNIC-IBGE-5-PRE	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. Verificar se todos os códigos IBGE da BM estão presentes no SIICO.
+6	98	CHV-NATURAL-PREFEITURA	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. Verificar se as chaves naturais das prefeituras da BM estão presentes no SIBEC. Constando na BM chave natural inexistente no SIBEC, o código IBGE deve existir no SIICO e a chave natural no SIISO para que o arquivo não seja rejeitado.
+7	01	COD-FAMILIAR-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. O valor deve ser maior que 0.
+8	01	DAT-CADASTRAMENTO-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. Deve ser uma data válida.
+9	01	DAT-ALTERACAO-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. Deve ser uma data válida.
+10	01	COD-EST-CADASTRAL-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos.
+11	01	COD-CONDICAO-CADASTRO-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos.
+12	01	VLR-RENDA-MEDIA-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos.
+13	01	IND-FORMULARIO-SUP2-FAM	Indicador de família com morador de rua. 1. Informação obrigatória. 2. Somente caracteres numéricos.
+14	01	DAT-ATUALIZACAO-FAMILIA	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. Deve ser uma data válida.
+15	01	QT_PSA_CLCO_RNDA	Quantidade de pessoas na família para o cálculo da renda. 1. Informação obrigatória. 2. Somente caracteres numéricos.
+16	04	COD-FAMILIAR-FAM	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. O valor deve ser maior que 0. A rejeição deste campo resulta em erro pela Regra 1 (Regra de Ordem).
+17	04	NUM-MEMBRO-FMLA	1. Informação obrigatória. 2. Somente caracteres numéricos. 3. O valor deve ser maior que 0.
+18	04	COD-EST-CADASTRAL-MEMB	1. Informação obrigatória. 2. Somente caracteres numéricos.
+19	04	NOM-PESSOA	1. Informação obrigatória. 2. Deve ser somente texto, não podendo conter números.
+20	04	NUM-NIS-PESSOA-ATUAL	1. Se informado, somente caracteres numéricos. 2. O primeiro caractere deve ser igual a 1 ou 2. 3. Se não informado, aceita valor em branco.
+21	04	DTA-NASC-PESSOA	1. Se informado, somente caracteres numéricos. 2. Deve ser uma data válida. 3. Se não informado, aceita valor em branco.
+22	05	NUM-CPF-PESSOA	1. Se informado, somente caracteres numéricos. 2. O campo pode aceitar valor em branco.
+7.3	 Estados cadastrais considerados
+Código	Descrição	Aplicação
+2	Sem registro civil	Registros avaliados nos Tipos 01, 04 e 05
+3	Cadastrado	Registros avaliados nos Tipos 01, 04 e 05
+Demais	Outros estados cadastrais	Não avaliados pelas regras 7 a 22
+7.4	Domínio completo do estado cadastral
+Conforme o leiaute da Base Municipal versão 6.29. O domínio da família (COD-EST-CADASTRAL-FAM) contempla apenas os códigos 1 a 3; o da pessoa (COD-EST-CADASTRAL-MEMB) contempla os códigos 1 a 7.
+Código	Descrição	Família	Pessoa
+1	Em cadastramento	Sim	Sim
+2	Sem registro civil	Sim	Sim
+3	Cadastrado	Sim	Sim
+4	Excluído	Não previsto	Sim
+5	Aguardando atribuição de NIS	Não previsto	Sim
+6	Aguardando alteração de caracterização	Não previsto	Sim
+7	Aguardando CPF	Não previsto	Sim
+ 
+8	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio ou da DATAPREV antes do iní-cio da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+8.1	Lacunas que impedem a construção
+•	Regra 2 não especificada: a numeração das regras salta de 1 para 3 e a seção "Tipo 00" está assinalada como complementar, sem conteúdo. O leiaute do relatório de validação confirma a lacuna: a posição 2 do registro também não é documentada ali. Não se trata de erro de nume-ração, e sim de regra a ser definida.
+•	Regra 6, item 3 — resolvido: a lacuna foi preenchida pelo leiaute do relatório de validação. A consulta primária é ao SIBEC; constando na BM chave natural inexistente ali, o código IBGE de-ve existir no SIICO e a chave natural no SIISO. Resta definir o meio de consulta a cada um dos três sistemas e o comportamento em caso de indisponibilidade.
+•	Seção "Exceção" do Tipo 98: o campo está presente no texto da HU, porém vazio. Confirmar se existe exceção adicional ou se o item deve ser removido.
+•	Duplicidade entre as regras 3 e 6: ambas validam o campo CHV-NATURAL-PREFEITURA no Tipo 98 com as mesmas duas primeiras validações, diferindo apenas pela consulta ao SIISO. Confir-mar se são de fato duas regras distintas, uma vez que a RN11 prevê contabilização simultânea.
+•	Siglas SIICO e SIISO: confirmar a grafia e a identificação dos sistemas consultados nas regras 5 e 6, bem como o meio de consulta (tabela replicada, serviço ou arquivo) e o comportamento em caso de indisponibilidade.
+•	Formato das datas: as regras 8, 9, 14 e 21 exigem somente caracteres numéricos e data válida, mas o formato não foi informado. Confirmar o padrão do leiaute (por exemplo AAAAMMDD) e a regra para datas futuras ou anteriores a um limite razoável.
+•	Leiaute vigente — fornecido: o leiaute da Base Municipal foi entregue na versão 6.29, com posição, tamanho, tipo e domínio de 688 campos em 22 tipos de registro. Resta definir o con-trole de versão e o procedimento de atualização quando a DATAPREV publicar nova versão.
+•	Divergência de obrigatoriedade entre a HU e o leiaute: para as regras 17, 20, 21 e 22 a HU exige informação obrigatória, ao passo que o leiaute do relatório de validação não traz essa exigência, limitando-se ao formato e admitindo valor em branco. Confirmar qual documento prevalece.
+8.2	Contradição central: rejeição do arquivo x rejeição da linha
+•	Escopo da rejeição (RN01 x RN04): a regra 2.1.1 determina que qualquer regra não atendida rejeita o arquivo inteiro e impede o início da ingestão. Já os itens 2.1.2 e 2.1.3 tratam de identi-ficar linhas com ocorrências e registrar "a rejeição da linha/registro" no arquivo analítico. Tra-ta-se de conceitos incompatíveis: ou o arquivo é rejeitado integralmente, ou as linhas com ocorrência são segregadas e o restante é ingerido. É a definição mais importante desta HU.
+•	Tolerância a ocorrências: considerando a volumetria nacional da Base Municipal, uma única linha inconsistente rejeitaria toda a carga. Confirmar se há percentual de tolerância, se a rejei-ção é por município ou por prefeitura, ou se o processo é efetivamente do tipo "tudo ou nada".
+•	Momento da rejeição: se o arquivo é rejeitado, faz sentido varrer a totalidade do arquivo (RN04) antes de rejeitá-lo, para produzir o analítico completo? Confirmar se a varredura inte-gral é requisito, considerando o custo de processamento.
+•	Reprocessamento: após a rejeição, quem aciona o reenvio pela DATAPREV? Há prazo, guarda do arquivo rejeitado e controle de tentativas?
+8.3	Precisão das validações
+•	Regra 12 — VLR-RENDA-MEDIA-FAM: o campo é monetário, mas a validação exige apenas ca-racteres numéricos. Confirmar se as casas decimais são implícitas no leiaute e qual a regra de interpretação do valor.
+•	Regra 19 — NOM-PESSOA: a exigência de "somente texto, sem números" precisa ser detalha-da quanto a espaços, acentuação, apóstrofos, hífens e algarismos romanos em nomes com-postos. Definir o conjunto de caracteres aceito.
+•	Regra 20 — NUM-NIS-PESSOA-ATUAL: confirmar se a validação se limita ao primeiro caracte-re ou se deve contemplar quantidade de dígitos e dígito verificador.
+•	Regra 22 — NUM-CPF-PESSOA: confirmar se não há validação de quantidade de dígitos nem de dígito verificador, o que permitiria a ingestão de CPF estruturalmente inválido.
+•	Filtro de estado cadastral nos Tipos 04 e 05 (RN09): o texto da HU condiciona a avaliação de pessoas ao campo COD-EST-CADASTRAL-FAM, que é de família, embora exista o campo COD-EST-CADASTRAL-MEMB, validado pela regra 18. Confirmar qual campo governa o filtro dos re-gistros de pessoa.
+•	Redação do Tipo 05: o texto "de pessoas com estado cadastral CADASTRADO (3) e SEM REGIS-TRO CIVIL (2) Tipo 04" está truncado. Confirmar se o filtro do Tipo 05 deriva do Tipo 04 corres-pondente.
+•	Divergência de nomenclatura de campo: a regra 15 utiliza QT_PSA_CLCO_RNDA, enquanto a STRY00070086 utiliza [QTD-PES-CALC-RND] e a HU "Módulo de Utilização" utiliza [QTD_PES_CALC_RND]. O leiaute do relatório de validação descreve o campo como "quanti-dade de pessoas na família para o cálculo da renda", que não equivale necessariamente à quantidade de integrantes. Isso afeta diretamente a RN01 da HU "Módulo de Utilização", em que o BRC é o valor unitário multiplicado por esse campo. É necessário unificar a nomenclatura e confirmar a semântica.
+8.4	Tratamento de nulos
+•	Risco da conversão de nulo em zero (RF14, RN13): a própria HU registra a dúvida do gestor. Converter renda nula em zero transforma a família em renda per capita zero, tornando-a elegí-vel como extrema pobreza e distorcendo as simulações. É necessário definir a conversão cam-po a campo, e não como regra geral.
+•	Distinção entre nulo e zero legítimo: após a conversão, deixa de ser possível diferenciar au-sência de informação de valor efetivamente igual a zero. Definir se haverá indicador de origem do dado preservando essa distinção.
+•	Relação de campos numéricos utilizados pelo SIBEC: a regra depende de uma relação de campos que não acompanha a HU e precisa ser fornecida.
+8.5	Operação, segurança e desempenho
+•	Meio e periodicidade do recebimento (RF01): não foram informados o protocolo de transfe-rência, a periodicidade do envio, a janela de recebimento, o tamanho estimado do arquivo, a compactação, a codificação de caracteres e o mecanismo de verificação de integridade (hash ou totalizadores de trailer).
+•	Conteúdo da validação de integridade e estrutura (RF04): definir objetivamente o que com-põe essa validação: soma de verificação, quantidade de registros declarada, tamanho fixo de linha, codificação e presença dos registros de cabeçalho e rodapé.
+•	Critério de aceite da adaptação a leiaute (RF03): o requisito exige ajuste do processamento diante de alteração de leiaute. Definir se isso significa leiaute parametrizável, versionamento de leiaute ou alteração de código, e qual o critério objetivo de aceite, sob pena de o requisito permanecer intestável.
+•	Substituição ou versionamento da carga: a nova carga da Base Municipal substitui a anterior ou são mantidas versões? A decisão afeta diretamente a reprodutibilidade das simulações sal-vas, conforme registrado nas HUs STRY00071242 e STRY00087376.
+•	Proteção de dados pessoais: a Base Municipal contém nome, CPF, NIS e data de nascimento. É necessário definir criptografia em repouso e em trânsito, mascaramento nos logs e no arquivo analítico, prazo de retenção do arquivo bruto e perfis autorizados ao acesso.
+•	Volumetria e janela de processamento: não há informação sobre quantidade de registros, tempo máximo aceitável de processamento nem comportamento da plataforma durante a carga, se há indisponibilidade das funcionalidades que consomem a BM.
+•	Notificação de resultado: além da exibição no Painel de Monitoramento, deve haver notifica-ção ativa ao Gestor CAIXA em caso de rejeição? Por qual canal e em qual prazo?
+ 
+9	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
+
+Data	Nome	Cargo / Área
+		
+		
+
