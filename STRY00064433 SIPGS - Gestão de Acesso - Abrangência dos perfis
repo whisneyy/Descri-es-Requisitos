@@ -1,0 +1,144 @@
+
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+STRY00064433 — SIPGS — Gestão de Acesso — Abrangência dos perfis
+
+
+ 
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026	Priscila Magalhães	1.0	Elaboração do documento a partir da HU STRY00064433
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+ 
+2. OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos de estruturação dos perfis de acesso da Plataforma de Benefícios Sociais por níveis de abrangência, definindo o escopo de atuação de cada usuário sobre os dados em função da entidade a que está vinculado e dos produtos para os quais possui autorização.
+A finalidade de negócio é controlar quais funcionalidades cada usuário pode acessar e quais registros pode visualizar, consultar, manter ou processar, assegurando segurança, rastreabilidade e conformidade, e impedindo que usuários alcancem dados fora do seu escopo institucional.
+Esta HU é transversal às demais: as funcionalidades do Simulador, da ingestão da Base Municipal e do De x Para dos campos referenciam perfis e abrangências cuja definição é objeto deste documento.
+3. ESCOPO
+3.1 Está no escopo
+•	Definição das abrangências suportadas pela Plataforma.
+•	Obrigatoriedade de atribuição de abrangência na concessão de perfil.
+•	Regras de delimitação dos dados acessíveis para cada abrangência.
+•	Restrição de acesso por produto.
+•	Validação do escopo do usuário em toda consulta ou operação.
+3.2 Não está no escopo desta HU
+•	Cadastro e manutenção de usuários e concessão de perfis, objeto de HU específica a ser identificada.
+•	Definição do conteúdo da Matriz de Acesso da Plataforma, referenciada por esta e por outras HUs.
+•	Autenticação e federação de identidade.
+•	Permissões funcionais de cada perfil dentro de cada produto, tratadas nas HUs das respectivas funcionalidades.
+ 
+4. REQUISITOS FUNCIONAIS
+4.1 Concessão de perfil e abrangência
+•	RF01 — Obrigatoriedade da Abrangência: Ao conceder um perfil a um usuário, o sistema deve exigir a definição da abrangência de atuação correspondente, não admitindo concessão sem essa informação.
+•	RF02 — Abrangências Suportadas: A Plataforma deve contemplar as seguintes abrangências:
+○	Perfil Nacional — por exemplo, ministérios e secretarias nacionais;
+○	Perfil Governo Estadual;
+○	Perfil Governo Municipal;
+○	Perfil CAIXA;
+○	Perfil de entidades externas específicas — por exemplo, TCU e CGU.
+4.2 Aplicação da abrangência
+•	RF03 — Delimitação dos Registros: A abrangência deve determinar quais registros podem ser visualizados, consultados, mantidos ou processados pelo usuário, observadas adicionalmente as permissões atribuídas ao seu perfil.
+•	RF04 — Validação Prévia do Escopo: Em qualquer consulta ou operação, o sistema deve validar o escopo do usuário antes de retornar os resultados.
+4.3 Regras por abrangência
+•	RF05 — Abrangência Nacional: Usuários com abrangência nacional devem acessar informações e executar operações sobre todos os registros do produto para o qual possuam autorização, com acesso a dados agregados e a registros de abrangência nacional.
+•	RF06 — Abrangência Estadual: Usuários com abrangência estadual devem acessar exclusivamente informações dos municípios pertencentes à unidade federativa associada ao seu vínculo. Todas as consultas, relatórios e operações devem ser limitados aos registros do estado autorizado.
+•	RF07 — Abrangência Municipal: Usuários com abrangência municipal devem acessar exclusivamente informações relacionadas ao município associado ao seu vínculo. Nenhuma consulta ou operação pode retornar dados de outros municípios.
+•	RF08 — Abrangência Organizacional CAIXA: Usuários vinculados à CAIXA devem possuir acesso compatível com o escopo de sua atuação institucional. A abrangência efetiva deve ser definida por meio da Matriz de Acesso, observando o produto, o perfil e as permissões concedidas ao usuário.
+•	RF09 — Abrangência de Entidades Externas: Usuários vinculados a órgãos de controle, de fiscalização ou a entidades externas devem acessar exclusivamente os dados e as funcionalidades expressamente autorizados pela Matriz de Acesso.
+4.4 Restrição por produto
+•	RF10 — Autorização Ativa por Produto: O usuário somente deve acessar informações dos produtos para os quais possua autorização ativa.
+•	RF11 — Não Propagação entre Produtos: A autorização concedida para um produto não implica acesso automático aos demais produtos disponibilizados pela Plataforma, ainda que o ente do usuário possua mais de um produto gerenciado no SIPGS.
+ 
+5. REGRAS DE NEGÓCIO
+•	RN01 — Perfil e Abrangência são Indissociáveis: Não pode existir concessão de perfil sem abrangência associada. A ausência da abrangência impede a efetivação da concessão.
+•	RN02 — Cumulatividade entre Abrangência e Permissão: O acesso efetivo do usuário resulta da interseção entre a abrangência concedida, que delimita os registros, e as permissões do perfil, que delimitam as operações. O atendimento de apenas um dos dois critérios não autoriza o acesso.
+•	RN03 — Origem da Abrangência Territorial: A unidade federativa e o município considerados na delimitação dos dados derivam do vínculo do usuário, não podendo ser informados livremente no momento da consulta.
+•	RN04 — Isolamento Territorial: Nenhuma consulta, relatório ou operação pode retornar registros de município ou de estado fora da abrangência do usuário, independentemente do caminho de navegação utilizado.
+•	RN05 — Matriz de Acesso como Instrumento de Definição: Para as abrangências CAIXA e de entidades externas, a delimitação efetiva dos dados e das funcionalidades é estabelecida pela Matriz de Acesso da Plataforma.
+•	RN06 — Autorização por Produto: A autorização é concedida por produto e é independente entre produtos. A existência de vínculo do ente com mais de um produto não amplia automaticamente o acesso do usuário.
+•	RN07 — Validação no Servidor: A validação do escopo precede a devolução de qualquer resultado e deve ocorrer no processamento da requisição, não sendo suficiente a filtragem na camada de apresentação.
+•	RN08 — Dados Agregados: O acesso a dados agregados de abrangência nacional é atributo da abrangência nacional, não se estendendo às abrangências estadual e municipal, salvo autorização expressa na Matriz de Acesso.
+ 
+6. TABELAS DE APOIO
+6.1 Matriz de abrangências
+Abrangência	Titular típico	Universo de dados acessível	Origem da definição
+Nacional	Ministérios e secretarias nacionais	Todos os registros do produto autorizado, inclusive dados agregados	Vínculo institucional
+Governo Estadual	Secretarias estaduais	Municípios pertencentes à UF do vínculo	UF do vínculo
+Governo Municipal	Prefeituras e secretarias municipais	Exclusivamente o município do vínculo	Município do vínculo
+CAIXA	Empregados da CAIXA	Definido pela Matriz de Acesso, conforme produto, perfil e permissões	Matriz de Acesso
+Entidades externas	TCU, CGU e demais órgãos de controle	Exclusivamente o que estiver expressamente autorizado	Matriz de Acesso
+6.2 Correspondência com os perfis citados nas demais HUs
+A relação abaixo é proposta pela equipe de requisitos para conciliar os vocabulários utilizados. Depende de confirmação, conforme registrado na seção 7.1.
+Esta HU (STRY00064433)	STRY00069681 e demais	Situação
+Perfil Nacional	Gestor Ente Externo Nacional	A confirmar
+Perfil Governo Estadual	Gestor Ente Externo Estadual	A confirmar
+Perfil Governo Municipal	Gestor Ente Externo Municipal	A confirmar
+Perfil CAIXA	Gestor CAIXA	Correspondência direta
+Perfil de entidades externas	Sem correspondência	Não citado em nenhuma outra HU
+Não citado	"Mesmo perfil operacional" (STRY00087376)	Termo sem definição
+ 
+7. Pontos de atenção para refinamento
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+7.1 Modelo conceitual: perfil e abrangência
+•	Sobreposição entre os dois conceitos: a HU define perfil como conjunto de permissões e abrangência como escopo de dados, mas a relação das "abrangências suportadas" é, na verdade, uma relação de perfis. É necessário definir se o modelo possui dois eixos independentes — um perfil funcional combinado a uma abrangência territorial — ou um eixo único em que cada perfil já carrega a sua abrangência. A decisão define o modelo de dados da gestão de acesso.
+•	Vocabulário divergente entre as HUs: esta HU utiliza "Perfil Nacional", "Governo Estadual", "Governo Municipal", "CAIXA" e "entidades externas"; a STRY00069681 utiliza "Gestor Ente Externo Nacional, Estadual e Municipal" e "Gestor CAIXA"; a STRY00087376 utiliza "mesmo perfil operacional". São três vocabulários para o mesmo domínio. É necessário um glossário único, com a nomenclatura oficial dos perfis.
+•	Perfil de entidades externas: órgãos de controle como TCU e CGU não são citados em nenhuma outra HU. A STRY00069681 restringe o Simulador aos Gestores de Ente Externo e ao Gestor CAIXA. Confirmar se as entidades externas terão acesso ao Simulador e às demais funcionalidades e, em caso positivo, em que modalidade.
+•	Perfil somente leitura: não há previsão de perfil de consulta sem poder de operação, embora ele seja natural para órgãos de controle e para auditoria interna. Confirmar se a distinção entre consultar e operar será tratada pelas permissões do perfil.
+7.2 Matriz de Acesso
+•	Ausência de especificação: a Matriz de Acesso é citada como fonte da definição em três HUs, mas não está especificada em nenhuma. É necessário definir se ela é um artefato documental ou uma funcionalidade da Plataforma, onde é mantida, por quem e sob qual rito de alteração.
+•	Estrutura mínima: para sustentar os RF08 e RF09, a matriz precisa relacionar, no mínimo, produto, perfil, funcionalidade, permissão e abrangência. Confirmar essa estrutura e obter a matriz vigente.
+•	Concessão e revogação de perfis: quem concede o perfil e a abrangência? Há fluxo de aprovação, prazo de validade do vínculo e processo periódico de recertificação dos acessos? Não há HU identificada para esse ciclo.
+
+7.3 Delimitação territorial
+•	Multiplicidade de vínculo: a redação pressupõe vínculo único ("o município associado ao seu vínculo"). Definir o tratamento de usuários que atuem em mais de um município, em mais de um estado, em consórcios intermunicipais ou em mais de um ente.
+•	Modelo de acesso da CAIXA: o texto determina que o sistema garanta acesso a todas as informações da Plataforma, limitando as permissões individualmente. Trata-se de modelo permissivo por padrão, oposto ao adotado para os demais perfis e ao princípio do menor privilégio. Confirmar com a área de segurança se essa é mesmo a intenção.
+•	Famílias que migram entre municípios: uma família que altera o município de vinculação passa a ser visível ao novo gestor municipal. Definir o tratamento do histórico: o gestor de origem continua enxergando os registros anteriores à migração?
+•	Dados agregados para perfis subnacionais (RN08): um gestor estadual pode visualizar totais nacionais como referência comparativa, sem detalhamento de outros estados? A resposta afeta diretamente os painéis do Simulador.
+•	Conflito com o comparativo entre simulações: a STRY00087376 exige a exibição da composição regional, estadual e por microrregião do programa. Para o gestor municipal, cuja visão se limita ao próprio município, esses recortes não podem ser exibidos com detalhamento. Definir o comportamento desses indicadores por abrangência.
+7.4 Segurança, rastreabilidade e comportamento
+•	Ausência de requisito de rastreabilidade: a descrição da HU declara a rastreabilidade como finalidade, mas nenhum critério de aceitação trata de registro de acesso. Definir se consultas e operações sobre dados pessoais devem ser registradas, com qual conteúdo e por qual prazo de retenção.
+•	Comportamento na negativa de acesso: para funcionalidades não autorizadas, o sistema deve ocultar a opção de menu ou exibi-la com mensagem de acesso negado? A mesma questão consta da STRY00069681 e deve ser respondida de forma única.
+•	Alteração de perfil em sessão ativa: quando o perfil, a abrangência ou a autorização de produto forem alterados ou revogados, o efeito é imediato sobre a sessão em curso ou somente no próximo acesso?
+•	Critério de aceite da validação de escopo (RF04, RN07): é necessário definir como se comprova que a validação ocorre no servidor, incluindo testes de tentativa de acesso direto a identificadores fora da abrangência do usuário.
+7.5 Reflexos nas funcionalidades já especificadas
+•	Compartilhamento de simulações: a STRY00087376 permite o uso de simulações disponibilizadas por colegas do mesmo ente com o mesmo perfil operacional. Definir o comportamento quando dois usuários do mesmo ente possuírem abrangências distintas, hipótese em que uma simulação compartilhada poderia expor dados fora do escopo do destinatário.
+•	Painel de Monitoramento da carga: as HUs STRY00079079, STRY00062314 e STRY00081356 restringem o painel ao Gestor CAIXA. Confirmar se os gestores de ente externo devem ao menos conhecer a data de referência da base em uso, informação necessária à correta interpretação das simulações.
+•	Arquivo analítico de validação: o arquivo contém ocorrências de todos os municípios. Se for disponibilizado a perfis de abrangência municipal ou estadual, é necessário segregá-lo por ente, sob pena de violar a delimitação estabelecida nesta HU.
+•	Manutenção do De x Para: a STRY00083689 restringe a manutenção das nomenclaturas ao Gestor CAIXA, com efeito imediato sobre todos os usuários. Confirmar a coerência dessa concentração com o modelo de acesso aqui definido.
+7.6 Requisitos não funcionais
+•	Desempenho do filtro de abrangência: a aplicação do filtro territorial sobre bases de volumetria nacional incide em todas as consultas. Definir o tempo máximo de resposta aceitável e avaliar a necessidade de particionamento dos dados por unidade federativa ou município.
+•	Quantidade de usuários e entes: não há estimativa do número de usuários, de entes e de vínculos a serem administrados, informação necessária ao dimensionamento da solução de gestão de acesso.
+ 
+8. Rastreabilidade — HU x Requisitos
+Critério de aceitação da HU	Requisito	Regra de negócio
+Definição obrigatória da abrangência na concessão	RF01	RN01
+Abrangência determina os registros acessíveis	RF03	RN02
+Relação das abrangências suportadas	RF02	—
+Abrangência nacional	RF05	RN08
+Abrangência estadual	RF06	RN03, RN04
+Abrangência municipal	RF07	RN03, RN04
+Abrangência organizacional CAIXA	RF08	RN05
+Abrangência de entidades externas	RF09	RN05
+Acesso somente a produtos autorizados	RF10	RN06
+Não propagação entre produtos	RF11	RN06
+Validação do escopo antes de retornar resultados	RF04	RN07
+
+ 
+9. Aceite da documentação
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabelecidas.
+Data	Nome	Cargo / Área
+		
+		
+
