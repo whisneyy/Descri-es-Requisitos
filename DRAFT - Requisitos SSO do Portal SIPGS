@@ -1,0 +1,205 @@
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+SIPGS — SSO do Portal
+ 
+Autenticação única, federação de identidade e ciclo de vida da sessão
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração como documento base, complementar à HU de API Gateway e JWT
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. Descrição
+Como gestor de programas sociais, quero acessar a Plataforma de Benefícios autenticando-me uma única vez, com a credencial que já utilizo na minha instituição, e circular por todos os módulos sem repetir a autenticação, para que o acesso seja simples de usar e, ao mesmo tempo, controlado e auditável.
+Este documento complementa a HU de API Gateway e JWT. Lá se definiu o que a plataforma faz com o token: valida, propaga e revoga. Aqui se define como o usuário se autentica e como a sessão nasce, se mantém e termina. A separação é intencional: a autenticação ocorre em provedor de identidade externo, enquanto a autorização e a propagação do escopo são responsabilidade da plataforma.
+A particularidade do SIPGS é atender a dois públicos de naturezas distintas. De um lado, empregados da CAIXA, que possuem credencial corporativa. De outro, gestores de prefeituras, secretarias estaduais e ministérios, além de órgãos de controle, que não pertencem à instituição e para os quais a credencial precisa vir de outra origem. Essa dualidade é o que torna a definição do modelo de federação a decisão central deste documento.
+Natureza deste documento: nenhuma das histórias recebidas trata de autenticação. A única menção ao tema em todo o conjunto é a expressão "usuário autenticado", na STRY00111044. Este documento foi construído por dedução e, por isso, concentra decisões que precisam ser tomadas com a arquitetura corporativa e com a segurança da informação antes da construção.
+3. Premissas adotadas
+Nº	Premissa adotada	Origem da pendência
+P01	A autenticação ocorre em provedor de identidade externo à plataforma, que não armazena nem valida credenciais.	HU de API Gateway, P01
+P02	Adota-se protocolo de federação baseado em redirecionamento, com emissão de asserção de identidade à plataforma.	Protocolo não definido
+P03	A plataforma mantém cadastro próprio dos usuários, vinculado à identidade do provedor, conforme a HU de Provisionamento de Acesso.	HU de Provisionamento, RF05
+P04	Autenticar-se não confere acesso: o acesso depende de concessão vigente na plataforma.	STRY00064433
+P05	A sessão da plataforma é independente da sessão do provedor de identidade, ainda que derivada dela.	Decisão registrada na seção 8.2
+ 
+4. Escopo
+4.1 Está no escopo
+•	Integração com os provedores de identidade dos públicos atendidos.
+•	Fluxo de autenticação e retorno à plataforma.
+•	Vinculação da identidade autenticada ao cadastro de usuário da plataforma.
+•	Primeiro acesso e aceite dos termos de uso e de responsabilidade.
+Ciclo
+Atividade em outras contas e organizações 9
+Há menu de contexto
+•	 de vida da sessão: criação, manutenção, renovação e expiração.
+•	Exigência de segundo fator conforme o perfil.
+•	Encerramento da sessão e logout único.
+•	Tratamento de falhas de autenticação e de autorização.
+•	Registro de auditoria dos eventos de autenticação.
+4.2 Não está no escopo
+•	Guarda e validação de credenciais, recuperação de senha e política de senha, que pertencem ao provedor de identidade.
+•	Emissão, validação e revogação do token de acesso, tratadas na HU de API Gateway e JWT.
+•	Concessão de perfis, abrangência e produtos, tratada na HU de Provisionamento de Acesso.
+•	Autenticação de cidadãos ou beneficiários, uma vez que a plataforma atende a gestores.
+ 
+5. Requisitos Funcionais
+5.1 Autenticação e federação
+•	RF01 — Ponto Único de Autenticação: A plataforma deve possuir ponto único de autenticação, para o qual são encaminhados todos os acessos não autenticados, independentemente do módulo de destino.
+•	RF02 — Seleção da Origem: Quando houver mais de um provedor de identidade, a plataforma deve permitir ao usuário identificar a sua origem institucional antes do encaminhamento, conforme a seção 7.1.
+•	RF03 — Delegação da Autenticação: A validação da credencial deve ocorrer integralmente no provedor de identidade, não transitando credencial pela plataforma.
+•	RF04 — Recepção da Asserção: A plataforma deve receber e validar a asserção de identidade devolvida pelo provedor, verificando a sua origem, a sua integridade e a sua vigência.
+•	RF05 — Retorno ao Destino: Concluída a autenticação, o usuário deve ser conduzido ao destino originalmente solicitado, e não a uma tela genérica.
+5.2 Vinculação ao cadastro da plataforma
+•	RF06 — Identificação do Usuário: A plataforma deve localizar, no seu cadastro, o usuário correspondente à identidade autenticada, utilizando o atributo de vínculo definido na HU de Provisionamento de Acesso.
+•	RF07 — Usuário sem Cadastro: Quando a identidade autenticada não corresponder a usuário cadastrado, o acesso deve ser recusado com mensagem que oriente a solicitação de acesso, sem criar cadastro automaticamente.
+•	RF08 — Usuário sem Concessão Vigente: Quando o usuário estiver cadastrado, porém sem concessão vigente, o acesso deve ser recusado com orientação para procurar o administrador do seu ente.
+•	RF09 — Resolução do Escopo: Localizado o usuário com concessão vigente, a plataforma deve resolver o perfil, a abrangência e os produtos autorizados, que comporão o token de acesso.
+•	RF10 — Seleção de Vínculo: Quando o usuário possuir mais de uma concessão aplicável, a plataforma deve permitir a escolha do vínculo com o qual deseja atuar na sessão, conforme a seção 8.3.
+5.3 Primeiro acesso
+•	RF11 — Termos de Uso: No primeiro acesso, a plataforma deve apresentar os termos de uso e o termo de responsabilidade sobre o tratamento de dados pessoais, condicionando o prosseguimento ao aceite.
+•	RF12 — Registro do Aceite: O aceite deve ser registrado com identificação do usuário, data, hora e versão do termo aceito.
+•	RF13 — Novo Aceite por Nova Versão: Publicada nova versão dos termos, a plataforma deve exigir novo aceite no acesso seguinte.
+•	RF14 — Orientação Inicial: No primeiro acesso, a plataforma deve apresentar orientação sobre os módulos disponíveis ao perfil do usuário.
+5.4 Sessão
+•	RF15 — Criação da Sessão: Concluída a autenticação e resolvido o escopo, a plataforma deve criar sessão identificada de forma única, vinculada ao usuário, ao vínculo escolhido e ao momento da autenticação.
+•	RF16 — Autenticação Única entre Módulos: A sessão deve ser válida para todos os módulos da plataforma, não sendo admitida nova autenticação ao navegar entre eles.
+•	RF17 — Renovação Silenciosa: A plataforma deve renovar o acesso durante a sessão ativa sem exigir nova interação do usuário, enquanto a sessão permanecer válida.
+•	RF18 — Expiração por Inatividade: A sessão deve expirar após o período parametrizado de inatividade, com advertência prévia ao usuário e possibilidade de renovação sem perda do trabalho em andamento.
+•	RF19 — Duração Máxima: A sessão deve possuir duração máxima absoluta, findo o qual nova autenticação é exigida ainda que haja atividade contínua.
+•	RF20 — Sessões Simultâneas: A plataforma deve tratar as sessões simultâneas do mesmo usuário conforme a definição da seção 8.4.
+5.5 Segundo fator
+•	RF21 — Exigência por Perfil: A plataforma deve exigir segundo fator de autenticação para os perfis relacionados na seção 7.3.
+•	RF22 — Exigência por Operação: Operações de maior criticidade, notadamente a geração de folha interna e a manutenção da Matriz de Acesso, devem exigir reautenticação, ainda que a sessão esteja vigente.
+•	RF23 — Delegação ao Provedor: O segundo fator deve ser provido pelo provedor de identidade, cabendo à plataforma exigir e verificar o seu emprego na asserção recebida.
+5.6 Encerramento
+•	RF24 — Encerramento pelo Usuário: A plataforma deve oferecer o encerramento da sessão a partir de qualquer módulo, advertindo sobre trabalho não salvo.
+•	RF25 — Logout Único: O encerramento na plataforma deve encerrar também a sessão no provedor de identidade, de modo que nova autenticação seja exigida em acesso subsequente.
+•	RF26 — Encerramento Originado no Provedor: O encerramento da sessão no provedor de identidade deve encerrar a sessão na plataforma.
+•	RF27 — Encerramento por Revogação: A revogação de perfil, abrangência ou produto deve encerrar ou reduzir imediatamente a sessão ativa, informando o usuário, conforme a HU de Provisionamento de Acesso.
+•	RF28 — Limpeza no Encerramento: O encerramento deve descartar os dados mantidos no navegador durante a sessão, observada a vedação de persistência local aplicável aos módulos que tratam microdado.
+5.7 Falhas e bloqueios
+•	RF29 — Mensagem Padronizada: As falhas de autenticação devem produzir mensagem padronizada, sem distinguir identificação inexistente, credencial incorreta ou acesso bloqueado.
+•	RF30 — Distinção entre Autenticação e Autorização: A recusa por ausência de cadastro ou de concessão vigente deve ser distinguida da falha de autenticação, orientando o usuário sobre como proceder.
+•	RF31 — Indisponibilidade do Provedor: Na indisponibilidade do provedor de identidade, a plataforma deve informar a situação e preservar as sessões já estabelecidas até a sua expiração natural.
+•	RF32 — Proteção contra Tentativas Automatizadas: A plataforma deve aplicar proteção contra tentativas repetidas de autenticação originadas do mesmo endereço.
+5.8 Auditoria
+•	RF33 — Registro de Eventos: A plataforma deve registrar os eventos relacionados na seção 7.4, com identificação do usuário, data, hora, origem e desfecho.
+•	RF34 — Registro das Recusas: As recusas por ausência de cadastro, ausência de concessão e falha de autenticação devem ser registradas de forma distinta dos acessos bem-sucedidos.
+•	RF35 — Vedação de Dado Sensível: Os registros não podem conter credenciais, asserções completas nem segundo fator.
+•	RF36 — Consulta aos Registros: Os registros devem ser consultáveis pelos perfis autorizados, com filtros por usuário, por período e por tipo de evento.
+ 
+6. Regras de Negócio
+•	RN01 — Autenticação Não Confere Acesso: A autenticação apenas comprova a identidade. O acesso à plataforma depende de cadastro e de concessão vigente, nos termos da HU de Provisionamento de Acesso.
+•	RN02 — Credencial Fora da Plataforma: A plataforma não armazena, não valida e não recupera credenciais, que permanecem sob responsabilidade do provedor de identidade.
+•	RN03 — Autenticação Única: Uma vez autenticado, o usuário acessa todos os módulos para os quais possua permissão, sem nova autenticação, ressalvadas as operações que exijam reautenticação.
+•	RN04 — Vínculo Único por Sessão: A sessão opera sob um único vínculo. A atuação sob vínculo distinto exige nova seleção e nova emissão de token.
+•	RN05 — Prevalência da Revogação: A revogação de acesso prevalece sobre a vigência da sessão e produz efeito imediato.
+•	RN06 — Duração Limitada: Nenhuma sessão é perpétua. A renovação silenciosa não pode ultrapassar a duração máxima absoluta.
+•	RN07 — Aceite Obrigatório: O uso da plataforma é condicionado ao aceite vigente dos termos, que deve ser renovado a cada nova versão.
+•	RN08 — Inalterabilidade dos Registros: Os registros de autenticação não podem ser alterados nem suprimidos.
+•	RN09 — Minimização na Asserção: A plataforma deve solicitar ao provedor apenas os atributos necessários à identificação funcional do usuário.
+ 
+7. Tabelas de apoio
+7.1 Públicos e origens de identidade
+Composição proposta, a ser confirmada com a arquitetura corporativa.
+Público	Caracterização	Origem proposta	Situação
+Empregados da CAIXA	Perfil organizacional CAIXA	Provedor de identidade corporativo	A confirmar
+Gestores municipais	Prefeituras e secretarias municipais	Identidade digital governamental ou provedor da plataforma	A definir
+Gestores estaduais	Secretarias estaduais	Identidade digital governamental ou provedor da plataforma	A definir
+Gestores nacionais	Ministérios e secretarias nacionais	Identidade digital governamental ou provedor da plataforma	A definir
+Órgãos de controle	TCU, CGU e congêneres	A definir	Sem definição
+7.2 Etapas do fluxo de autenticação
+Etapa	Ação	Resultado
+1	Acesso não autenticado a um módulo	Encaminhamento ao ponto único de autenticação, preservando o destino
+2	Identificação da origem institucional	Encaminhamento ao provedor correspondente
+3	Autenticação no provedor	Asserção de identidade devolvida à plataforma
+4	Validação da asserção	Identidade comprovada ou recusa
+5	Localização do usuário no cadastro	Usuário encontrado, ou recusa por ausência de cadastro
+6	Verificação de concessão vigente	Concessão encontrada, ou recusa por ausência de acesso
+7	Seleção do vínculo, se houver mais de um	Vínculo definido para a sessão
+8	Aceite dos termos, se pendente	Aceite registrado
+9	Criação da sessão e emissão do token	Sessão ativa, com escopo resolvido
+10	Condução ao destino original	Usuário no módulo solicitado
+7.3 Exigência de segundo fator
+Proposta da equipe de requisitos, a ser confirmada com a segurança da informação.
+Situação	Exigência proposta	Justificativa
+Perfis com acesso a microdado do Cadastro Único	Segundo fator na autenticação	Volume e sensibilidade dos dados alcançados
+Gestor CAIXA	Segundo fator na autenticação	Abrangência ampla prevista na STRY00064433
+Administração de acessos e Matriz	Segundo fator e reautenticação na operação	Capacidade de ampliar acessos de terceiros
+Geração de folha interna	Reautenticação na operação	Produz insumo operacional de pagamento
+Demais perfis	Conforme política corporativa	A definir
+7.4 Eventos registrados
+Evento	Conteúdo mínimo	Finalidade
+Autenticação bem-sucedida	Usuário, data, hora, origem e vínculo	Rastreabilidade de acesso
+Falha de autenticação	Identificação tentada, data, hora e origem	Detecção de tentativa indevida
+Recusa por ausência de cadastro	Identidade autenticada, data e hora	Apoio ao atendimento
+Recusa por ausência de concessão	Usuário, data e hora	Apoio ao atendimento
+Aceite dos termos	Usuário, versão, data e hora	Conformidade
+Seleção de vínculo	Usuário, vínculo escolhido, data e hora	Rastreabilidade do escopo
+Renovação da sessão	Sessão, data e hora	Apuração de duração
+Encerramento da sessão	Sessão, motivo, data e hora	Rastreabilidade
+Encerramento por revogação	Sessão, origem da revogação, data e hora	Controle de acesso
+7.5 Parâmetros a definir
+Parâmetro	Finalidade	Situação
+Inatividade máxima da sessão	Expiração automática	Valor a definir
+Duração máxima absoluta	Limite da renovação silenciosa	Valor a definir
+Antecedência da advertência de expiração	Permitir renovação sem perda de trabalho	Valor a definir
+Tentativas antes do bloqueio	Proteção contra tentativa automatizada	Política do provedor
+Retenção dos registros de autenticação	Conformidade	Prazo a definir
+ 
+8. Pontos de atenção para refinamento
+8.1 Decisão estruturante: modelo de federação
+•	Número de provedores: a plataforma atende empregados da CAIXA e gestores externos. Dificilmente o mesmo provedor serve aos dois públicos. É necessário definir se haverá provedor único com múltiplas origens federadas, dois provedores distintos, ou provedor próprio da plataforma para os entes externos.
+•	Identidade digital governamental: para os entes externos, avaliar a adoção de identidade digital do governo federal, que dispensaria a criação e a gestão de credenciais para dezenas de milhares de gestores municipais. A decisão envolve, porém, dependência de serviço externo e definição do nível de confiança exigido.
+•	Órgãos de controle: a STRY00064433 prevê acesso de TCU e CGU, que não pertencem à CAIXA nem aos entes gestores. É o público sem origem definida, e a hipótese mais provável é a federação com o provedor do próprio órgão.
+•	Protocolo (P02): definir o protocolo de federação, considerando a compatibilidade com os provedores escolhidos e com a solução de API Gateway.
+8.2 Camadas de sessão
+•	Independência entre as sessões (P05): convivem a sessão no provedor de identidade e a sessão na plataforma. É necessário definir a relação entre elas: se a expiração de uma encerra a outra, e qual prevalece. A HU de API Gateway adota token de vida curta com renovação, o que pressupõe sessão da plataforma mais longa que o token.
+•	Logout único (RF25, RF26): o encerramento propagado em ambas as direções é tecnicamente mais complexo que o encerramento local e costuma ser esquecido na construção. Confirmar a exigência, observando que o encerramento apenas local deixa a sessão do provedor ativa e permite reentrada sem credencial.
+•	Renovação silenciosa (RF17): definir se a renovação é automática enquanto houver atividade ou se exige interação periódica, o que tem efeito direto sobre a usabilidade de sessões longas de simulação.
+8.3 Vínculo e escopo
+•	Múltiplo vínculo (RF10, RN04): a HU de Provisionamento adota vínculo único por concessão, admitindo concessões distintas para produtos distintos. Confirmar se o usuário escolhe o vínculo na autenticação ou se pode alterá-lo durante a sessão, hipótese que exigiria nova emissão de token e reinício do contexto de trabalho.
+•	Atributo de vínculo (RF06): definir o atributo que relaciona a identidade do provedor ao cadastro da plataforma, evitando o uso de dado pessoal como chave, conforme registrado na HU de Provisionamento.
+•	Autoprovisionamento (RF07): adotou-se a recusa do acesso quando a identidade não corresponde a usuário cadastrado. A alternativa seria criar cadastro automaticamente e aguardar concessão. Confirmar, observando que o autoprovisionamento facilita a entrada mas povoa o cadastro com usuários sem acesso.
+8.4 Operação e segurança
+•	Sessões simultâneas (RF20): definir se o mesmo usuário pode manter sessões em mais de um dispositivo, e se o início de nova sessão encerra a anterior. A HU de Navegação admite múltiplas frentes de trabalho, o que pressupõe ao menos a convivência de abas no mesmo dispositivo.
+•	Segundo fator (RF21, seção 7.3): a proposta de exigência por perfil precisa ser confirmada com a segurança da informação, considerando o impacto sobre a usabilidade para gestores municipais.
+•	Reautenticação em operação crítica (RF22): confirmar as operações que a exigem, observando que ela é o controle mais eficaz contra o uso indevido de estação desbloqueada.
+•	Dispositivos e redes: definir se haverá restrição de acesso por rede ou por dispositivo para determinados perfis, considerando que a plataforma expõe microdado do Cadastro Único.
+8.5 Dependências
+•	Cadastro de usuários: este documento depende integralmente da HU de Provisionamento de Acesso, que estabelece o cadastro e as concessões consultadas no fluxo de autenticação.
+•	Matriz de Acesso: a resolução do escopo no passo 6 do fluxo depende da Matriz, ainda não especificada em história própria.
+•	Solução corporativa existente: avaliar se a CAIXA já dispõe de solução de autenticação federada que atenda os dois públicos, hipótese em que este componente se limitaria à integração e ao tratamento das particularidades da plataforma.
+8.6 Requisitos não funcionais
+•	Disponibilidade: a indisponibilidade do provedor impede todo acesso novo. Definir a meta de disponibilidade e a estratégia de contingência.
+•	Tempo do fluxo: definir o tempo máximo aceitável entre a solicitação de acesso e a chegada ao módulo de destino, somadas as etapas da seção 7.2.
+•	Acessibilidade: as telas de autenticação, seleção de vínculo e aceite de termos devem observar os requisitos de acessibilidade aplicáveis.
+ 
+9. Rastreabilidade — origem das exigências
+Este documento não deriva de critérios de aceitação próprios. A tabela relaciona as exigências dispersas que motivaram cada bloco.
+Requisitos	Exigência de origem	História ou documento
+RF01 a RF05, RN02	Autenticação delegada a provedor externo	HU de API Gateway, P01
+RF06 a RF09, RN01	Acesso condicionado a perfil, abrangência e produto	STRY00064433
+RF10, RN04	Vínculo do usuário com o ente	HU de Provisionamento, P03
+RF11 a RF13, RN07	Termo de responsabilidade sobre dados pessoais	HU de Provisionamento, RF38
+RF15 a RF19, RN03, RN06	Sessão e renovação pressupostas pelos BFF	HU de API Gateway, HU do BFF de Simulação
+RF18	Advertência de expiração sem perda de trabalho	HU de Navegação entre Módulos, RF29
+RF21 a RF23	Múltiplo fator para acesso a microdado	Ponto de atenção da HU de API Gateway
+RF27, RN05	Revogação como evento que encerra sessões	HU de Provisionamento, HU de API Gateway
+RF28	Vedação de persistência local de microdado	HU do Widget de Chat IA, RF38
+RF33 a RF36, RN08	Rastreabilidade declarada como finalidade	STRY00064433, STRY00111044
+RF24 a RF26, RF29 a RF32	Este documento	Encerramento e falhas não tratados em nenhuma história
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o SSO do Portal do SIPGS. A assinatura formaliza a aprovação do escopo com base nas premissas da seção 3 e ressalvados os itens da seção 8, em especial a definição do modelo de federação e da origem de identidade de cada público atendido. Por se tratar de documento construído por dedução, sua aprovação pressupõe validação prévia pela arquitetura corporativa e pela segurança da informação.
+Data	Nome	Cargo / Área
+		
+		
+
