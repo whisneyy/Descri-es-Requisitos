@@ -1,0 +1,185 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00081356 — ER SIPGS — Arquivo analítico de validação da extração do Cadastro Único
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	Objetivo da solicitação	4
+3	Escopo	5
+3.1	Está no escopo	5
+3.2	Não está no escopo desta HU	5
+4	Requisitos Funcionais	6
+5	Regras de Negócio	7
+6	Dependências	8
+7	Tabelas de apoio	9
+7.1	Layout do arquivo analítico	9
+7.2	Relação entre os artefatos de saída da validação	9
+8	Pontos de atenção para refinamento	11
+8.1	Pendências remanescentes do layout	11
+8.2	Divergência entre o leiaute e o arquivo exemplo	11
+8.3	Ambiguidade na redação	12
+8.4	Regras de geração	12
+8.5	Disponibilização, guarda e proteção	12
+8.6	Coerência entre HUs	13
+8.7	Requisitos não funcionais	13
+9	Aceite da documentação	14
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	 OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos de geração do Arquivo analítico de validação da extração do Cadastro Único, produzido no processo de ingestão da Base Municipal enviada pela DATAPREV.
+A finalidade de negócio é registrar, de forma detalhada e rastreável, todas as ocorrências identificadas na etapa de validação da Base Municipal, indicando a linha, o registro e a regra de verificação correspondente, de modo que a área gestora possa apurar a origem das inconsistências, tratá-las junto à DATAPREV e acompanhar visualmente o resultado pelo Painel de Monitoramento.
+Esta HU é dependente da STRY00079079, que define as 22 regras de verificação cujas ocorrências alimentam o arquivo analítico.
+Nota sobre os anexos: a HU condiciona o conteúdo do arquivo ao leiaute anexado e a um arquivo exemplo de geração anterior. Ambos foram fornecidos: o leiaute em "leiau-te_rel_validacao_extra_bm.xlsx" e o exemplo em "Exemplo de arquivo gerado após a validação". Seu conteúdo está incorporado na seção 7.1 deste documento e as pendências remanescentes es-tão na seção 8.
+3	 ESCOPO
+3.1	Está no escopo
+•	Geração do Arquivo analítico de validação da extração do Cadastro Único no processo de in-gestão da Base Municipal.
+•	Composição do arquivo conforme o leiaute definido e o arquivo de referência.
+•	Disponibilização das informações do arquivo para exibição no Painel de Monitoramento.
+3.2	Não está no escopo desta HU
+•	Execução das regras de verificação e a decisão de rejeição do arquivo, tratadas na STRY00079079.
+•	Construção do Painel de Monitoramento da Plataforma, cuja HU ainda será criada.
+•	Geração do relatório sintético de validação da extração do Cadastro Único, cuja HU ainda será aberta.
+•	Processamento, armazenamento e auditoria da carga, tratados na STRY00062314.
+ 
+4	REQUISITOS FUNCIONAIS
+•	RF01 — Geração do Arquivo Analítico: No processo de ingestão da Base Municipal, o sistema deve criar o Arquivo analítico de validação da extração do Cadastro Único.
+•	RF02 — Conformidade com o Leiaute: As informações do arquivo devem seguir o leiaute defi-nido no documento anexo à HU e o padrão do arquivo de referência de geração realizada an-teriormente.
+•	RF03 — Momento da Geração: A produção do arquivo e a exibição das informações no Painel de Monitoramento devem ocorrer após a etapa de validação da Base Municipal.
+•	RF04 — Exibição no Painel de Monitoramento: As informações listadas no arquivo devem ser exibidas no Painel de Monitoramento, objeto de HU a ser criada.
+5	 REGRAS DE NEGÓCIO
+•	RN01 — Origem do Conteúdo: O arquivo analítico é composto pelas rejeições e ocorrências identificadas na aplicação das regras de verificação 1 a 22 definidas na STRY00079079.
+•	RN02 — Identificação da Regra: O número da regra, de 1 a 22, corresponde literalmente à po-sição que a ocupa no registro do arquivo analítico. A regra 1 é gravada na posição 1, a regra 3 na posição 3, e assim sucessivamente.
+•	RN03 — Acumulação de Ocorrências: Uma mesma linha pode constar no arquivo por mais de uma regra. As regras 3 e 6 podem ser apresentadas e contabilizadas simultaneamente para o mesmo registro.
+•	RN04 — Interrupção por Falha de Ordenação: Identificada falha na ordenação do arquivo da Base Municipal, o arquivo analítico deve conter as linhas com ocorrências apuradas até o mo-mento da identificação da falha.
+•	RN05 — Sequência do Processo: A geração do arquivo analítico é posterior à etapa de valida-ção, não podendo ocorrer antes da conclusão das verificações previstas.
+•	RN06 — Equivalência de Conteúdo: As informações exibidas no Painel de Monitoramento de-vem corresponder às informações registradas no arquivo analítico, referentes à mesma execu-ção de carga.
+•	RN07 — Proteção de Dados Pessoais: O arquivo analítico reproduz conteúdo de registros da Base Municipal e, portanto, pode conter dados pessoais. Seu tratamento, armazenamento e acesso devem observar os requisitos internos de LGPD definidos para a solução.
+•	RN08 — Formato Posicional do Registro: O arquivo é posicional, com registro de 1.322 posi-ções. As posições 1 a 22 são numéricas, de um caractere cada, e correspondem uma a uma às regras de verificação. A posição 23, alfanumérica, de tamanho 1.300, recebe o conteúdo do registro rejeitado.
+•	RN09 — Domínio dos Indicadores: Cada posição de 1 a 22 admite os valores 0, quando o cam-po está conforme a regra, e 1, quando o campo diverge da regra. Um mesmo registro pode apresentar o valor 1 em mais de uma posição.
+ 
+6	DEPENDÊNCIAS
+Artefato	Referência	Situação
+Regras de verificação 1 a 22	STRY00079079	HU existente
+Leiaute do arquivo analítico	leiaute_rel_validacao_extra_bm.xlsx	Fornecido — incorporado na seção 7.1
+Arquivo exemplo de geração anterior	Exemplo de arquivo gerado após a validação	Fornecido — analisado na seção 8.2
+Painel de Monitoramento da Plataforma	A definir	HU a ser criada
+Relatório sintético de validação	A definir	HU a ser aberta
+Processamento e armazenamento da carga	STRY00062314	HU existente
+7	TABELAS DE APOIO
+7.1	Layout do arquivo analítico
+Conforme o arquivo "leiaute_rel_validacao_extra_bm.xlsx". Nas posições 1 a 22, o valor 0 indica campo conforme a regra e o valor 1 indica campo divergente.
+Pos.	Tam.	Formato	Campo verificado	Regra verificada no campo
+1	1	Numérico	Ordenação da BM	O arquivo da Base Municipal deve atender à ordenação defini-da
+2	—	—	Não documentado	Posição ausente no leiaute e na HU — ver seção 8.1
+3	1	Numérico	CHV-NATURAL-PREFEITURA	Informada no arquivo; caracteres numéricos; valor maior que zero
+4	1	Numérico	COD-MUNIC-IBGE-2-PRE	Primeira parte do código IBGE (dois algarismos): informada e numérica
+5	1	Numérico	COD-MUNIC-IBGE-5-PRE	Segunda parte do código IBGE: informada e numérica
+6	1	Numérico	CHV-NATURAL-PREFEITURA	Informada e numérica; verificadas as chaves naturais existen-tes no SIBEC; constando na BM chave natural inexistente no SIBEC, o IBGE deve existir no SIICO e a chave natural no SIISO
+7	1	Numérico	COD-FAMILIAR-FAM	Informada; numérica; valor maior que zero
+8	1	Numérico	DAT-CADASTRAMENTO-FAM	Informada; numérica; data válida
+9	1	Numérico	DAT-ALTERACAO-FAM	Informada; numérica; data válida
+10	1	Numérico	COD-EST-CADASTRAL-FAM	Informada; numérica
+11	1	Numérico	COD-CONDICAO-CADASTRO-FAM	Informada; numérica
+12	1	Numérico	VLR-RENDA-MEDIA-FAM	Informada; numérica
+13	1	Numérico	IND-FORMULARIO-SUP2-FAM	Indicador de família com morador de rua: informada e numé-rica
+14	1	Numérico	DAT-ATUALIZACAO-FAMILIA	Informada; numérica; data válida
+15	1	Numérico	QT_PSA_CLCO_RNDA	Quantidade de pessoas na família para o cálculo da renda: informada e numérica
+16	1	Numérico	COD-FAMILIAR-FAM	Informada; numérica; valor maior que zero
+17	1	Numérico	NUM-MEMBRO-FMLA	Numérica; valor maior que zero
+18	1	Numérico	COD-EST-CADASTRAL-MEMB	Informada; numérica
+19	1	Numérico	NOM-PESSOA	Informada; texto; não constar caractere numérico
+20	1	Numérico	NUM-NIS-PESSOA-ATUAL	Numérica e primeiro caractere igual a 1 ou 2, ou em branco
+21	1	Numérico	DTA-NASC-PESSOA	Numérica e data válida, ou em branco
+22	1	Numérico	NUM-CPF-PESSOA	Numérica, ou em branco
+23	1300	Alfanumérico	Conteúdo do registro rejeitado	Conteúdo completo da linha divergente da regra
+7.2	Relação entre os artefatos de saída da validação
+Artefato	Natureza	HU responsável
+Arquivo analítico	Detalhamento linha a linha das ocorrências	STRY00081356 (esta HU)
+Relatório sintético	Quantificação das ocorrências por regra	HU a ser aberta
+Painel de Monitoramento	Exibição visual dos resultados ao Gestor CAIXA	HU a ser criada
+Log de rejeição	Registro do motivo da rejeição do arquivo	STRY00079079
+ 
+8	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incom-pleta.
+8.1	Pendências remanescentes do layout
+Com a entrega do layout, as definições de formato, tamanho e domínio dos campos deixaram de ser pendência. Permanecem em aberto os itens abaixo.
+•	Posição 2 não documentada: o layout salta da posição 1 para a posição 3, do mesmo modo que a HU STRY00079079 salta da regra 1 para a regra 3. Confirma-se que não se trata de erro de digitação, mas de lacuna real, presumivelmente reservada ao Tipo 00, cuja seção está assi-nalada como complementar naquela HU.
+•	Atributos do arquivo não definidos pelo layout: o layout descreve apenas a estrutura do re-gistro. Permanecem indefinidos a codificação de caracteres, o marcador de fim de linha, a existência de cabeçalho e rodapé com totalizadores, a regra de nomenclatura do arquivo e o critério de ordenação dos registros.
+•	Ausência de identificação da carga e do registro: o registro contém apenas os 22 indicadores e o conteúdo da linha divergente. Não há campo de identificação da execução, do número da linha na BM, do tipo de registro nem da prefeitura. A rastreabilidade depende de extrair esses dados do próprio conteúdo da posição 23. Confirmar se isso é suficiente para o tratamento das ocorrências pela área gestora.
+•	Divergências entre a HU e o layout: para as regras 17, 20, 21 e 22 a HU exige "informação obrigatória", enquanto o leiaute não traz essa exigência, limitando-se ao formato. Confirmar qual documento prevalece.
+8.2	Divergência entre o leiaute e o arquivo exemplo
+•	Conteúdo da posição 23: o layout define a posição 23 como "conteúdo completo da linha em que está divergente da regra". O arquivo exemplo fornecido, porém, traz nessa posição uma mensagem descritiva em texto — "A CHAVE NATURAL DA PREFEITURA DO IBGE 5101837 NAO FOI ENCONTRADA NA BM" — e não a linha da Base Municipal. São conteúdos de naturezas dis-tintas e é necessário definir qual deve ser gravado.
+•	Consistência do exemplo com o layout: quanto à estrutura, o exemplo confirma o leiaute: os 22 primeiros caracteres são indicadores e o valor 1 aparece na posição 6, correspondente à re-gra da chave natural, coerente com a mensagem apresentada.
+•	Origem do arquivo exemplo: a existência de geração anterior indica processo legado. Confir-mar o sistema de origem e se o objetivo é reproduzir fielmente esse comportamento, inclusive quanto ao conteúdo descritivo da posição 23.
+8.3	Ambiguidade na redação
+•	Conjunção "ou" no critério de aceitação: a HU afirma que "a produção do arquivo ou a exibi-ção no Painel de Monitoramento" deve ocorrer após a validação. Confirmar que ambos são obrigatórios e que a conjunção se refere apenas ao momento de execução, e não a uma alter-nativa entre gerar o arquivo e exibir o painel.
+•	Escopo da exibição no painel (RF04): o painel deve exibir todas as linhas do analítico, o que pode significar milhões de registros, ou apenas uma amostra com possibilidade de download do arquivo completo?
+8.4	Regras de geração
+•	Geração quando o arquivo é integralmente rejeitado: a STRY00079079 determina que, ha-vendo regra não atendida, a ingestão não é iniciada e o arquivo é rejeitado. Confirmar que o analítico é gerado mesmo nessa hipótese, uma vez que é justamente ele que documenta o mo-tivo da rejeição.
+•	Geração sem ocorrências: quando a validação não identificar nenhuma inconsistência, o ar-quivo deve ser gerado vazio, gerado apenas com cabeçalho e rodapé, ou não deve ser gerado?
+•	Limite de ocorrências: considerando a volumetria nacional da Base Municipal, deve haver limi-te de registros por arquivo, quebra em múltiplos arquivos ou compactação? Existe truncamen-to a partir de determinado volume?
+•	Reprocessamento: quando a DATAPREV reenviar o arquivo corrigido, o novo analítico substitui o anterior ou ambos são preservados com identificação da tentativa?
+8.5	Disponibilização, guarda e proteção
+•	Destino do arquivo: onde o arquivo fica disponível — diretório na plataforma, download pelo Painel de Monitoramento, ou envio a destinatário externo? Ele deve ser devolvido à DATAPREV para correção na origem?
+•	Perfis autorizados: quem pode consultar e baixar o arquivo analítico? Gestor CAIXA apenas, ou também gestores de Ente Externo, considerando que as inconsistências dizem respeito a muni-cípios específicos?
+•	Dados pessoais no analítico (RN07): as linhas rejeitadas podem conter nome, CPF, NIS e data de nascimento. Definir se esses valores são reproduzidos integralmente, mascarados ou substi-tuídos por chave, bem como a criptografia aplicada ao arquivo em repouso e em trânsito.
+•	Prazo de retenção: por quanto tempo os arquivos analíticos devem ser preservados e qual o procedimento de descarte seguro?
+8.6	Coerência entre HUs
+•	Unicidade do Painel de Monitoramento: a STRY00079079, a STRY00062314 e esta HU preve-em, cada uma, exibição de resultados em painel para o Gestor CAIXA. Confirmar que se trata de um único painel, consolidando os requisitos na HU a ser criada e evitando construção dupli-cada.
+•	Relação entre analítico e sintético: confirmar que ambos derivam da mesma execução de vali-dação, com números necessariamente conciliáveis, e definir qual deles é a fonte da informa-ção exibida no painel.
+•	Abertura das HUs pendentes: o relatório sintético e o Painel de Monitoramento ainda não possuem HU. Definir a sequência de entrega e o que pode ser construído antes dessas defini-ções.
+8.7	Requisitos não funcionais
+•	Tempo de geração: definir o tempo máximo aceitável para a produção do arquivo após o tér-mino da validação, e se a geração ocorre de forma síncrona ou assíncrona ao processamento da carga.
+•	Tamanho estimado: estimar o volume do arquivo em cenário de alta incidência de ocorrên-cias, para dimensionamento de armazenamento e de transferência.
+ 
+9	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
+
+Data	Nome	Cargo / Área
+		
+		
+
