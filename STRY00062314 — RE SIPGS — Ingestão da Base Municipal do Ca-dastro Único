@@ -1,0 +1,229 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00062314 — RE SIPGS — Ingestão da Base Municipal do Ca-dastro Único
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	2. Objetivo da solicitação	4
+3	Escopo	5
+3.1	Está no escopo	5
+3.2	Não está no escopo desta HU	5
+4	Requisitos Funcionais	6
+5	Regras de Negócio	7
+6	Dependências	8
+7	Tabelas de apoio	9
+7.1	Conteúdo mínimo proposto do arquivo	9
+7.2	Relação entre os artefatos de saída da validação	9
+8	Pontos de atenção para refinamento	10
+8.1	Pendência bloqueante: anexos não fornecidos	10
+8.2	Ambiguidade na redação	10
+8.3	Regras de geração	10
+8.4	Disponibilização, guarda e proteção	11
+8.5	Coerência entre HUs	11
+8.6	Requisitos não funcionais	12
+9	Rastreabilidade — HU x Requisitos	13
+10	Aceite da documentação	14
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos de processamento, armazenamento e auditoria da Base Municipal (BM) do Cadastro Único enviada pela DATAPREV, abrangendo a carga inicial completa, as cargas subsequentes de atualização, a preservação das versões da base e o monito-ramento das execuções.
+A finalidade de negócio é assegurar que a plataforma mantenha uma base íntegra, atuali-zada e recuperável, com identificação das alterações ocorridas entre cargas, preservação da última versão válida em caso de falha e visibilidade das execuções ao Gestor CAIXA, de modo que os dados possam ser utilizados com segurança nos processos de qualificação básica de elegibilidade, cálculo de benefícios e simulação dos programas sociais.
+Esta HU é complementar à STRY00079079, que trata do recebimento e da validação do arquivo. O processamento aqui descrito pressupõe arquivo previamente validado e não rejeitado.
+3	ESCOPO
+3.1	Está no escopo
+•	Carga inicial completa (Full Load) e estabelecimento da base de referência.
+•	Cargas subsequentes, com comparação contra a última versão válida e identificação de inclu-sões, alterações e exclusões.
+•	Filtro de carga por estado cadastral de famílias e pessoas.
+•	Rastreamento de histórico dos blocos priorizados.
+•	Armazenamento e preservação das versões da Base Municipal.
+•	Auditoria, alertas e painel de indicadores sintéticos da carga.
+3.2	Não está no escopo desta HU
+•	Recebimento e validação estrutural do arquivo, tratados na STRY00079079.
+•	Geração do arquivo analítico de validação, tratada na STRY00081356.
+•	Uso dos dados nos processos de elegibilidade, cálculo e simulação, tratados nas HUs do Simu-lador.
+ 
+4	REQUISITOS FUNCIONAIS
+4.1	Processamento inicial
+•	RF01 — Carga Inicial Completa: A primeira carga da Base Municipal deve ser realizada de for-ma completa (Full Load).
+•	RF02 — Estabelecimento da Base de Referência: A carga inicial deve estabelecer a base de re-ferência para comparação das cargas subsequentes.
+•	RF03 — Filtro de Carga por Estado Cadastral: O processo de carga deve carregar exclusiva-mente as famílias e pessoas nos estados "Cadastrado" e "Sem Registro Civil", observadas as vedações relacionadas na seção 7.1.
+4.2	Atualização da Base Municipal
+•	RF04 — Comparação com a Última Versão Válida: O sistema deve comparar a nova Base Mu-nicipal recebida com a última versão válida armazenada.
+•	RF05 — Identificação das Movimentações: O sistema deve identificar os registros incluídos, alterados e excluídos em relação à versão anterior.
+•	RF06 — Marcação de Exclusão: Quando, na comparação entre a base mais recente e a base anterior, a situação da família ou da pessoa for diferente de "Cadastrado" ou "Sem Registro Ci-vil", o processo de ingestão deve atualizar essa família ou pessoa para o estado "Excluído".
+•	RF07 — Rastreamento de Histórico por Bloco: Devem ser priorizados para rastreamento (tracking) do histórico os seguintes tipos de registro: tipo 03 (dados da família), tipo 08 (dados da pessoa, bloco renda) e tipo 21 (dados da pessoa, bloco renda — faixas).
+•	RF08 — Não Reprocessamento de Registros Inalterados: Registros sem alteração em relação à versão anterior não devem ser reprocessados desnecessariamente.
+•	RF09 — Preservação da Versão Válida em Caso de Falha: A última versão válida da Base Muni-cipal deve permanecer disponível caso ocorra falha durante a atualização.
+•	RF10 — Carregamento a Qualquer Tempo: O sistema deve permitir a realização do carrega-mento da Base Municipal a qualquer tempo.
+•	RF11 — Autorização de Processamento Fora do Período: O processamento da Base Municipal fora do período estabelecido deve ser autorizado sob demanda pelo gestor.
+4.3	Armazenamento
+•	RF12 — Armazenamento da Base Atualizada: A Base Municipal atualizada deve ser armazena-da pela plataforma.
+•	RF13 — Preservação para Consulta e Recuperação: Os arquivos atualizados da Base Municipal devem ser preservados para consulta e recuperação futura.
+•	RF14 — Padrões de Segurança no Armazenamento: Os dados devem ser armazenados utili-zando os padrões de segurança definidos para a solução.
+4.4	Auditoria e monitoramento
+•	RF15 — Consulta ao Histórico de Cargas: O sistema deve permitir a consulta ao histórico de recebimento das cargas.
+•	RF16 — Registro de Execução: Devem ser registradas as informações de data, hora, tipo da carga, quantidade de registros processados e status do processamento.
+•	RF17 — Alertas de Processamento: A solução deve enviar alerta ao gestor sobre o início e o término do processamento da carga.
+•	RF18 — Painel de Indicadores Sintéticos: Devem ser disponibilizados em painel, para o perfil Gestor CAIXA, os indicadores sintéticos relacionados na seção 7.3.
+ 
+5	5. REGRAS DE NEGÓCIO
+5.1	Estados cadastrais
+•	RN01 — Estados Carregáveis: Somente famílias e pessoas nos estados "Cadastrado" e "Sem Registro Civil" devem ser carregadas na plataforma, tanto na carga inicial quanto nas atualiza-ções.
+•	RN02 — Estados Vedados de Família: O processo de carga não deve carregar famílias nos es-tados cadastrais "Em cadastramento" e "Excluído".
+•	RN03 — Estados Vedados de Pessoa: O processo de carga não deve carregar pessoas nos es-tados cadastrais "Aguardando atribuição de NIS", "Aguardando alteração de caracterização" e "Aguardando CPF".
+•	RN04 — Transição para Excluído: A mudança de situação da família ou da pessoa para estado diferente de "Cadastrado" ou "Sem Registro Civil", identificada na comparação entre bases, implica a atualização do registro na plataforma para o estado "Excluído".
+5.2	Processamento
+•	RN05 — Referência de Comparação: A base de referência para toda comparação é a última versão válida armazenada na plataforma, estabelecida inicialmente pela carga completa.
+•	RN06 — Blocos Priorizados para Histórico: O rastreamento de histórico é restrito aos tipos de registro 03, 08 e 21, com o objetivo de reduzir o volume de processamento e de armazenamen-to.
+•	RN07 — Eficiência de Processamento: Registros idênticos aos da versão anterior não devem ser reprocessados, devendo o processamento incidir apenas sobre as movimentações identifi-cadas.
+•	RN08 — Continuidade em Caso de Falha: A falha em uma nova carga não pode comprometer a disponibilidade e a utilização da última base válida, que deve permanecer íntegra e acessível às demais funcionalidades da plataforma.
+•	RN09 — Autorização Excepcional de Processamento: O processamento realizado fora do pe-ríodo estabelecido depende de autorização expressa do gestor.
+5.3	Monitoramento e segurança
+•	RN10 — Domínio do Status da Carga: O status do processamento deve observar o domínio de-finido pelo negócio, a exemplo de "Sucesso", "Sucesso com Alerta" e "Falha".
+•	RN11 — Visibilidade do Painel: O painel de indicadores sintéticos da carga é destinado ao per-fil Gestor CAIXA.
+•	RN12 — Proteção de Dados Sensíveis: Os dados sensíveis — dados biométricos, origem racial ou étnica, dados referentes à saúde e dados referentes à orientação sexual — devem ser pro-tegidos conforme os requisitos internos de LGPD da instituição.
+ 
+6	REQUISITOS NÃO FUNCIONAIS
+•	RNF01 — Volumetria: A solução deve suportar o volume oficial da Base Municipal do Cadastro Único.
+•	RNF02 — Escalabilidade: A arquitetura deve ser escalável para acompanhar o crescimento do volume de dados processados.
+•	RNF03 — Proteção de Dados Sensíveis: Os dados sensíveis relacionados na RN12 devem ser protegidos conforme os requisitos internos de LGPD.
+•	RNF04 — Resiliência: Falhas em uma nova carga não podem comprometer a utilização da últi-ma base válida disponível.
+Os requisitos não funcionais acima estão declarados de forma qualitativa. Para que sejam testáveis, é necessário atribuir valores objetivos, conforme registrado na seção 8.5.
+ 
+7	TABELAS DE APOIO
+7.1	Tratamento por estado cadastral
+Código	Estado cadastral	Entidade	Tratamento na carga
+3	Cadastrado	Família e pessoa	Carregado
+2	Sem Registro Civil	Família e pessoa	Carregado
+1	Em cadastramento	Família e pessoa	Não carregado
+4	Excluído	Pessoa	Não carregado a partir da BM; atribuído pela plataforma na comparação (RN04)
+5	Aguardando atribuição de NIS	Pessoa	Não carregado
+6	Aguardando alteração de caracterização	Pessoa	Não carregado
+7	Aguardando CPF	Pessoa	Não carregado
+Códigos conforme o leiaute da Base Municipal versão 6.29 (Leiaute_DE_Para_BMM_V6_29.xlsx). O do-mínio do campo COD-EST-CADASTRAL-FAM contempla apenas os códigos 1 a 3; os códigos 4 a 7 constam somente do domínio de pessoa (COD-EST-CADASTRAL-MEMB).
+7.2	Blocos priorizados para rastreamento de histórico
+Tipo	Conteúdo	Observação
+03	Dados da família	Priorizado para tracking de histórico
+08	Dados da pessoa — bloco renda	Priorizado para tracking de histórico
+21	Dados da pessoa — bloco renda (faixas)	Priorizado para tracking de histórico
+Demais tipos	Demais blocos da Base Municipal	Carregados, porém sem rastreamento de histórico
+7.3	Indicadores do painel (RF18)
+Dimensão	Indicadores
+Execução	Data e hora de início do processamento; data e hora de término do processamento; status da carga; volume do arquivo recebido (GB); quantidade de registros processados
+Famílias	Total de famílias cadastradas; total de famílias excluídas; famílias incluídas desde a última carga; famílias alteradas desde a última carga; famílias excluídas desde a última carga; taxa de variação (%)
+Pessoas	Total de pessoas cadastradas; total de pessoas excluídas; pessoas incluídas desde a última carga; pessoas alteradas desde a última carga; pessoas excluídas desde a última carga; taxa de variação (%)
+ 
+8	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio ou de arquitetura antes do iní-cio da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+8.1	Pendências assinaladas na própria HU
+•	Situação cadastral de famílias e pessoas excluídas na carga inicial: a HU registra a pendência com a marcação "**". Na carga inicial não existe base anterior para comparação, de modo que não há como identificar exclusões. Definir o tratamento: as famílias e pessoas em estados não carregáveis simplesmente não entram, ou devem ser registradas com estado "Excluído" desde a origem?
+•	Situação cadastral de excluídos nas atualizações: mesma pendência assinalada para as cargas subsequentes. Definir se o registro marcado como "Excluído" permanece armazenado, por quanto tempo, e se continua visível nas consultas e simulações.
+•	Eleição de blocos para reduzir processamento: a HU registra a pendência e, em seguida, indi-ca os tipos 03, 08 e 21. Confirmar se essa relação é definitiva ou preliminar.
+•	Tempo de recuperação e política de dados quentes: a HU classifica o item como requisito técnico, mas ele depende de decisão de negócio. É necessário definir o prazo de retenção das versões, quantas versões permanecem em acesso imediato e qual o tempo aceitável de recu-peração de uma versão histórica.
+•	Códigos dos estados cadastrais — resolvido: o de-para foi obtido do leiaute da Base Municipal versão 6.29 e incorporado à seção 7.1. Resta um ponto: o estado "Excluído" citado pela HU como vedado para família não existe no domínio de família, que contempla apenas os códigos 1 a 3. Confirmar se a vedação se aplica de fato à pessoa.
+8.2	Contradições e definições estruturais
+•	Estado "Excluído" na origem e no destino (RN02 x RN04): o leiaute confirma a leitura regis-trada na versão 1.0: o código 4 (Excluído) existe apenas no domínio de pessoa, não no de famí-lia. Logo, o estado "Excluído" atribuído à família pela plataforma na comparação é estado in-terno, sem equivalente na origem. Definir se a plataforma adota o mesmo código 4 para am-bas as entidades.
+•	Ausência do registro na nova base: a HU trata o caso em que a situação vem diferente de "Cadastrado" ou "Sem Registro Civil". Não trata o caso em que a família ou a pessoa simples-mente não consta da nova base. Definir se a ausência também implica marcação como "Exclu-ído".
+•	Pessoa excluída em família mantida: quando apenas um membro deixa de atender ao filtro, a família permanece carregada com um integrante a menos. Definir o efeito sobre a composição familiar, sobre a renda per capita e sobre a quantidade de membros utilizada no cálculo dos benefícios.
+•	Carregamento a qualquer tempo x período estabelecido (RF10 x RF11): os dois requisitos são aparentemente contraditórios e o "período estabelecido" não foi informado. Definir a janela regular de processamento, a periodicidade de envio pela DATAPREV e o que caracteriza pro-cessamento fora do período.
+•	Cálculo do delta: a DATAPREV envia a base completa, enquanto a HU exige a identificação de incluídos, alterados e excluídos. Confirmar que o delta é apurado pela plataforma por compa-ração, e não recebido pronto, e definir a chave de comparação (código familiar, número do membro, NIS).
+•	Coerência de tipos entre as HUs: os tipos priorizados para histórico nesta HU são 03, 08 e 21, enquanto a STRY00079079 valida os tipos 00, 98, 01, 02, 03, 09, 11, 13, 04, 05 e 14. Os campos usados na elegibilidade e no cálculo dos benefícios (renda, atualização cadastral, estado cadas-tral) estão no tipo 01. Confirmar se o histórico rastreado cobre efetivamente os dados utiliza-dos nas simulações.
+8.3	Monitoramento e alertas
+•	Regra de composição do status (RN10): não foi definido o que caracteriza "Sucesso com Aler-ta" nem "Falha". É necessário estabelecer os critérios objetivos, inclusive a relação com as ocorrências identificadas na validação (STRY00079079).
+•	Taxa de variação (RF18): definir o numerador, o denominador e a base de comparação do in-dicador, e se existe limiar a partir do qual a variação gera alerta, exige confirmação do gestor ou bloqueia a carga. Uma variação atípica pode indicar arquivo incorreto.
+•	Alerta de falha (RF17): a HU prevê alerta de início e de término, mas não de falha durante o processamento. Confirmar se a falha deve gerar alerta próprio e com qual prioridade.
+•	Canal e destinatários dos alertas: definir o meio (correio eletrônico, notificação na platafor-ma, mensagem instantânea), os destinatários e o prazo de envio.
+•	Abrangência do painel (RN11): o painel é restrito ao Gestor CAIXA. Confirmar se os Gestores de Ente Externo devem ao menos visualizar a data de referência da base em uso, informação necessária para interpretar corretamente as simulações.
+•	Relação com o Painel de Monitoramento da STRY00079079: aquela HU também prevê exibi-ção dos resultados do processamento em painel para o Gestor CAIXA. Confirmar se é o mesmo painel, evitando construção duplicada.
+8.4	Armazenamento, versionamento e proteção de dados
+•	Política de versionamento: quantas versões da Base Municipal permanecem armazenadas e por quanto tempo? A decisão afeta diretamente a reprodutibilidade das simulações salvas, tra-tada nas HUs STRY00071242 e STRY00087376.
+•	Reprodutibilidade das simulações: uma simulação salva referência uma carga específica da BM. Definir se, ao ser substituída a base, a simulação anterior permanece reproduzível, ou se o resultado é congelado no momento do salvamento.
+•	Rollback da carga (RF09, RN08): definir o mecanismo que garante a disponibilidade da última base válida: processamento em área de preparação com promoção atômica, transação com rollback, ou manutenção de duas bases ativas. A escolha é estruturante para a arquitetura.
+•	Existência dos dados sensíveis na BM (RN12, RNF03): confirmar se a Base Municipal efetiva-mente contém dados biométricos, de origem racial ou étnica, de saúde e de orientação sexual, e em quais tipos de registro. Em caso positivo, definir criptografia, mascaramento, perfis auto-rizados e se esses campos são necessários às finalidades da plataforma.
+•	Retenção e descarte: definir o prazo de guarda do arquivo bruto recebido e das versões histó-ricas, bem como o procedimento de descarte seguro, observada a LGPD.
+8.5	Requisitos não funcionais a quantificar
+•	Volume oficial (RNF01): a expressão "volume oficial da Base Municipal" precisa ser convertida em números: quantidade de famílias, de pessoas, de registros por tipo e tamanho do arquivo em GB.
+•	Janela e tempo de processamento: definir o tempo máximo aceitável de carga completa e de carga incremental, e a frequência esperada de cada uma.
+•	Disponibilidade durante a carga: definir se as funcionalidades que consomem a Base Municipal permanecem disponíveis durante o processamento e, em caso negativo, qual a janela de indis-ponibilidade aceitável.
+•	Objetivos de recuperação: estabelecer os objetivos de tempo e de ponto de recuperação (RTO e RPO) aplicáveis à base e aos arquivos preservados.
+•	Critério de escalabilidade (RNF02): definir o horizonte de crescimento considerado e o critério objetivo de aceite, sob pena de o requisito permanecer intestável.
+ 
+9	RASTREABILIDADE — HU X REQUISITOS
+Critério de aceitação da HU	Requisito	Regra de negócio
+Primeira carga completa (Full Load)	RF01	—
+Carga inicial estabelece a base de referência	RF02	RN05
+Carregar somente Cadastrado e Sem Registro Civil	RF03	RN01
+Não carregar famílias em estados vedados	RF03	RN02
+Não carregar pessoas em estados vedados	RF03	RN03
+Atualizar para Excluído na comparação	RF06	RN04
+Comparar nova base com a última versão válida	RF04	RN05
+Identificar incluídos, alterados e excluídos	RF05	—
+Priorizar tipos 03, 08 e 21 para tracking	RF07	RN06
+Não reprocessar registros sem alteração	RF08	RN07
+Última versão válida disponível em caso de falha	RF09	RN08
+Carregamento a qualquer tempo	RF10	—
+Processamento fora do período autorizado pelo gestor	RF11	RN09
+Armazenar a base atualizada	RF12	—
+Preservar arquivos para consulta e recuperação	RF13	—
+Armazenar com os padrões de segurança da solução	RF14	RN12
+Consultar o histórico de recebimento das cargas	RF15	—
+Registrar data, hora, tipo, volume e status	RF16	RN10
+Alertar início e término do processamento	RF17	—
+Painel de indicadores para o Gestor CAIXA	RF18	RN11
+Requisitos não funcionais	RNF01 a RNF04	RN12
+10	RASTREABILIDADE — HU X REQUISITOS
+Critério de aceitação da HU	Requisito	Regra de negócio
+Criar o arquivo analítico no processo de ingestão	RF01	RN01, RN02, RN03, RN04
+Exibir as informações no Painel de Monitoramento	RF04	RN06
+Produzir o arquivo após a etapa de validação	RF03	RN05
+11	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
+
+Data	Nome	Cargo / Área
+		
+		
+
