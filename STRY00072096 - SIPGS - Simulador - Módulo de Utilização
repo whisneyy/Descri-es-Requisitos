@@ -1,0 +1,106 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+
+
+STRY00072096 - SIPGS - Simulador - Módulo de Utilização
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	OBJETIVO DA SOLICITAÇÃO	4
+3	Requisitos Funcionais	5
+3.1	4.2 Critérios de ingresso e permanência	5
+3.2	4.3 Cesta de benefícios	5
+3.3	4.4 Regra de Proteção	6
+4	5. Regras de Negócio	7
+5	Aceite da documentação	8
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	OBJETIVO DA SOLICITAÇÃO
+
+Este documento especifica os requisitos do Módulo de Utilização do Simulador de Programas Sociais, responsável por permitir que o gestor altere, de forma assistida e controlada, os parâmetros que compõem as regras de elegibilidade e a cesta de benefícios, valores financeiros, faixas etárias, limites de renda, percentuais, prazos e períodos de permanência e visualize imediatamente o impacto quantitativo e financeiro dessas alterações sobre a última folha de pagamento disponível.
+A finalidade de negócio é permitir a simulação prospectiva de alterações em leis e decretos an-tes de sua implementação efetiva, subsidiando estudos técnicos, planejamento orçamentário e a tomada de decisão sobre políticas públicas. O módulo deve ainda ser extensível, admitindo a configuração de novas regras e a incorporação automática de novos benefícios sem necessidade de nova entrega de sof-tware.
+.
+3	REQUISITOS FUNCIONAIS 
+•	RF01 — Parametrização de Regras de Elegibilidade: O sistema deve permitir a alteração dos dados utilizados pelos parâmetros das regras de elegibilidade, contemplando no mínimo os se-guintes tipos: valores financeiros, faixas etárias, limites de renda, percentuais, prazos e perío-dos de permanência.
+•	RF02 — Extensibilidade de Regras: O sistema deve ser configurável para tratar novas regras de elegibilidade que venham a surgir, sem necessidade de nova entrega de software.
+•	RF03 — Exibição por Controles Deslizantes: O sistema deve exibir os parâmetros parametrizá-veis por meio de controles deslizantes (sliders) com as regras pré-formatadas descritas neste documento.
+•	RF04 — Simulação Prospectiva de Normas: O sistema deve permitir simular os impactos de fu-turas alterações em leis e decretos antes de sua implementação efetiva, subsidiando estudos técnicos e tomada de decisão.
+•	RF05 — Apuração de Impacto: Para toda alteração de parâmetro, o sistema deve avaliar e exibir o impacto financeiro e quantitativo decorrente da alteração da regra de elegibilidade so-bre a última folha de pagamento disponível.
+•	RF06 — Incorporação de Novo Benefício: Quando da criação de um novo benefício, o sistema deve exibi-lo automaticamente na tela inicial, disponível para simulação.
+•	RF07 — Atualização da Tela Principal: O sistema deve realizar o cálculo e refletir o impacto das alterações nos valores exibidos na tela principal, mantendo-os consistentes com os parâmetros ajustados.
+3.1	Critérios de ingresso e permanência
+•	RF08 — Valor Limite para Ingresso no Programa: O sistema deve permitir que o usuário infor-me o valor da renda per capita máxima para ingresso no programa, utilizado no cálculo da si-mulação. Valor vigente: R$ 218,00.
+○	A renda per capita da família é obtida no campo [VLR-RENDA-MEDIA-FAM] da Base Muni-cipal.
+•	RF09 — Prazo de Atualização Cadastral: O sistema deve permitir a alteração do prazo conside-rado para atualização cadastral e apurar quantas famílias passariam a ser consideradas aptas ou não aptas ao recebimento dos benefícios. Prazo vigente: 24 meses.
+○	A data de referência é obtida no campo [DAT-ATUALIZACAO-FAMILIA] da Base Municipal.
+3.2	 Cesta de benefícios
+•	RF10 — Alteração de Benefícios: O sistema deve permitir alterar os valores unitários dos bene-fícios e as faixas etárias utilizadas para concessão dos benefícios destinados à primeira infân-cia, crianças, adolescentes, gestantes e nutrizes, que compõem as regras da cesta de benefí-cios.
+•	RF11 — Benefício de Renda de Cidadania (BRC): O sistema deve permitir que o usuário infor-me o valor a ser considerado no cálculo do BRC. Valor vigente: R$ 142,00.
+•	RF12 — Benefício Complementar (BCO) — Valor Mínimo: O sistema deve permitir que o ges-tor informe o valor a ser considerado como valor mínimo pago pelo programa. Valor vigente: R$ 600,00.
+•	RF13 — Impacto do BCO: Ao alterar o valor mínimo, o sistema deve exibir a quantidade de fa-mílias que passariam a receber o BCO, bem como o impacto no orçamento do programa.
+•	RF14 — Benefício Primeira Infância (BPI): O sistema deve permitir que o usuário informe o va-lor unitário e a faixa etária a serem considerados no cálculo do BPI. Faixa etária vigente: 0 a 6 anos incompletos.
+•	RF15 — Sincronismo BPI e BV (Criança): Quando for realizada simulação no BPI, o comporta-mento visual das barras de simulação deve ser alterado simultaneamente entre o BPI e o BV (Criança), evitando sobreposição de benefícios.
+•	RF16 — Benefício Variável — Gestante (BVG): O sistema deve permitir a alteração do valor e do prazo de recebimento do BVG. Valor vigente: R$ 50,00. Prazo vigente: 9 meses.
+•	RF17 — Benefício Variável — Nutriz (BVN): O sistema deve permitir a alteração do valor, da faixa etária e do prazo de recebimento do BVN. Valor vigente: R$ 50,00. Faixa etária vigente: 0 a 6 meses. Prazo vigente: 6 meses.
+•	RF18 — Benefício Variável — Criança (BV): O sistema deve permitir a alteração do valor e da faixa etária do BV destinado a crianças. Valor vigente: R$ 50,00. Faixa etária vigente: 7 a 16 anos incompletos.
+•	RF19 — Benefício Variável Adolescente (BVA): O sistema deve permitir ajustar a faixa etária prevista e o valor do BVA. Valor vigente: R$ 50,00. Faixa etária vigente: 16 a 18 anos incomple-tos.
+3.3	Regra de Proteção
+•	RF20 — Parametrização da Regra de Proteção: O sistema deve permitir alterar os parâmetros relacionados à Regra de Proteção, a saber: percentual do valor do benefício pago (vigente: 50% do valor recebido), valor de entrada em regra de permanência (vigente: R$ 218,01) e valor máximo de renda per capita para participação no programa (vigente: R$ 706,00).
+•	RF21 — Impacto da Regra de Proteção: O sistema deve calcular a quantidade de famílias que entrariam ou sairiam do programa com as novas condições parametrizadas e atualizar os valo-res exibidos na tela principal.
+ 
+4	5. REGRAS DE NEGÓCIO
+•	RN01 — Cálculo do BRC: O valor projetado do BRC por família deve ser o resultado da multipli-cação do valor parametrizado no RF11 pela quantidade de membros da família, obtida no campo [QTD_PES_CALC_RND].
+•	RN02 — Acionamento do BCO: Caso o valor apurado no pagamento do BRC não atinja o valor mínimo parametrizado no RF12, deve ser pago o Benefício Complementar (BCO) em montante suficiente para complementar esse valor mínimo.
+•	RN03 — Não Sobreposição entre BPI e BV (Criança): As faixas etárias do BPI e do BV (Criança) não podem se sobrepor. Toda alteração em uma delas deve refletir automaticamente na ou-tra, de modo a preservar a continuidade e a exclusividade das faixas.
+•	RN04 — Identificação dos Grupos na Folha: A identificação dos beneficiários de Benefício Va-riável deve ser feita estritamente pelo campo [Tipo_Ben] da folha de pagamento, com os do-mínios BVG (gestante), BVN (nutriz) e BV (criança).
+•	RN05 — Vigência do BVA: O BVA é pago às famílias beneficiárias do Bolsa Família com adoles-centes na faixa etária vigente e deve ser mantido até dezembro do ano civil em que o adoles-cente complete a idade limite, independentemente do mês de seu aniversário.
+•	RN06 — Fundamento da Regra de Proteção: A legislação prevê a permanência da família no programa, por período determinado, quando a renda ultrapassar a linha de pobreza em decor-rência de aumento de renda. A simulação deve respeitar esse período de permanência confor-me parametrizado no RF20.
+•	RN07 — Fonte de Dados por Regra: A apuração dos critérios de ingresso e de atualização ca-dastral deve utilizar a Base Municipal ([VLR-RENDA-MEDIA-FAM] e [DAT-ATUALIZACAO-FAMILIA]). A verificação dos beneficiários alcançados pela Regra de Proteção depende obriga-toriamente da consulta à Folha de Pagamento do PBF.
+•	RN08 — Base de Referência da Simulação: Salvo indicação expressa em contrário pelo usuá-rio, o impacto financeiro e quantitativo deve ser apurado sobre a última folha de pagamento disponível.
+•	RN09 — Desacoplamento das Regras: As regras de elegibilidade e os valores de referência não devem estar codificados no código-fonte, devendo residir em estrutura de parâmetros que permita a inclusão de novas regras e de novos benefícios sem nova entrega de software.
+•	RN10 — Natureza Simulatória: Nenhuma alteração de parâmetro realizada neste módulo pro-duz efeito sobre a folha de pagamento real, servindo exclusivamente à produção de cenários e estudos técnicos.
+ 
+5	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
