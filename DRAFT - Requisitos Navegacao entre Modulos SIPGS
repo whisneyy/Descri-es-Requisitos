@@ -1,0 +1,193 @@
+
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+SIPGS — Navegação entre Módulos
+
+ 
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração a partir do inventário de módulos das demais histórias
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. Descrição
+Como gestor de programas sociais, quero circular entre os módulos da Plataforma de Benefícios sem perder o trabalho em andamento e sem precisar reinformar a cada tela o programa, a base e o recorte com que estou trabalhando, para que a plataforma se comporte como um ambiente único e não como um conjunto de funcionalidades independentes.
+Nenhuma das histórias recebidas trata de navegação. Cada uma especifica a sua funcionalidade isoladamente, e vários temas que pertencem à navegação aparecem nelas como pontos soltos: a tela inicial com os dez cenários mais recentes, a dúvida sobre ocultar ou bloquear o item de menu quando o perfil não tem permissão, a exigência de que o assistente seja utilizável sem interromper a atividade em curso e a necessidade de informar ao usuário qual base está em uso. Este documento reúne esses pontos e define a estrutura que os sustenta.
+Natureza deste documento: o inventário de módulos da seção 7.1 foi construído a partir das funcionalidades citadas nas demais histórias. Ele revela que quatro módulos referenciados pela plataforma ainda não possuem história de usuário, o que é informação relevante para o planejamento das entregas.
+3. Premissas adotadas
+Nº	Premissa adotada	Origem da pendência
+P01	O menu é montado a partir das permissões devolvidas pelo servidor, não sendo fixado no front-end.	Matriz de Acesso, STRY00064433
+P02	O contexto de trabalho — programa social e bases — é global à sessão e propagado entre os módulos que dele dependem.	Decisão registrada na seção 8.1
+P03	A abrangência não é escolhida pelo usuário: decorre do seu vínculo e acompanha toda a navegação.	STRY00064433
+P04	A sessão de simulação sobrevive à navegação para outros módulos, conforme o BFF de Simulação.	HU do BFF de Simulação, RF12
+P05	O assistente de IA é acessível a partir dos módulos, sem exigir o abandono da tela em curso.	HU do Widget de Chat IA, RF37
+ 
+4. Escopo
+4.1 Está no escopo
+•	Estrutura de módulos da plataforma e composição do menu.
+•	Visibilidade dos módulos conforme perfil, abrangência e produtos autorizados.
+•	Tela inicial e retomada do trabalho recente.
+•	Seleção e propagação do contexto de trabalho entre módulos.
+•	Preservação do estado ao navegar e tratamento do trabalho não salvo.
+•	Acesso direto a cenários, consultas e demais objetos da plataforma.
+•	Notificações de processos assíncronos.
+•	Comportamento da sessão, expiração e encerramento.
+4.2 Não está no escopo
+•	Funcionalidades internas de cada módulo, tratadas nas respectivas histórias.
+•	Autenticação e autorização, tratadas na HU de API Gateway e JWT.
+•	Identidade visual e padrões gráficos da plataforma.
+ 
+5. Requisitos Funcionais
+5.1 Estrutura e menu
+•	RF01 — Menu de Módulos: A plataforma deve apresentar menu com os módulos relacionados na seção 7.1, acessível a partir de qualquer tela.
+•	RF02 — Composição pelo Servidor: A composição do menu deve ser obtida do servidor, a partir das permissões do usuário, não sendo admitida a fixação da estrutura no front-end.
+•	RF03 — Ocultação de Módulos Não Autorizados: Os módulos para os quais o usuário não possua permissão não devem ser exibidos no menu.
+•	RF04 — Acesso Direto Não Autorizado: A tentativa de acesso direto, por endereço, a módulo não autorizado deve resultar em recusa padronizada, sem revelar a existência do módulo.
+•	RF05 — Indicação da Posição: A plataforma deve indicar permanentemente em qual módulo o usuário se encontra e, nos módulos com níveis internos, o caminho percorrido.
+5.2 Tela inicial
+•	RF06 — Retomada do Trabalho Recente: A tela inicial deve apresentar os 10 cenários mais recentes do usuário, permitindo a sua abertura direta.
+•	RF07 — Situação das Bases: A tela inicial deve apresentar as bases vigentes e as respectivas datas de referência, de modo que o usuário saiba sobre quais dados estará trabalhando.
+•	RF08 — Atalhos: A tela inicial deve oferecer atalhos para as ações mais frequentes do perfil do usuário, conforme as permissões.
+•	RF09 — Avisos Pendentes: A tela inicial deve apresentar os avisos pendentes do usuário, notadamente exportações concluídas e campanhas de recertificação em aberto.
+5.3 Contexto de trabalho
+•	RF10 — Seleção do Contexto: A plataforma deve permitir selecionar o programa social e as bases de trabalho, compondo o contexto da sessão.
+•	RF11 — Exibição Permanente: O contexto corrente deve ser exibido permanentemente, contemplando o programa, as bases com as respectivas datas de referência e a abrangência do usuário.
+•	RF12 — Propagação entre Módulos: Ao navegar para outro módulo que dependa de contexto, o contexto corrente deve ser propagado, dispensando nova seleção.
+•	RF13 — Alteração do Contexto: A alteração do contexto deve ser possível a qualquer momento e deve advertir o usuário quando houver trabalho em andamento que dependa do contexto anterior.
+•	RF14 — Abrangência Não Selecionável: A abrangência não deve ser oferecida como opção de escolha ao usuário, por decorrer do seu vínculo.
+5.4 Navegação e preservação de estado
+•	RF15 — Preservação da Sessão de Simulação: A navegação para outro módulo não deve encerrar a sessão de simulação em andamento, que deve poder ser retomada no estado em que se encontrava.
+•	RF16 — Advertência de Trabalho Não Salvo: Ao sair de um módulo com alterações não salvas, a plataforma deve advertir o usuário e oferecer as opções de salvar, descartar ou permanecer.
+•	RF17 — Retorno ao Ponto de Origem: Ao concluir uma ação iniciada em outro módulo, a plataforma deve oferecer o retorno ao ponto de origem.
+•	RF18 — Assistente Acessível em Qualquer Módulo: O assistente de IA deve ser acionável a partir dos módulos que o admitam, sem exigir o abandono da tela em curso.
+•	RF19 — Múltiplas Frentes de Trabalho: A plataforma deve admitir que o usuário mantenha mais de uma frente de trabalho simultânea, conforme definição da seção 8.2.
+5.5 Acesso direto a objetos
+•	RF20 — Endereçamento de Objetos: Cenários, comparativos e consultas salvas devem possuir endereço próprio, que permita o acesso direto e o compartilhamento da referência.
+•	RF21 — Verificação de Permissão no Acesso Direto: O acesso por endereço direto deve submeter-se às mesmas verificações de perfil, abrangência e produto aplicáveis à navegação pelo menu.
+•	RF22 — Objeto Inexistente ou Inacessível: O acesso a objeto inexistente, excluído ou fora do escopo do usuário deve produzir resposta padronizada, sem distinguir as hipóteses.
+•	RF23 — Restauração do Contexto: Ao abrir um objeto por endereço direto, a plataforma deve restaurar o contexto nele registrado, informando ao usuário a eventual divergência em relação ao contexto corrente.
+5.6 Notificações
+•	RF24 — Central de Avisos: A plataforma deve manter área de avisos, acessível de qualquer módulo, com os eventos relacionados na seção 7.4.
+•	RF25 — Notificação de Conclusão: Processos assíncronos concluídos devem gerar aviso ao usuário que os iniciou, com acesso direto ao resultado.
+•	RF26 — Notificação de Evento da Base: A substituição de carga que invalide sessões ou torne cenários não reproduzíveis deve ser comunicada aos usuários afetados.
+•	RF27 — Leitura e Descarte: O usuário deve poder marcar avisos como lidos e descartá-los.
+5.7 Sessão
+•	RF28 — Identificação do Usuário: A plataforma deve exibir permanentemente a identificação do usuário autenticado e o ente ao qual está vinculado.
+•	RF29 — Advertência de Expiração: A plataforma deve advertir o usuário com antecedência sobre a expiração da sessão, oferecendo a renovação sem perda do trabalho em andamento.
+•	RF30 — Encerramento: A plataforma deve oferecer o encerramento da sessão a partir de qualquer módulo, advertindo sobre trabalho não salvo.
+•	RF31 — Revogação em Sessão Ativa: A revogação de perfil, abrangência ou produto durante a sessão deve produzir o encerramento ou a redução imediata do acesso, informando o usuário.
+5.8 Acessibilidade e responsividade
+•	RF32 — Navegação por Teclado: Toda a estrutura de navegação deve ser operável por teclado, com ordem de foco previsível.
+•	RF33 — Leitores de Tela: A estrutura de navegação deve ser compatível com leitores de tela, identificando corretamente os elementos e a posição do usuário.
+•	RF34 — Responsividade: A navegação deve adaptar-se às resoluções suportadas, preservando o acesso a todos os módulos autorizados.
+ 
+6. Regras de Negócio
+•	RN01 — Menu Determinado pelo Servidor: A estrutura de navegação exibida reflete exclusivamente as permissões devolvidas pelo servidor. A ausência de um módulo no menu equivale à ausência de permissão.
+•	RN02 — Ocultação em vez de Bloqueio: Módulos não autorizados são ocultados, e não exibidos com mensagem de acesso negado, de modo a não revelar a estrutura da plataforma a quem não tem acesso.
+•	RN03 — Equivalência entre Caminhos de Acesso: As verificações aplicáveis ao acesso pelo menu aplicam-se integralmente ao acesso por endereço direto.
+•	RN04 — Abrangência Imutável na Sessão: A abrangência decorre do vínculo do usuário e não pode ser alterada durante a navegação.
+•	RN05 — Contexto Único por Frente de Trabalho: Cada frente de trabalho possui um único contexto corrente, composto por programa e bases.
+•	RN06 — Preservação do Trabalho: A navegação entre módulos não pode, por si só, causar a perda de trabalho em andamento.
+•	RN07 — Transparência da Base: O usuário deve ter condições de saber, a qualquer momento e sem ação adicional, sobre qual base e qual data de referência está trabalhando.
+•	RN08 — Avisos Pessoais: Os avisos são pessoais e restritos ao usuário destinatário, não sendo compartilhados entre usuários do mesmo ente.
+ 
+7. Tabelas de apoio
+7.1 Inventário de módulos
+Construído a partir das funcionalidades citadas nas histórias recebidas. A coluna de situação indica a existência de especificação própria.
+Módulo	Finalidade	Perfis	Origem	Situação
+Início	Ponto de entrada, com retomada do trabalho recente e situação das bases	Todos os autenticados	Esta HU	A especificar
+Simulador	Seleção de programa e bases, parâmetros, totalizadores e resultados	Gestor Ente Externo e Gestor CAIXA	STRY00069681, STRY00070086, STRY00072096, STRY00071242	Especificado
+Cenários e comparativos	Salvamento, pesquisa, compartilhamento e comparação de cenários	Gestor Ente Externo e Gestor CAIXA	STRY00071242, STRY00087376	Especificado
+Assistente de IA	Consultas em linguagem natural sobre as bases	Conforme definição da STRY00111044	STRY00111044	Especificado
+Públicos-alvo	Composição, salvamento e reutilização de públicos-alvo	A definir	STRY00111044	Parcial
+Folha interna	Geração de folha no leiaute do SIPBS	Perfis com alçada específica	STRY00111130	HU não recebida
+Parametrização do Programa	Manutenção dos parâmetros vigentes dos programas	A definir	Citada em quatro histórias	Sem HU
+De x Para dos campos	Manutenção das nomenclaturas de exibição	Gestor CAIXA	STRY00083689	Especificado
+Monitoramento da carga	Acompanhamento da ingestão e das validações da Base Municipal	Gestor CAIXA	Citado em três histórias	Sem HU
+Dashboards	Painéis analíticos da plataforma	A definir	Citado na STRY00083689	Sem HU
+Gestão de acesso	Entes, usuários, concessões e Matriz de Acesso	Administração central e local	HU de Provisionamento de Acesso	Especificado
+Auditoria	Consulta às trilhas de auditoria da plataforma	Perfis de auditoria e controle	Disperso em cinco histórias	Sem HU
+7.2 Dependência de contexto por módulo
+Módulo	Programa social	Bases	Abrangência
+Simulador	Obrigatório	Obrigatório	Aplicada
+Cenários e comparativos	Obrigatório	Do cenário salvo	Aplicada
+Assistente de IA	Obrigatório	Vigentes	Aplicada
+Públicos-alvo	Obrigatório	Vigentes	Aplicada
+Parametrização do Programa	Obrigatório	Não se aplica	Aplicada
+De x Para dos campos	Não se aplica	Não se aplica	Não se aplica
+Monitoramento da carga	Não se aplica	Todas	Aplicada
+Gestão de acesso	Não se aplica	Não se aplica	Aplicada
+7.3 Comportamento ao navegar
+Situação	Comportamento	Requisito
+Simulação em andamento, sem alteração	Sessão preservada, retomada no mesmo estado	RF15
+Simulação com alterações não salvas	Advertência com opções de salvar, descartar ou permanecer	RF16
+Alteração do contexto com trabalho em andamento	Advertência antes de aplicar o novo contexto	RF13
+Abertura de objeto com contexto divergente	Contexto do objeto restaurado, com informação da divergência	RF23
+Carga substituída durante a sessão	Aviso ao usuário e invalidação conforme o BFF de Simulação	RF26
+Sessão prestes a expirar	Advertência prévia com opção de renovação	RF29
+Acesso revogado durante a sessão	Encerramento ou redução imediata, com informação	RF31
+7.4 Eventos que geram aviso
+Evento	Destinatário	Origem
+Exportação concluída	Usuário que a solicitou	HU do BFF de Simulação, RF30
+Carga da Base Municipal concluída	Gestor CAIXA	STRY00062314, RF17
+Carga rejeitada na validação	Gestor CAIXA	STRY00079079
+Substituição de base que invalida sessão	Usuários com sessão ativa	STRY00069681, STRY00062314
+Cenário tornado não reproduzível	Autor do cenário	HU de Cenários, RN09
+Cenário compartilhado recebido	Destinatário do compartilhamento	HU de Cenários, RF11
+Campanha de recertificação aberta	Responsável pelos acessos	HU de Provisionamento, RF30
+Acesso próximo da expiração	Usuário e administrador do ente	HU de Provisionamento, RF20
+ 
+8. Pontos de atenção para refinamento
+8.1 Decisões adotadas a confirmar
+•	Ocultar em vez de bloquear (RF03, RN02): a STRY00069681 deixou em aberto se o módulo não autorizado deve ser ocultado ou exibido com mensagem de acesso negado. Adotou-se a ocultação, por não revelar a estrutura da plataforma a quem não tem acesso e por evitar a frustração de ver opções inalcançáveis. Confirmar, observando que a ocultação dificulta ao usuário saber que a funcionalidade existe e solicitar acesso.
+•	Contexto global à sessão (P02, RF12): a alternativa é cada módulo manter o seu próprio contexto. Adotou-se o contexto global por reduzir a repetição de seleções, mas ele exige tratamento cuidadoso quando o usuário mantém mais de uma frente de trabalho. Confirmar.
+•	Abrangência não selecionável (RF14, RN04): confirmar que o usuário com abrangência nacional ou estadual não escolhe um recorte menor na navegação, limitando-se a filtrar dentro dos módulos. A alternativa seria permitir a escolha de um recorte de trabalho, o que facilitaria a análise mas exigiria exibi-lo em todos os resultados.
+8.2 Modelo de trabalho
+•	Múltiplas frentes simultâneas (RF19): definir se o usuário pode manter duas simulações abertas ao mesmo tempo, em abas distintas do navegador, e como o contexto global se comporta nessa hipótese. O BFF de Simulação admite sessões simultâneas isoladas, de modo que a decisão é de interface.
+•	Posicionamento do assistente (RF18, P05): a HU do Widget deixou em aberto se ele ocupa tela própria, painel lateral ou componente flutuante. A decisão pertence àquele documento, mas condiciona o desenho da navegação.
+•	Retomada após queda de conexão: definir se a plataforma recupera o estado da tela após interrupção, considerando que o Widget de Chat IA veda a persistência local de dados por envolver microdado.
+8.3 Módulos sem especificação
+•	Quatro módulos sem história: o inventário da seção 7.1 revela que Parametrização do Programa, Monitoramento da carga, Dashboards e Auditoria são referenciados pela plataforma e não possuem história de usuário. A navegação não pode ser construída sem ao menos a definição do seu lugar na estrutura.
+•	Parametrização do Programa: é o módulo mais crítico dessa lista, por ser citado em quatro histórias como a única forma de alterar parâmetros vigentes e por ser a fonte dos valores iniciais do Simulador.
+•	Unificação dos painéis de monitoramento: três histórias preveem exibição de resultados da carga em painel para o Gestor CAIXA. A navegação pressupõe um único módulo; confirmar a consolidação.
+•	Módulo de auditoria: cinco histórias exigem trilha de auditoria e três preveem a sua consulta, sem definir onde isso ocorre. Avaliar a criação de módulo único de consulta às trilhas.
+8.4 Experiência e informação
+•	Transparência da base (RF07, RF11, RN07): a exibição permanente da data de referência das bases é a resposta a um problema que aparece em várias histórias, o de o gestor interpretar resultados sem saber a que período se referem. Confirmar o detalhamento exibido, considerando que podem conviver Base Municipal, pré-folha e folha com datas distintas.
+•	Atalhos por perfil (RF08): definir se os atalhos são fixos por perfil ou derivados do uso recente do usuário.
+•	Volume de avisos (RF24): definir prazo de retenção e se avisos não lidos permanecem indefinidamente.
+•	Primeiro acesso: avaliar a necessidade de orientação inicial ao usuário que acessa a plataforma pela primeira vez, considerando que o público inclui gestores municipais com familiaridade variável com sistemas.
+8.5 Requisitos não funcionais
+•	Acessibilidade (RF32 a RF34): confirmar a norma aplicável e o nível de conformidade exigido, pendência comum a todas as histórias.
+•	Navegadores e resoluções: definir a matriz de suporte, ainda não estabelecida em nenhuma história.
+•	Tempo de carregamento do menu: definir a meta, considerando que a composição depende de consulta às permissões.
+ 
+9. Rastreabilidade — origem das exigências
+Este documento não deriva de critérios de aceitação próprios. A tabela relaciona as exigências dispersas que motivaram cada bloco.
+Requisitos	Exigência de origem	História
+RF02, RF03, RN01, RN02	Dúvida entre ocultar o menu ou exibir acesso negado	STRY00069681
+RF01, RF04, RF21, RN03	Exibição apenas dos programas e funcionalidades autorizados	STRY00064433, STRY00069681
+RF06	Dez simulações mais recentes na tela inicial	STRY00071242, RF11
+RF07, RF11, RN07	Máscaras das bases com datas de referência	STRY00069681, RF06
+RF10, RF12, RF13	Seleção de programa e bases em cada funcionalidade	STRY00069681, STRY00111044
+RF15, RN06	Sessão de simulação com tempo de inatividade	HU do BFF de Simulação, RF12
+RF18	Assistente utilizável sem interromper a atividade	HU do Widget de Chat IA, RF37
+RF20, RF23	Identificação única de cenários e consultas	HU consolidada, HU de Cenários
+RF24 a RF27	Exportação assíncrona e alertas de carga	HU do BFF de Simulação, STRY00062314
+RF31, RN04	Efeito da revogação de acesso em sessão ativa	STRY00064433, HU de API Gateway
+RF05, RF08, RF09, RF14, RF16, RF17, RF19, RF28 a RF30, RF32 a RF34	Esta HU	Navegação não tratada em nenhuma história
+
+ 
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para a Navegação entre Módulos do SIPGS. A assinatura formaliza a aprovação do escopo com base nas premissas da seção 3 e ressalvados os itens da seção 8, em especial a confirmação da ocultação de módulos não autorizados e a definição dos quatro módulos ainda sem história de usuário.
+Data	Nome	Cargo / Área
+		
+		
+
