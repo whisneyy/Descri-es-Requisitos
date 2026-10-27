@@ -1,0 +1,198 @@
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+SIPGS — Provisionamento de Acesso
+ 
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração a partir da STRY00064433 e das dependências das demais HUs
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. DESCRIÇÃO
+Como gestor da Plataforma de Benefícios Sociais, quero um processo formal de provisionamento de acesso, que permita cadastrar os entes participantes, registrar seus usuários, conceder a cada um o perfil, a abrangência e os produtos a que faz jus, alterar ou revogar esses acessos quando necessário e revisá-los periodicamente, para que o controle de acesso definido na STRY00064433 tenha origem em um processo auditável e não em concessões informais.
+A STRY00064433 determina que a definição da abrangência seja obrigatória na concessão do perfil, mas não especifica o processo de concessão. As demais histórias pressupõem esse processo sem descrevê-lo: o documento do API Gateway o declara como premissa, e a revogação de acesso figura entre os eventos que invalidam tokens e sessões de simulação. Este documento preenche essa lacuna.
+Delimitação do termo: provisionamento é aqui entendido como o ciclo de vida de entes, usuários e concessões de acesso. O provisionamento de ambientes e de infraestrutura, embora igualmente ausente das histórias recebidas, é assunto distinto e não é objeto deste documento.
+ 
+3. PREMISSAS ADOTADAS
+Nº	Premissa adotada	Origem da pendência
+P01	A autenticação e a guarda de credenciais ocorrem em provedor de identidade externo. Este componente trata da autorização, não da credencial.	HU de API Gateway e JWT
+P02	A Matriz de Acesso é funcionalidade da plataforma, e não documento mantido fora dela.	STRY00064433 — natureza não definida
+P03	Cada usuário possui vínculo com um único ente por concessão, admitidas concessões distintas para produtos distintos.	STRY00064433 pressupõe vínculo único
+P04	A revogação de acesso é notificada aos componentes que dela dependem, notadamente o API Gateway e os BFF.	HU de API Gateway, RF22 e RF24
+P05	O modelo adotado é de dois eixos: o perfil define as permissões funcionais e a abrangência define o universo de dados.	STRY00064433 — modelo não definido
+ 
+4. ESCOPO
+4.1 Está no escopo
+•	Cadastro e manutenção dos entes participantes e dos produtos a eles vinculados.
+•	Cadastro e manutenção dos usuários e da sua vinculação a um ente.
+•	Concessão, alteração, suspensão e revogação de acessos, com perfil, abrangência e produtos.
+•	Fluxo de solicitação e aprovação, com segregação de função.
+•	Manutenção da Matriz de Acesso da Plataforma.
+•	Delegação da administração de acessos aos entes.
+•	Recertificação periódica dos acessos concedidos.
+•	Consulta, relatórios e trilha de auditoria do provisionamento.
+4.2 Não está no escopo
+•	Autenticação, emissão e validação de token, tratadas na HU de API Gateway e JWT.
+•	Aplicação da abrangência nas consultas, tratada na STRY00064433 e nos BFF.
+•	Provisionamento de ambientes e de infraestrutura.
+•	Gestão de acesso de cidadãos ou beneficiários, uma vez que a plataforma atende a gestores.
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Cadastro de entes
+•	RF01 — Cadastro do Ente: O sistema deve permitir cadastrar os entes participantes, registrando a natureza (nacional, estadual, municipal, organizacional CAIXA ou entidade externa), a identificação oficial, a unidade federativa e o município quando aplicáveis, e a situação.
+•	RF02 — Produtos do Ente: O sistema deve permitir vincular ao ente os produtos que ele gerencia na plataforma, com a respectiva vigência.
+•	RF03 — Situação do Ente: O sistema deve permitir suspender ou encerrar a participação de um ente, hipótese em que todas as concessões a ele vinculadas devem ser suspensas ou revogadas.
+•	RF04 — Responsável pelo Ente: O cadastro deve registrar o responsável institucional pelo ente na plataforma, a quem cabe indicar os administradores locais.
+5.2 Cadastro de usuários
+•	RF05 — Registro do Usuário: O sistema deve permitir registrar o usuário, associando-o à identidade correspondente no provedor de identidade e ao ente de vinculação.
+•	RF06 — Dados do Usuário: O cadastro deve conter os dados mínimos necessários à identificação funcional e ao contato, observado o princípio da minimização.
+•	RF07 — Situação do Usuário: O sistema deve permitir ativar, suspender e desligar o usuário, refletindo essas situações em todas as suas concessões.
+•	RF08 — Unicidade: O sistema deve impedir o registro de mais de um usuário para a mesma identidade no mesmo ente.
+5.3 Concessão de acesso
+•	RF09 — Composição da Concessão: Toda concessão deve conter, obrigatoriamente, o perfil, a abrangência de atuação e os produtos autorizados, não sendo admitida concessão incompleta.
+•	RF10 — Abrangência Derivada do Ente: A abrangência oferecida na concessão deve ser limitada à natureza e à circunscrição do ente de vinculação do usuário.
+•	RF11 — Vigência: A concessão deve possuir data de início e, quando aplicável, data de término, a partir da qual é automaticamente encerrada.
+•	RF12 — Concessões Múltiplas: O sistema deve admitir mais de uma concessão para o mesmo usuário, referentes a produtos distintos, mantidas independentes entre si.
+•	RF13 — Fluxo de Solicitação e Aprovação: A concessão deve percorrer as etapas de solicitação, aprovação e efetivação, registradas conforme a seção 7.1.
+•	RF14 — Segregação de Função: O sistema deve impedir que o solicitante aprove a própria solicitação e que o usuário conceda acesso a si mesmo.
+•	RF15 — Justificativa: A solicitação deve conter justificativa, preservada no histórico e disponível para auditoria.
+5.4 Alteração, suspensão e revogação
+•	RF16 — Alteração da Concessão: O sistema deve permitir alterar o perfil, a abrangência e os produtos de uma concessão vigente, observado o mesmo fluxo de aprovação da concessão original.
+•	RF17 — Suspensão Temporária: O sistema deve permitir suspender temporariamente a concessão, preservando-a para posterior reativação.
+•	RF18 — Revogação: O sistema deve permitir revogar a concessão a qualquer tempo, com efeito imediato.
+•	RF19 — Encerramento Automático: Concessões com vigência expirada devem ser encerradas automaticamente, sem necessidade de ação manual.
+•	RF20 — Encerramento por Inatividade: Concessões sem utilização pelo período parametrizado devem ser suspensas automaticamente, com notificação prévia ao usuário e ao administrador do ente.
+•	RF21 — Propagação do Evento: Toda alteração, suspensão, revogação ou encerramento deve ser notificada aos componentes dependentes, conforme a seção 7.3.
+5.5 Matriz de Acesso
+•	RF22 — Cadastro da Matriz: O sistema deve permitir manter a Matriz de Acesso da Plataforma, relacionando produto, perfil, funcionalidade, permissão e abrangência admitida, conforme a seção 7.2.
+•	RF23 — Manutenção Privativa: A manutenção da Matriz deve ser privativa de perfil específico, distinto dos perfis que concedem acessos.
+•	RF24 — Versionamento: As alterações na Matriz devem ser versionadas, preservando o histórico e a data de vigência de cada versão.
+•	RF25 — Efeito das Alterações: A alteração da Matriz deve refletir-se nas concessões existentes, identificando aquelas que se tornaram incompatíveis com a nova versão.
+•	RF26 — Consulta à Matriz: A Matriz vigente deve ser consultável como serviço pelos demais componentes da plataforma, notadamente pelo API Gateway na emissão do token.
+5.6 Delegação aos entes
+•	RF27 — Administrador do Ente: O sistema deve prever perfil de administrador local, apto a solicitar e aprovar concessões para usuários do próprio ente.
+•	RF28 — Limitação da Delegação: O administrador local não pode conceder perfil, abrangência ou produto que exceda os do próprio ente, nem conceder o perfil de administrador sem aprovação do responsável institucional.
+•	RF29 — Revogação da Delegação: A administração central deve poder revogar a delegação concedida a um ente, retomando a responsabilidade pelas concessões.
+5.7 Recertificação
+•	RF30 — Campanha de Recertificação: O sistema deve permitir instaurar campanhas periódicas de revisão dos acessos concedidos, com prazo definido para resposta.
+•	RF31 — Confirmação ou Revogação: Na campanha, o responsável deve confirmar, alterar ou revogar cada acesso sob a sua responsabilidade.
+•	RF32 — Tratamento da Ausência de Resposta: Acessos não recertificados no prazo devem ser suspensos automaticamente, com notificação prévia.
+•	RF33 — Relatório da Campanha: O sistema deve produzir relatório da campanha, com os acessos confirmados, alterados, revogados e não respondidos.
+5.8 Consulta e auditoria
+•	RF34 — Consulta de Acessos: O sistema deve permitir consultar usuários e concessões por ente, perfil, abrangência, produto e situação.
+•	RF35 — Histórico da Concessão: O sistema deve preservar o histórico completo de cada concessão, incluindo solicitações, aprovações, alterações, suspensões e revogações.
+•	RF36 — Trilha de Auditoria: Todas as ações de provisionamento devem ser registradas, com identificação do responsável, data, hora, ação praticada e justificativa quando houver.
+•	RF37 — Relatórios de Acesso: O sistema deve produzir relatórios de acessos vigentes por ente e por perfil, destinados a controles internos e a órgãos de controle.
+5.9 Início e término do vínculo
+•	RF38 — Primeiro Acesso: O sistema deve orientar o usuário no primeiro acesso, apresentando os termos de uso e de responsabilidade sobre o tratamento de dados pessoais, registrando o aceite.
+•	RF39 — Desligamento: O desligamento do usuário deve revogar todas as suas concessões e notificar os componentes dependentes.
+•	RF40 — Efeito sobre Artefatos Produzidos: A revogação do acesso não elimina os cenários, as consultas e os registros de auditoria produzidos pelo usuário, que permanecem preservados.
+ 
+6. REGRAS DE NEGÓCIO
+•	RN01 — Concessão Completa: Não existe concessão sem perfil, abrangência e produto. A ausência de qualquer um impede a efetivação.
+•	RN02 — Limite da Abrangência: A abrangência concedida não pode exceder a circunscrição do ente de vinculação do usuário. Usuário de ente municipal não pode receber abrangência estadual ou nacional.
+•	RN03 — Limite da Delegação: O administrador local não pode conceder mais do que possui, tanto em perfil quanto em abrangência e em produtos.
+•	RN04 — Segregação de Função: Solicitação e aprovação devem ser praticadas por pessoas distintas. Nenhum usuário pode conceder ou aprovar acesso para si próprio.
+•	RN05 — Independência entre Produtos: A autorização para um produto não implica acesso aos demais, ainda que o ente possua mais de um produto na plataforma.
+•	RN06 — Efeito Imediato da Revogação: A revogação produz efeito imediato e prevalece sobre qualquer vigência em curso, inclusive sobre sessões e tokens ativos.
+•	RN07 — Matriz como Fonte Única: A Matriz de Acesso é a fonte única das permissões. Nenhuma concessão pode atribuir permissão nela inexistente.
+•	RN08 — Recertificação Obrigatória: Todo acesso está sujeito à recertificação periódica. A ausência de confirmação implica suspensão.
+•	RN09 — Gestor CAIXA: O perfil organizacional CAIXA não se vincula a ente externo, e a sua abrangência é definida exclusivamente pela Matriz de Acesso.
+•	RN10 — Minimização de Dados: São tratados apenas os dados pessoais dos usuários gestores necessários à identificação funcional e ao contato, observada a LGPD.
+•	RN11 — Inalterabilidade da Trilha: Os registros de auditoria do provisionamento não podem ser alterados nem suprimidos, inclusive após o desligamento do usuário.
+•	RN12 — Preservação dos Artefatos: A revogação de acesso não implica exclusão do que o usuário produziu na plataforma.
+ 
+7. TABELAS DE APOIO
+7.1 Situações da concessão
+Situação	Caracterização	Transições admitidas
+Solicitada	Registrada e pendente de aprovação	Aprovada ou recusada
+Recusada	Solicitação não aprovada	Encerrada
+Vigente	Aprovada e dentro do prazo de vigência	Alterada, suspensa, revogada ou expirada
+Suspensa	Temporariamente sem efeito	Reativada ou revogada
+Expirada	Vigência encerrada por decurso de prazo	Nova concessão
+Revogada	Encerrada por decisão, com efeito imediato	Nova concessão
+7.2 Estrutura da Matriz de Acesso
+Elemento	Conteúdo	Observação
+Produto	Programa social ou funcionalidade transversal	Base da restrição por produto
+Perfil	Perfil conforme a STRY00064433	Nomenclatura a consolidar
+Funcionalidade	Funcionalidade da plataforma	Alimenta a autorização por rota no Gateway
+Permissão	Operação admitida: consultar, executar, manter	Distingue leitura de operação
+Abrangências admitidas	Níveis de abrangência compatíveis com o perfil	Limita as opções na concessão
+Vigência	Data de início e de término da versão	Versionamento (RF24)
+7.3 Eventos propagados aos demais componentes
+Evento	Efeito esperado	Componente notificado
+Concessão efetivada	Usuário passa a obter token com o novo escopo	API Gateway
+Alteração de perfil ou abrangência	Revogação dos tokens vigentes do usuário	API Gateway
+Revogação ou suspensão	Revogação de tokens e encerramento de sessões	API Gateway, BFF de Simulação
+Desligamento do usuário	Revogação de todos os acessos e sessões	API Gateway, BFF
+Suspensão do ente	Suspensão em cascata das concessões	API Gateway
+Nova versão da Matriz	Reavaliação das permissões na emissão do token	API Gateway
+7.4 Papéis do processo
+Papel	Atribuição	Observação
+Responsável institucional do ente	Indica administradores locais e responde pelo ente	Cadastrado no RF04
+Administrador local	Solicita e aprova concessões no próprio ente	Limitado pela RN03
+Administração central	Cadastra entes, delega e retoma a administração	Perfil CAIXA
+Gestor da Matriz de Acesso	Mantém a Matriz	Segregado de quem concede (RF23)
+Auditoria	Consulta acessos e trilha, sem poder de concessão	Perfil somente leitura
+7.5 Parâmetros a definir
+Parâmetro	Finalidade	Situação
+Vigência máxima da concessão	Limita acessos permanentes	Valor a definir
+Periodicidade da recertificação	Revisão periódica dos acessos	Valor a definir
+Prazo de resposta da campanha	Antes da suspensão automática	Valor a definir
+Inatividade máxima	Suspensão de acesso não utilizado	Valor a definir
+Retenção da trilha de auditoria	Conformidade	Prazo a definir
+ 
+8. PONTOS DE ATENÇÃO PARA REFINAMENTO
+8.1 Definições herdadas
+•	Modelo de perfil e abrangência (P05): este documento adota o modelo de dois eixos, em que o perfil define permissões e a abrangência define o universo de dados. A STRY00064433 mistura os dois conceitos ao relacionar as abrangências suportadas como se fossem perfis. A confirmação do modelo condiciona toda a estrutura de dados do provisionamento.
+•	Nomenclatura dos perfis: permanecem três vocabulários em uso nas histórias. A Matriz de Acesso é o instrumento natural para fixar a nomenclatura oficial, e o RF22 depende dessa definição.
+•	Múltiplo vínculo (P03): a premissa de vínculo único precisa ser confirmada. Consórcios intermunicipais, servidores que atuam em mais de um município e gestores estaduais que acumulam função municipal são hipóteses que, se admitidas, alteram o modelo de concessão.
+8.2 Identidade e credencial
+•	Provedor de identidade para entes externos: a plataforma atende empregados da CAIXA e gestores de prefeituras, secretarias estaduais e ministérios. Definir se haverá provedor único ou caminhos distintos, e se será adotada identidade digital governamental para os entes externos.
+•	Órgãos de controle: a STRY00064433 prevê acesso de TCU e CGU, que não pertencem à CAIXA nem aos entes gestores. Definir como são cadastrados, quem autoriza e qual a vigência dessas concessões.
+•	Correspondência entre cadastro e identidade (RF05): definir o atributo que vincula o usuário da plataforma à identidade no provedor, evitando o uso de dado pessoal como chave.
+•	Reaproveitamento de solução corporativa: avaliar se a CAIXA já dispõe de solução de gestão de acesso que atenda parte destes requisitos, hipótese em que este componente se limitaria ao que é específico da plataforma, notadamente a abrangência territorial e a restrição por produto.
+8.3 Processo e governança
+•	Entrada de um novo ente (RF01): definir o que precede o cadastro — convênio, adesão ou ato normativo — e quem autoriza a inclusão de um município na plataforma.
+•	Delegação aos entes (RF27): confirmar se a administração de acessos será delegada aos entes ou centralizada. A delegação é necessária diante da quantidade de municípios, mas transfere responsabilidade e exige capacitação e responsabilização formal.
+•	Alçada da segregação (RF14, RN04): confirmar se a segregação entre solicitante e aprovador é exigível em todos os casos, inclusive em entes pequenos, onde pode haver um único servidor habilitado.
+•	Acessos temporários: definir o tratamento de acessos para consultores, estagiários e servidores em substituição, que tendem a exigir vigência curta e controle específico.
+•	Perfil somente leitura: a STRY00064433 não prevê perfil de consulta sem poder de operação, embora ele seja natural para auditoria e órgãos de controle. Confirmar se a distinção será tratada como permissão na Matriz.
+8.4 Proteção de dados
+•	Dados dos usuários gestores (RN10): ainda que não sejam beneficiários, os usuários são pessoas naturais. Definir os dados coletados, a base legal e o prazo de retenção após o desligamento.
+•	Termo de responsabilidade (RF38): considerando que os usuários acessam microdado do Cadastro Único, avaliar a exigência de termo específico de responsabilidade sobre o tratamento desses dados, com registro do aceite.
+•	Relatórios a órgãos de controle (RF37): definir o conteúdo e os destinatários, observando que a relação de usuários e acessos é, ela própria, informação sensível do ponto de vista de segurança.
+8.5 Requisitos não funcionais
+•	Volumetria: estimar a quantidade de entes, usuários e concessões a administrar. Considerando a abrangência municipal do Cadastro Único, a ordem de grandeza pode alcançar dezenas de milhares de usuários.
+•	Tempo de propagação (RF21): definir o prazo máximo entre a revogação e o seu efeito nos componentes dependentes, tema correlato à decisão de vigência do token registrada na HU de API Gateway.
+•	Disponibilidade: a indisponibilidade do provisionamento não pode impedir o acesso de usuários já providos, mas impede novas concessões e revogações. Definir a meta e a estratégia de contingência para revogações urgentes.
+ 
+9. RASTREABILIDADE — ORIGEM DAS EXIGÊNCIAS
+Este documento não deriva de critérios de aceitação próprios. A tabela relaciona as exigências dispersas nas demais histórias que motivaram cada bloco de requisitos.
+Requisitos	Exigência de origem	História
+RF09, RN01	Obrigatoriedade da abrangência na concessão do perfil	STRY00064433
+RF10, RN02	Abrangência determinada pelo vínculo do usuário	STRY00064433
+RF12, RN05	Restrição por produto e não propagação entre produtos	STRY00064433
+RF22 a RF26, RN07	Matriz de Acesso como fonte da definição	STRY00064433 e três outras histórias
+RF18, RF21, RN06	Revogação como evento que invalida tokens e sessões	HU de API Gateway, HU do BFF de Simulação
+RF26	Consulta à Matriz na emissão do token	HU de API Gateway, P03
+RF30 a RF33, RN08	Recertificação periódica de acessos	Ponto de atenção da STRY00064433
+RF36, RN11	Rastreabilidade declarada como finalidade	STRY00064433
+RF40, RN12	Preservação de cenários e registros produzidos	HU de Salvamento e Comparação de Cenários
+RF01 a RF08, RF27 a RF29, RF38, RF39	Esta HU	Processo não tratado em nenhuma história
+
+ 
+10. ACEITE DA DOCUMENTAÇÃO
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o Provisionamento de Acesso do SIPGS. A assinatura formaliza a aprovação do escopo com base nas premissas da seção 3 e ressalvados os itens da seção 8, em especial a confirmação do modelo de perfil e abrangência e a decisão sobre a delegação da administração aos entes. Por se tratar de documento construído por dedução, sua aprovação pressupõe validação prévia pela área de segurança da informação.
+Data	Nome	Cargo / Área
+		
+		
+
