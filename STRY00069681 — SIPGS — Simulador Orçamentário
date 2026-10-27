@@ -1,0 +1,223 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+
+
+STRY00069681 — SIPGS — Simulador Orçamentário
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	OBJETIVO DA SOLICITAÇÃO	4
+3	Requisitos Funcionais	5
+3.1	Perfil de acesso	5
+3.2	4.2 Seleção do programa e das bases	5
+3.3	Composição e execução do cenário	6
+3.4	4.4 Totalizadores	6
+4	5. Regras de Negócio	8
+5	Aceite da documentação	10
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+ 
+2	OBJETIVO DA SOLICITAÇÃO
+
+Este documento especifica os requisitos do Simulador Orçamentário do SIPGS, funcionali-dade destinada aos gestores de programas sociais para a construção de cenários de simulação a partir das bases de dados disponíveis na Plataforma de Benefícios.
+A funcionalidade deve permitir que o gestor selecione o programa social, escolha a base ou a combinação de bases sobre a qual deseja simular (Base Municipal, Pré-folha e Folha de Paga-mento), visualize os totalizadores de referência do universo selecionado e altere um ou mais parâ-metros simultaneamente, obtendo de imediato a comparação entre o cenário original e o cenário projetado, com os respectivos impactos quantitativos e financeiros e a movimentação de famílias entre as situações de ingresso, permanência e saída do programa.
+A simulação tem natureza exclusivamente exploratória: nenhuma alteração realizada no simulador produz efeito sobre os parâmetros vigentes do programa nem sobre a folha de pagamen-to real.
+3	.ESCOPO
+3.1	 Está no escopo
+•	Controle de acesso à funcionalidade por perfil e por vínculo com o programa social.
+•	Seleção do programa social e das bases de dados que comporão o cenário.
+•	Exibição dos totalizadores sintéticos de Base Municipal, Pré-folha e Folha de Pagamento.
+•	Alteração simultânea de um ou mais parâmetros e apuração do impacto quantitativo e finan-ceiro.
+•	Comparativo entre cenário original e cenário projetado, com destaque das variações.
+3.2	Não está no escopo desta HU
+•	Detalhamento dos parâmetros e das regras vigentes do programa, tratado na HU "Parâmetros do Programa".
+•	Recepção e processamento de folha externa no layout do SIPBS, tratada em HU específica (identificador a definir).
+•	Aplicação dos critérios de elegibilidade do PBF sobre a Base Municipal, tratada na STRY00070086.
+•	Alteração efetiva dos parâmetros vigentes, realizada exclusivamente na funcionalidade de Pa-rametrização do Programa.
+ 
+4	REQUISITOS FUNCIONAIS
+4.1	Perfil de acesso
+•	RF01 — Restrição de Acesso por Perfil: A funcionalidade deve estar disponível exclusivamente para os perfis Gestor Ente Externo Nacional, Gestor Ente Externo Estadual, Gestor Ente Exter-no Municipal e Gestor CAIXA, conforme as definições estabelecidas na Matriz de Acesso da Pla-taforma.
+•	RF02 — Exibição de Programas por Vínculo: O sistema deve exibir ao usuário apenas os Pro-gramas Sociais aos quais o seu perfil possua autorização e vínculo de acesso.
+4.2	4.2 Seleção do programa e das bases
+•	RF03 — Seleção do Programa Social: O sistema deve disponibilizar a opção "Selecionar Pro-grama Social", permitindo ao usuário escolher o programa sobre o qual deseja realizar a simu-lação, dentre os programas disponíveis na base e permitidos ao seu perfil.
+•	RF04 — Exibição das Regras Vigentes: Ao selecionar o programa social, o simulador deve exi-bir as regras atuais do programa, para que o usuário possa simular novas condições a partir de-las. O detalhamento dessas regras é objeto da HU "Parâmetros do Programa".
+•	RF05 — Seleção de Bases do Bolsa Família: Quando o usuário selecionar o Programa Bolsa Família, o simulador deve apresentar as opções de base: Base Municipal e/ou Pré-folha e/ou Folha, admitida a seleção combinada.
+•	RF06 — Máscaras de Identificação das Bases: As opções de bases carregadas devem ser exibi-das com as seguintes máscaras:
+•	Base Municipal (BM) – data da carga DD/MM/AAAA;
+•	Pré-folha – Referência MM/AAAA – data da geração DD/MM/AAAA;
+•	Folha – Referência MM/AAAA.
+•	RF07 — Modalidades de Simulação: O sistema deve permitir que o usuário realize simulações nas seguintes modalidades:
+•	Exclusivamente com todas as informações da Base Municipal, informando se a simula-ção aplicará ou não os critérios de elegibilidade do PBF (tratado na STRY00070086);
+•	Simultaneamente com todas as informações da Base Municipal e todas as informações da Pré-folha ou da Folha de Pagamento do programa selecionado;
+•	Exclusivamente com todas as informações da Folha de Pagamento, associadas às regras pré-formatadas dos benefícios, inclusive para possibilitar a criação de novos benefícios.
+4.3	Composição e execução do cenário
+•	RF08 — Seleção Simultânea de Parâmetros: O sistema deve permitir a seleção e a alteração de um ou mais parâmetros simultaneamente para a composição do cenário simulado.
+•	RF09 — Exibição dos Parâmetros Vigentes nos Sliders: Toda vez que o usuário acessar o simu-lador, os sliders devem ser apresentados com os valores dos parâmetros vigentes do programa social selecionado. Exemplo: para o Bolsa Família, o slider de "Renda per capita" deve iniciar com R$ 218,00.
+•	RF10 — Extensibilidade de Regras: O simulador deve ser configurável para tratar novas regras que venham a surgir, sem necessidade de nova entrega de software.
+•	RF11 — Demonstração de Impactos: O sistema deve demonstrar os impactos quantitativos e financeiros provocados pelas alterações realizadas no cenário.
+•	RF12 — Movimentação de Famílias: O sistema deve demonstrar quantas famílias passariam a ingressar, permanecer ou sair do programa em razão das alterações realizadas.
+•	RF13 — Comparativo entre Cenários: Toda alteração realizada durante a simulação deve apre-sentar comparativamente o cenário original (folha atual) e o cenário projetado, destacando os valores originais, os novos valores e as variações encontradas, atualizando automaticamente todos os indicadores exibidos na tela.
+4.4	4.4 Totalizadores
+•	RF14 — Totalizadores de Pré-folha e Folha de Pagamento: Ao selecionar a Pré-folha ou a Fo-lha de Pagamento, o sistema deve exibir, de forma sintética e visual, os seguintes totalizado-res:
+•	Quantidade de famílias;
+•	Quantidade de beneficiários;
+•	Quantidade de parcelas geradas;
+•	Quantidade de benefícios gerados, discriminando cada benefício da cesta de benefícios do programa;
+•	Valor médio de benefícios gerado por família;
+•	Valor da folha;
+•	Custo projetado para o período selecionado pelo usuário.
+•	RF15 — Totalizadores da Base Municipal: Ao selecionar a Base Municipal, o sistema deve exi-bir, de forma sintética e visual, os seguintes totalizadores:
+•	Quantidade de famílias no estado "Cadastrado";
+•	Quantidade de pessoas no estado "Cadastrado";
+•	Média de integrantes por família;
+•	Quantidade de famílias unipessoais e sua proporção percentual em relação ao total de famílias da base;
+•	Quantidade de famílias cadastradas por faixa de renda, considerando:
+▪	Valor limite de Extrema Pobreza — linha administrativa de extrema pobreza, con-forme a legislação do PBF (critério parametrizável);
+▪	Valor limite de Pobreza — linha administrativa de pobreza, conforme a legislação do PBF (critério parametrizável);
+▪	Valor máximo de Renda para Participação — linha administrativa de renda máxima para permanência no programa, conforme a legislação do PBF (critério parametrizá-vel).
+•	RF16 — Totalizadores em Seleção Combinada: Quando o usuário selecionar duas bases simul-taneamente, a visualização exibida deve ser a mesma utilizada para a Pré-folha e a Folha de Pagamento (RF14).
+•	RF17 — Seleção do Período de Projeção: O sistema deve permitir que o usuário selecione o período a ser considerado na apuração do custo projetado.
+ 
+5	REGRAS DE NEGÓCIO
+•	RN01 — Perfis Autorizados: O acesso à funcionalidade é restrito aos perfis Gestor Ente Exter-no (Nacional, Estadual e Municipal) e Gestor CAIXA. Qualquer outro perfil não deve ter acesso à funcionalidade, observadas as definições da Matriz de Acesso da Plataforma.
+•	RN02 — Vínculo com o Programa Social: A visibilidade de um programa social no simulador está condicionada, cumulativamente, à sua disponibilidade na base e à existência de autoriza-ção e vínculo de acesso do perfil do usuário àquele programa.
+•	RN03 — Atualização das Cargas de Pré-folha e Folha: Devem ser carregadas sempre a Pré-folha e a Folha mais recentes geradas pelo SIBEC, substituindo no simulador as cargas anterio-res.
+•	RN04 — Bases Aplicáveis ao Bolsa Família: A composição por Base Municipal, Pré-folha e Fo-lha, isolada ou combinada, é regra específica do Programa Bolsa Família. Para os demais pro-gramas, as bases disponíveis dependem do que estiver carregado na plataforma para aquele programa.
+•	RN05 — Programas sem Conceito de Família: Caso o programa social não possua o conceito de família, o sistema deve atribuir as informações dos benefícios ao titular, utilizando o NIS ou o CPF como chave. Exemplo: Programa Gás do Povo.
+•	RN06 — Imutabilidade dos Parâmetros Vigentes: Nenhuma simulação pode alterar os parâ-metros vigentes do programa. A alteração efetiva de parâmetros somente pode ser realizada na funcionalidade de Parametrização do Programa.
+•	RN07 — Origem dos Valores Iniciais: Os valores iniciais apresentados nos sliders devem cor-responder aos parâmetros vigentes do programa social, conforme definido no item "Simulador — Regra de Elegibilidade".
+•	RN08 — Universo dos Totalizadores da Base Municipal: Os totalizadores de famílias e pessoas da Base Municipal devem considerar exclusivamente os registros no estado "Cadastrado".
+•	RN09 — Cálculo do Valor Médio por Família: O valor médio de benefícios por família corres-ponde à divisão do valor total da folha pela quantidade de famílias constantes na folha.
+•	RN10 — Parametrização das Linhas de Renda: As três linhas administrativas de renda (extrema pobreza, pobreza e renda máxima para participação) são critérios parametrizáveis, definidos conforme a legislação do Programa Bolsa Família.
+•	RN11 — Natureza Exploratória da Simulação: Os resultados produzidos pelo simulador consti-tuem projeção para fins de estudo técnico e planejamento, não gerando direito, obrigação de pagamento ou alteração na folha real.
+•	RN12 — Composição do Valor da Folha: Conforme a regra de apresentação do relatório analí-tico da folha, o valor total é apurado desprezando os descontos efetuados, que são apresenta-dos em linhas próprias com a sigla CS seguida do código da instituição financeira. O valor da folha e o valor médio por família exibidos pelo Simulador devem observar o mesmo critério.
+
+ 
+6	LAYOUT DAS BASES
+Conforme os artefatos do SIBEC "1356213 — Layout do Relatório Analítico da folha de pagamento da Prefeitura" e "1355999 — Layout do relatório analítico da pré-folha — Prefeitura". Ambos são gerados em CSV com campos separados por ponto e vírgula.
+6.1	Cesta de benefícios (campo TP_BENEF)
+Sigla	Benefício	Ocorrência
+BRC	Benefício de Renda de Cidadania	Folha e Pré-folha
+BCO	Benefício Complementar	Folha e Pré-folha
+BPI	Benefício Primeira Infância	Folha e Pré-folha
+BVN	Benefício Variável — Nutriz	Folha e Pré-folha
+BV	Benefício Variável — Criança	Folha e Pré-folha
+BVA	Benefício Variável Adolescente	Folha e Pré-folha
+BVG	Benefício Variável — Gestante	Folha e Pré-folha
+BET	Benefício não descrito nas HUs do Simulador	Folha e Pré-folha
+AC-EV	Benefício não descrito nas HUs do Simulador	Folha e Pré-folha
+CS <IF>	Consignado, com o código da instituição financeira	Somente Folha
+6.2	Campos relevantes para os totalizadores
+Campo	Conteúdo	Aplicação no Simulador
+COD_FAMILIAR	Código familiar com dígito verificador	Contagem de famílias
+NIS / CPF	Identificação do membro	Contagem de beneficiários
+TP_BENEF	Sigla do tipo de benefício	Quantidade de benefícios gerados por tipo
+VLRBENEF	Valor do benefício	Valor da folha e custo por benefício
+VLRTOTAL	Somatório dos benefícios da família	Valor médio por família
+QTD_PESSOAS	Quantidade de pessoas na família	Média de integrantes
+RENDA_PER_CAPITA	Renda per capita da família	Faixas de renda
+RENDA_COM_PBF	Renda per capita somada aos benefícios	Análise de impacto
+DT_ATU_CADASTRAL	Data da última atualização cadastral	Critério de elegibilidade
+SITBENEFICIO / SITBENEFICIARIO / SITFAM	Liberado, Bloqueado ou Suspenso	Composição do universo considerado
+UF / IBGE	Unidade da federação e município	Recortes territoriais
+QUILOMBOLA, TRAB_ESCRV, INDI-GENA, CATADOR_RECIC, TRABA-LHO_INF	Indicadores de grupos populacionais	Candidatos ao GPTE e ao público vulnerável
+DEC_JUD	Família incluída por decisão judicial	Não tratado nas HUs do Simulador
+7	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incom-pleta.
+7.1	Conflitos e ambiguidades no texto da HU
+•	Programas exibidos (RF02 x RF03): a HU determina que sejam exibidos "apenas os Programas Sociais aos quais seu perfil possua autorização e vínculo" e, logo adiante, que o usuário "possa selecionar qualquer programa que estiver disponível na base". É necessário confirmar que a se-gunda frase se refere apenas à origem do dado e que a restrição por vínculo prevalece.
+•	Chave do titular (RN05): a HU admite "NIS ou CPF" sem estabelecer precedência. Definir qual é a chave primária, qual é a alternativa e o tratamento quando ambas estiverem ausentes ou di-vergentes.
+•	Custo projetado para o período (RF14): a redação diz que "deve ser considerado o valor or-çamentário para o período selecionado". Não está claro se o indicador representa a projeção de despesa calculada pelo simulador ou a dotação orçamentária disponível para o período. São conceitos distintos e precisam ser separados.
+•	Máscara da Folha (RF06): a Pré-folha exibe referência e data de geração, enquanto a Folha exibe apenas a referência. Confirmar se a ausência da data de geração da Folha é intencional.
+•	Cenário original no comparativo (RF13): o texto define o cenário original como "folha atual". Na modalidade de simulação exclusiva sobre a Base Municipal não existe folha de referência. Definir qual é a linha de base do comparativo nesse caso.
+7.2	7.2 Definições de cálculo e de universo
+•	Conceito de "parcelas geradas" (RF14): os leiautes apresentam uma linha por tipo de benefício e por beneficiário, sem agrupamento. Confirmar se "parcelas geradas" equivale à contagem de linhas do relatório e se parcelas canceladas, bloqueadas, devolvidas ou retidas entram na con-tagem.
+•	Composição do "valor da folha" (RF14, RN12): o leiaute define que o valor total despreza os descontos. Resta definir o tratamento dos benefícios cujas situações sejam "Bloqueado" ou "Suspenso" nos campos SITBENEFICIO, SITBENEFICIARIO e SITFAM: entram no valor da folha e na contagem de beneficiários, ou apenas os liberados?
+•	Benefícios BET e AC-EV: os leiautes da Folha e da Pré-folha trazem dois tipos de benefício que não constam de nenhuma HU do Simulador. É necessário identificá-los, definir se integram a cesta simulável e se possuem parâmetros próprios.
+•	Consignado (CS seguido do código da instituição financeira): o consignado aparece apenas na Folha, uma linha por desconto. Definir se ele compõe a contagem de benefícios gerados e de parcelas, considerando que não é benefício, e sim desconto.
+•	Divergências entre Folha e Pré-folha: o campo TIPO_PGTO_PREVISTO possui domínio na Folha e vem em branco na Pré-folha; a regra do campo SITBENEFICIO também difere entre os dois leiautes. Definir o tratamento quando a simulação combinar as duas bases.
+•	Grupos populacionais disponíveis: os leiautes trazem os indicadores QUILOMBOLA, TRAB_ESCRV, INDIGENA, CATADOR_RECIC e TRABALHO_INF, preenchidos apenas na primeira linha da família. Confirmar se correspondem ao GPTE citado na STRY00070086 e ao público vulnerável citado na STRY00087376, cujos campos de origem permanecem indefinidos.
+•	Decisão judicial (DEC_JUD): os leiautes identificam famílias incluídas por decisão judicial. Ne-nhuma HU do Simulador trata dessas famílias, que não podem ser excluídas por alteração de parâmetro. Definir o tratamento na simulação.
+•	Junção entre bases (RF07, RF16): na seleção simultânea de Base Municipal e Pré-folha/Folha, qual é a chave de cruzamento e qual base prevalece em caso de divergência de renda ou de composição familiar? Como são tratadas as famílias presentes em apenas uma das bases?
+•	Definição de ingresso, permanência e saída (RF12): os três estados devem ser apurados em relação a quê: à elegibilidade, à folha vigente ou à situação cadastral? "Permanecer" refere-se à Regra de Proteção ou à simples manutenção no programa?
+•	Faixas de renda (RF15): as faixas são mutuamente exclusivas e cumulativas (a família aparece em apenas uma) ou acumulativas por limite? Definir também o tratamento dos valores de fron-teira.
+•	Período de projeção (RF17): quais períodos podem ser selecionados (meses, exercício, doze meses)? A projeção considera sazonalidade, reajuste e entrada e saída de famílias ao longo do período, ou multiplica linearmente a folha simulada?
+•	Criação de novos benefícios (RF07, terceira modalidade): quais atributos mínimos definem um novo benefício criado dentro da simulação (valor, critério de elegibilidade, faixa etária, vínculo com a cesta)? O benefício criado é persistido ou existe apenas durante a sessão?
+•	Parametrização das linhas de renda (RN10): as linhas administrativas usadas nos totalizadores acompanham automaticamente as alterações feitas pelo usuário nos sliders, ou permanecem fixas nos valores vigentes para servir de referência?
+7.3	7.3 Comportamento do sistema e governança
+•	Substituição de cargas (RN03): a substituição automática pela carga mais recente pode alterar a base durante uma sessão ativa e impedir a reprodução de um estudo realizado anteriormen-te. Definir o comportamento em sessão ativa (bloqueio, alerta ou manutenção da base) e se haverá guarda de cargas históricas.
+•	Abrangência territorial por perfil (RF01): a HU cita os perfis Nacional, Estadual e Municipal, mas não define o recorte de dados de cada um. Confirmar que o Gestor Municipal visualiza ex-clusivamente o próprio município e delimitar a abrangência do Gestor CAIXA.
+•	Atualização automática de todos os indicadores (RF13): o recálculo imediato sobre a folha completa a cada alteração de parâmetro pode inviabilizar o tempo de resposta. Definir se o cliente aceita ação explícita de "Aplicar simulação" ou se será necessária pré-agregação de da-dos.
+•	Simulação de múltiplos programas: a seleção de programa é única por cenário, ou o usuário pode simular mais de um programa simultaneamente? Alterações no PBF podem repercutir em programas dependentes — isso deve ser demonstrado?
+•	Persistência e saída dos cenários: a HU não prevê salvar, recuperar, comparar ou exportar ce-nários. Sendo a finalidade a produção de estudos técnicos, é necessário definir se haverá per-sistência, exportação (XLSX, PDF) e por quais perfis.
+•	Trilha de auditoria: registrar quem simulou, quando, com quais parâmetros e sobre qual base é requisito? Qual o prazo de retenção desse registro?
+•	Extensibilidade (RF10): definir como a configuração de novas regras ocorrerá na prática e qual o critério objetivo de aceite, sob pena de o requisito permanecer intestável.
+•	Volumetria e desempenho: não há requisitos não funcionais. É necessário estabelecer volu-metria por nível de abrangência, tempo máximo de resposta e quantidade de usuários simultâ-neos previstos.
+•	Dependências externas: esta HU depende da STRY00070086 (critérios de elegibilidade sobre a BM), da HU de Parâmetros do Programa e da HU de folha externa no layout SIPBS, ainda sem identificador. Definir a sequência de entrega e o que pode ser construído antes dessas defini-ções.
+•	Adequação do leiaute SIPBS à simulação: o documento "Leiaute Padrão CAIXA — Remessas e Retornos — SIPBS" especifica arquivos de remessa e retorno de pagamento, com registros de 300 posições contendo parcela, documento, valor e conta de crédito. Ele não contempla com-posição familiar, tipo de benefício, renda per capita nem indicadores de grupo populacional. Uma folha externa nesse leiaute não alimenta os totalizadores exigidos pelo RF14 nem os cri-térios de elegibilidade. É necessário definir se a HU de folha externa adotará outro leiaute ou se os indicadores serão restringidos nessa modalidade.
+ 
+8	RASTREABILIDADE — HU X REQUISITOS
+Item da HU	Requisito	Regra de negócio
+Perfis autorizados à funcionalidade	RF01	RN01
+Exibir apenas programas com vínculo	RF02	RN02
+Selecionar um ou mais parâmetros simultaneamente	RF08	—
+Simulador apto a tratar novas regras	RF10	—
+Demonstrar impactos quantitativos e financeiros	RF11	RN11
+Famílias que ingressam, permanecem ou saem	RF12	—
+Opção "Selecionar Programa Social"	RF03	RN02
+Exibir regras atuais do programa	RF04	RN07
+Opções de base do Bolsa Família	RF05	RN04
+Máscaras das bases carregadas	RF06	—
+Critério de carga de pré-folha e folha	—	RN03
+Modalidades de simulação	RF07	RN04
+Totalizadores de pré-folha e folha	RF14, RF17	RN09
+Totalizadores da Base Municipal	RF15	RN08, RN10
+Visualização em seleção de duas bases	RF16	—
+Sliders com parâmetros vigentes	RF09	RN07
+Programas sem conceito de família	—	RN05
+Comparativo original x projetado	RF13	—
+Simulação não altera parâmetros vigentes	—	RN06, RN11
+9	ACEITE DA DOCUMENTAÇÃO
+
+Declaramos que revisámos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o projeto Simulador de Programas Sociais para a Plataforma de Benefícios. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabeleci-das.
