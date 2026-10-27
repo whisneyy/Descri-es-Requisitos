@@ -1,0 +1,111 @@
+
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+BFF Agente — Insumos disponíveis e decisões prévias
+
+
+
+ 
+
+
+
+1. Finalidade
+Este documento reúne, de um lado, os insumos já disponíveis no conjunto de histórias e anexos do SIPGS que podem ser diretamente aproveitados na construção do BFF Agente e, de outro, as decisões que precisam ser tomadas antes da escrita da história de usuário, por determinarem a própria forma do componente.
+Entende-se por BFF Agente a camada de retaguarda que atende exclusivamente ao assistente de Inteligência Artificial especificado na STRY00111044, responsável por receber a pergunta do usuário, interpretá-la com apoio de um modelo de linguagem, planejar e executar a consulta sobre as bases autorizadas dentro do escopo de acesso do usuário, e devolver ao front-end o resultado acompanhado das informações de transparência exigidas.
+Não se trata de documento de requisitos. Seu propósito é permitir que as decisões da seção 3 sejam tomadas de forma consciente, com registro do impacto de cada alternativa.
+ 
+2. INSUMOS DISPONÍVEIS
+Os itens abaixo já existem e podem ser consumidos pela construção sem necessidade de nova elaboração.
+2.1 Dicionário de dados e semântica
+Insumo	O que entrega ao BFF Agente	Origem
+Leiaute De x Para versão 6.29	688 campos em 22 tipos de registro, com nome técnico, nome de exibição, posição, tamanho, tipo e domínio de valores. Serve de dicionário semântico para a interpretação das perguntas e de fonte para a tradução de códigos em texto	Anexo da STRY00083689
+Leiaute do relatório analítico da folha	Campos, máscaras, domínios e regras de apresentação da folha de pagamento, incluindo a cesta de benefícios completa	Artefato SIBEC 1356213
+Leiaute do relatório analítico da pré-folha	Equivalente para a pré-folha, com a fórmula do campo de renda com PBF	Artefato SIBEC 1355999
+Domínios de estado e condição cadastral	Códigos e descrições de estado cadastral de família e pessoa e de condição do cadastro	Leiaute versão 6.29
+Indicadores de grupos populacionais	Quilombola, trabalho escravo, indígena, catador de material reciclável e trabalho infantil	Leiautes da folha e da pré-folha
+2.2 Regras de negócio já especificadas
+Insumo	O que entrega ao BFF Agente	Origem
+Regras de abrangência por perfil	Predicados de filtro territorial e por produto que o BFF deve injetar em toda consulta	STRY00064433
+Critérios de elegibilidade do PBF	Conjunto de condições já mapeadas para campos da Base Municipal	STRY00070086
+Regras de cálculo dos benefícios	Fórmulas de BRC, BCO, BPI, BV, BVA e parâmetros da Regra de Proteção	HU "Módulo de Utilização" e HU consolidada
+Regras de validação da ingestão	Vinte e duas regras que descrevem o que caracteriza registro íntegro	STRY00079079
+Contrato de transparência do resultado	Variáveis utilizadas, filtros aplicados, origem dos dados, data de referência das bases, data e hora da geração e explicação resumida	STRY00111044, RF09 e RF10
+Catálogo de intenções e exemplos	Quatro cenários de uso com pergunta, resultado esperado e origem de cada elemento, aproveitáveis como massa de teste e como exemplos de ancoragem	STRY00111044, versão reeditada
+2.3 Contratos de saída
+Insumo	O que entrega ao BFF Agente	Origem
+Leiaute Padrão SIPBS	Estrutura de header, detalhe e trailer, campos obrigatórios, domínios de situação de parcela, motivos de rejeição e parâmetros de transmissão	Anexo fornecido
+Formatos de exportação	PDF, CSV e Excel, com exigência de apresentar filtros, origem e datas de referência	STRY00111044, RF38 a RF41
+Definição de público-alvo	Critérios preserváveis, reutilização e destinos operacionais previstos	STRY00111044, RF18 a RF21
+ 
+3. DECISÕES PRÉVIAS À ESCRITA DA HU
+Cada decisão abaixo altera materialmente o desenho do componente. Estão ordenadas por dependência: as primeiras condicionam as seguintes.
+D01 — Papel do modelo de linguagem na consulta
+Alternativa A: o modelo apenas interpreta a pergunta e produz um plano de consulta estruturado, que o BFF válida e executa com o escopo do usuário. Alternativa B: o modelo recebe acesso aos dados e produz a resposta diretamente.
+•	Impacto: na alternativa A o controle de acesso é executado pelo sistema e é auditável; na alternativa B ele depende da instrução dada ao modelo, tornando-se recomendação e não controle. Os requisitos RF15 e RF16 da STRY00111044, que exigem aderência integral aos perfis, somente são demonstráveis na alternativa A.
+•	Decide: arquitetura de solução com segurança da informação.
+D02 — Hospedagem e provedor do modelo
+Modelo próprio em infraestrutura interna, serviço contratado em nuvem, ou modelo aberto hospedado internamente.
+•	Impacto: define se dados pessoais do Cadastro Único trafegam para fora do perímetro, a política de retenção do provedor, a eventual utilização para treinamento, o local de processamento e o modelo de custo por consulta.
+•	Decide: segurança da informação, encarregado de dados e área de contratação.
+D03 — Autenticação e propagação de identidade
+Nenhuma HU especifica autenticação. É necessário definir o provedor de identidade, o protocolo, o formato do token, o tempo de sessão e como a abrangência do usuário chega ao BFF.
+•	Impacto: o BFF existe para propagar identidade e escopo. Sem essa definição não há de onde derivar o filtro exigido pela STRY00064433, e os requisitos de segurança da STRY00111044 ficam sem base.
+•	Decide: arquitetura corporativa e gestão de identidade.
+D04 — Camada de dados consultável
+As bases hoje são arquivos posicionais ingeridos. É necessário definir contra o que a consulta é executada: réplica relacional, repositório analítico, índice de busca ou outra solução.
+•	Impacto: determina a linguagem do plano de consulta, o desempenho possível e a viabilidade de agregações sobre volumetria nacional.
+•	Decide: arquitetura de dados.
+D05 — Guarda de bases históricas
+O comando "compare com o mês anterior", previsto na STRY00111044, pressupõe versões anteriores das bases. As HUs STRY00062314 e STRY00069681 determinam que a carga mais recente substitua as anteriores.
+•	Impacto: sem guarda de histórico o comando não é atendível e a reprodutibilidade de consultas salvas fica comprometida. A mesma pendência afeta a reprodução de simulações salvas nas HUs STRY00071242 e STRY00087376.
+•	Decide: negócio, com arquitetura de dados.
+D06 — Superfície de dados exposta ao agente
+Definir quais dos 688 campos ficam disponíveis, em que nível de granularidade e para quais perfis, e se o retorno admite microdado nominal ou apenas agregados.
+•	Impacto: define a allowlist do BFF, o risco de reidentificação e a necessidade de limite mínimo de registros por resultado. Condiciona também a resposta ao cenário 2 da HU, que prevê relação de registros elegíveis.
+•	Decide: negócio com o encarregado de dados.
+D07 — Catálogo de capacidades do agente
+Definir quais operações o agente pode acionar: consultar, agregar, comparar períodos, aplicar critério de elegibilidade, simular parâmetros, compor público-alvo, exportar e gerar folha interna.
+•	Impacto: delimita a fronteira entre o BFF Agente e as funcionalidades já especificadas do Simulador, evitando reimplementação de regras que já possuem HU própria.
+•	Decide: negócio com arquitetura de solução.
+D08 — Fronteira com a geração de folha interna
+A geração de folha é objeto da HU STRY00111130 e também aparece na HU consolidada do Simulador. Definir se o BFF Agente orquestra essa geração ou apenas entrega o público-alvo a outro componente.
+•	Impacto: a geração de folha converte análise em insumo de pagamento e exige rito de aprovação, segregação de função e identificação de ambiente. Manter essa responsabilidade fora do BFF simplifica o componente e isola o risco.
+•	Decide: negócio, com segurança e controles internos.
+D09 — Política de execução
+Definir limite de linhas retornadas, tempo máximo de execução, quota por usuário e tratamento de consultas de alto custo.
+•	Impacto: sem limites, uma única pergunta pode gerar consulta sobre a base nacional inteira. Também define o modelo de custo quando houver serviço remunerado por uso.
+•	Decide: arquitetura com negócio.
+D10 — Contingência
+Definir o comportamento da plataforma quando o serviço de modelo estiver indisponível e se consultas salvas e painéis contínuos continuam operando sem o assistente.
+•	Impacto: determina se as consultas salvas são armazenadas como plano estruturado, executável sem o modelo, ou apenas como texto da pergunta.
+•	Decide: arquitetura com negócio.
+ 
+4. PENDÊNCIAS HERDADAS QUE AFETAM O BFF AGENTE
+As lacunas abaixo já constam dos documentos de requisitos das respectivas histórias e permanecem em aberto. Todas impactam diretamente a capacidade do agente de interpretar perguntas corretamente.
+Pendência	Efeito sobre o BFF Agente	HU de origem
+Grupos prioritários sem campo de origem	O agente não consegue resolver perguntas como "mostre apenas famílias do público prioritário"	STRY00070086 e STRY00087376
+Indicadores socioeconômicos sem definição	Variável citada como combinável, porém sem correspondência em campo	STRY00111044
+Público vulnerável sem definição	Termo usado em requisito, sem regra de composição	STRY00087376
+Arquivo de indicação de Gestantes	Fonte citada nos exemplos de uso, sem ingestão, leiaute nem data de referência	STRY00111044
+Fonte da renda per capita	Dois campos possíveis, em bases distintas, com datas de referência distintas	STRY00111044 e HUs do Simulador
+Semântica de QT_PSA_CLCO_RNDA	Quantidade para cálculo da renda pode não equivaler ao número de integrantes	STRY00079079 e Módulo de Utilização
+Beneficiário ativo sem domínio	Comando previsto na HU sem correspondência definida nas situações da folha	STRY00111044
+Matriz de Acesso não especificada	Fonte das permissões que o BFF precisa consultar	STRY00064433
+Concessão e revogação de perfis	Não há processo definido de provisionamento de usuários	STRY00064433
+Ausência de estratégia de testes	Não há massa, ambiente nem critério objetivo de aceite para integrações	Todas
+5. Sequência recomendada
+Sugere-se a seguinte ordem de trabalho, de modo que a história de usuário seja escrita sobre decisões e não sobre suposições.
+•	Primeiro: decidir D01, D02 e D03, que determinam a forma do componente e o tratamento dos dados pessoais.
+•	Segundo: decidir D04 e D05, que determinam o que é tecnicamente possível consultar.
+•	Terceiro: decidir D06, D07 e D08, que delimitam o escopo funcional e a fronteira com as demais funcionalidades.
+•	Quarto: decidir D09 e D10, que estabelecem os limites operacionais e o comportamento em contingência.
+•	Quinto: escrever a história de usuário do BFF Agente, registrando as decisões como premissas e não como pendências.
+Enquanto D01 e D03 não forem decididas, a história pode ser escrita, mas permanecerá com premissas declaradas e estimativa indicativa, conforme registrado no documento de requisitos correspondente.
