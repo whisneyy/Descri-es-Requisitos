@@ -13,3 +13,24 @@ STRY00081356 - ER SIPGS - Arquivo analítico de validação da extração do Cad
 STRY00083689 - RE SIPGS - Ingestão da Base Municipal - De x Para dos campos
 STRY00087376 - SIPGS - Simulador - Comparativo entre as Simulações
 STRY00111044 - SIPGS Consulta Inteligente Linguagem Natural
+
+HUs Refinadas (5 documentos)
+
+DRAFT - Requisitos BFF Simulacao SIPGS
+DRAFT - Requisitos Salvamento e Comparacao de Cenarios
+DRAFT - Requisitos SSO do Portal SIPGS
+DRAFT - Requisitos Widget Chat IA SIPGS
+DRAFT - Requisitos BFF Agente SIPGS
+
+HUs Técnicas (10 documentos)
+
+DRAFT - BFF Agente Insumos e Decisoes
+DRAFT - Requisitos BFF Simulacao SIPGS
+DRAFT - Requisitos Navegacao entre Modulos SIPGS
+DRAFT - Requisitos Provisionamento de Acesso SIPGS
+DRAFT - Requisitos Salvamento e Comparacao de Cenarios
+DRAFT - Requisitos SSO do Portal SIPGS
+DRAFT - Requisitos Widget Chat IA SIPGS
+DRAFT - Requisitos API Gateway e JWT-SIPGS
+DRAFT - Requisitos BFF Agente SIPGS
+DRAFT Requisitos Provisionamento de Acesso SIPGS
