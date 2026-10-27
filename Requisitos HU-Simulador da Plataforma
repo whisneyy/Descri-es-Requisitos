@@ -1,0 +1,215 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+
+	HU SIPGS — Simulador da Plataforma
+
+ 
+	
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração do documento a partir da HU "Simulador da Plataforma"
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos da funcionalidade de simulação dos Programas Sociais da Plataforma de Benefícios, destinada ao Gestor de Ente Externo e ao Gestor CAIXA para a análise de impactos operacionais, quantitativos e financeiros, permitindo planejar e construir cenários dos programas sociais como apoio à decisão sobre a política pública.
+Natureza desta HU: trata-se da história consolidada, que abrange a funcionalidade de simulação em toda a sua extensão e da qual derivaram as HUs STRY00069681 (Simulador Orçamentário), STRY00070086 (Regras de Elegibilidade), STRY00071242 (Visualização dos Resultados), STRY00087376 (Comparativo entre Simulações) e "Módulo de Utilização". O confronto entre esta HU e as derivadas revela divergências materiais de parâmetros e de regras, consolidadas na seção 7 deste documento. Enquanto essas divergências não forem conciliadas, não é possível determinar qual especificação prevalece.
+3. ESCOPO
+3.1 Está no escopo
+•	Restrição de acesso à funcionalidade por perfil e por vínculo com o programa social.
+•	Seleção do programa social e das bases de simulação.
+•	Exibição dos totalizadores sintéticos das bases selecionadas.
+•	Alteração dos parâmetros das regras de elegibilidade e da cesta de benefícios.
+•	Aplicação do critério de elegibilidade sobre a Base Municipal.
+•	Apuração e demonstração comparativa dos impactos quantitativos e financeiros.
+•	Simulação a partir de orçamento adicional informado pelo usuário.
+•	Salvamento, exportação, identificação única e rastreabilidade das simulações.
+•	Geração de arquivo operacional compatível com os leiautes do SIBEC, SIPAS e SIPBS.
+3.2 Não está no escopo desta HU
+•	Ingestão, validação e armazenamento da Base Municipal, tratados nas HUs STRY00079079, STRY00062314 e STRY00081356.
+•	Mapeamento De x Para das nomenclaturas dos campos, tratado na STRY00083689.
+•	Definição das abrangências dos perfis, tratada na STRY00064433.
+•	Alteração efetiva dos parâmetros vigentes do programa, realizada na funcionalidade de Parametrização.
+ 
+4. REQUISITOS FUNCIONAIS
+4.1 Restrição de acesso e seleção do programa
+•	RF01 — Restrição por Perfil: A funcionalidade deve estar disponível exclusivamente para os perfis Gestor Ente Externo Nacional, Estadual e Municipal e Gestor CAIXA, conforme a Matriz de Acesso da Plataforma.
+•	RF02 — Programas por Vínculo: Devem ser exibidos ao usuário apenas os Programas Sociais aos quais o seu perfil possua autorização e vínculo de acesso.
+•	RF03 — Seleção do Programa Social: O usuário deve poder selecionar, na opção "Selecionar Programa Social", o programa sobre o qual deseja realizar a simulação.
+•	RF04 — Seleção de Bases do Bolsa Família: Ao selecionar o Programa Bolsa Família, o usuário deve selecionar uma segunda opção entre Base Municipal, Pré-folha e Folha, admitida a combinação.
+4.2 Base de simulação
+•	RF05 — Máscaras das Bases: As opções de bases carregadas devem ser exibidas como: Base Municipal BM – data da carga DD/MM/AAAA; Pré-folha – data DD/MM/AAAA – Referência MM/AAAA; Folha – Referência MM/AAAA.
+•	RF06 — Encadeamento de Substituição das Cargas: Deve estar sempre carregada a Pré-folha 1 mais recente gerada, a qual deve ser substituída pela Pré-folha 2 assim que esta for gerada, sendo a Pré-folha 2 substituída pela Folha mais recente gerada.
+•	RF07 — Modalidades de Simulação: O usuário deve poder realizar simulações:
+○	Utilizando exclusivamente informações da Base Municipal;
+○	Utilizando simultaneamente informações da Base Municipal e da Pré-folha ou da Folha de Pagamento do programa selecionado;
+○	Utilizando dados da Folha de Pagamento associados às regras pré-formatadas dos benefícios.
+4.3 Informações gerais da simulação
+•	RF08 — Totalizadores de Pré-folha e Folha: Ao selecionar a Pré-folha ou a Folha de Pagamento, devem ser exibidos, de forma sintética e visual: quantidade de famílias, de beneficiários, de parcelas e de cada um dos benefícios da cesta de benefícios do programa; valor médio por família; e custo anual projetado.
+•	RF09 — Totalizadores da Base Municipal: Ao selecionar a Base Municipal, devem ser exibidos: quantidade de famílias no estado "Cadastrado"; quantidade de pessoas no estado "Cadastrado"; média de integrantes por família; quantidade de famílias unipessoais; e quantidade de famílias cadastradas por faixa de renda, conforme a seção 6.2.
+•	RF10 — Seleção Combinada de Bases: Ao selecionar duas bases simultaneamente, a visualização deve ser a mesma utilizada para a Pré-folha e a Folha de Pagamento.
+•	RF11 — Comparativo entre Cenários: Toda alteração realizada durante a simulação deve apresentar comparativamente o cenário original e o cenário projetado, destacando os valores originais, os novos valores e as variações encontradas, atualizando automaticamente todos os indicadores exibidos na tela.
+4.4 Regras de elegibilidade e parâmetros
+•	RF12 — Seleção Simultânea de Parâmetros: Deve ser possível selecionar um ou mais parâmetros simultaneamente para a composição do cenário simulado.
+•	RF13 — Alteração dos Parâmetros: Deve ser possível alterar os dados utilizados pelos parâmetros que compõem as regras de elegibilidade, tais como valores, faixas etárias, limites de renda, percentuais, prazos e períodos de permanência.
+•	RF14 — Extensibilidade de Regras: O Simulador deve ser configurável para tratar novas regras que venham a surgir.
+•	RF15 — Demonstração de Impactos: O sistema deve demonstrar os impactos quantitativos e financeiros provocados pelas alterações realizadas.
+•	RF16 — Movimentação de Famílias: O sistema deve demonstrar quantas famílias passariam a ingressar, permanecer ou sair de determinado programa em razão das alterações realizadas.
+•	RF17 — Critério de Elegibilidade sobre a Base Municipal: Quando o usuário selecionar a Base Municipal, deve ser aplicado o critério de elegibilidade definido na RN11 para a composição do resultado.
+•	RF18 — Sincronismo BPI e BV (Criança): Quando for realizada simulação no BPI, o comportamento visual das barras de simulação deve ser alterado simultaneamente entre o BPI e o BV (Criança).
+•	RF19 — Valor da Linha de Pobreza: O sistema deve permitir alterar o valor utilizado como linha de pobreza, obtido no campo [VLR-RENDA-MEDIA-FAM] da BM. Valor vigente: R$ 218,00.
+•	RF20 — Valor de Renda per Capita para Permanência: O sistema deve permitir alterar o valor máximo de renda utilizado para permanência no programa e visualizar os reflexos sobre a quantidade de famílias atendidas e sobre a folha de pagamento. Valor vigente: R$ 706,00.
+•	RF21 — Prazo de Atualização Cadastral: O sistema deve permitir alterar o prazo considerado para atualização cadastral e apurar quantas famílias passariam a ser consideradas aptas ou não aptas ao recebimento dos benefícios. Prazo vigente: 24 meses.
+•	RF22 — Alteração nos Benefícios: O sistema deve permitir alterar valores unitários e faixas etárias dos benefícios da cesta, conforme a seção 6.1, contemplando BRC, BPI, BV (gestante, nutriz e criança), BVA e BCO.
+•	RF23 — Parâmetros da Regra de Proteção: O sistema deve permitir alterar o prazo de permanência (24 meses), o percentual do benefício pago (50% do valor recebido), o prazo de recebimento (18 meses) e o valor máximo de renda per capita (R$ 706,00), calculando a quantidade de famílias que entrariam ou sairiam do programa.
+•	RF24 — Combinação de Alterações: O sistema deve permitir combinar simultaneamente alterações de renda, idade, composição familiar, valores de benefícios e demais parâmetros, possibilitando avaliar o efeito acumulado das mudanças sobre todo o programa.
+•	RF25 — Simulação Prospectiva de Normas: O sistema deve permitir simular os impactos de futuras alterações em leis e decretos antes de sua implementação efetiva, subsidiando estudos técnicos e a tomada de decisão.
+4.5 VISUALIZAÇÃO DOS RESULTADOS
+•	RF26 — Seleção de Campos de Análise: O usuário deve poder selecionar campos específicos da Base Municipal para análise dos resultados da simulação.
+•	RF27 — Reflexos sobre os Indicadores: O sistema deve demonstrar os reflexos das alterações realizadas sobre os indicadores apresentados na tela principal.
+•	RF28 — Demonstração Comparativa: Os impactos quantitativos e financeiros devem ser demonstrados de forma clara e comparativa.
+•	RF29 — Simulação por Orçamento Informado: O usuário deve poder informar um valor de orçamento para que a Plataforma exiba o resultado da simulação. Exemplo: informado orçamento adicional de R$ 10 milhões para o BVG, o sistema recalcula quantos beneficiários adicionais seriam contemplados na próxima folha.
+•	RF30 — Comparação entre Cenários: O sistema deve permitir comparar diferentes cenários de simulação para apoiar estudos e análises técnicas.
+4.6 EXPORTAÇÃO, IMPRESSÃO E RASTREABILIDADE
+•	RF31 — Salvamento da Simulação: Deve ser possível salvar a simulação realizada para consulta posterior.
+•	RF32 — Exportação dos Resultados: Deve ser possível exportar os resultados da simulação em PDF ou CSV.
+•	RF33 — Conteúdo do Relatório: O relatório gerado deve conter todas as informações utilizadas na construção da simulação: programa selecionado, folha utilizada, filtros aplicados, parâmetros alterados, regras utilizadas e resultados encontrados.
+•	RF34 — Identificação Única: Toda simulação deve possuir identificação única, de modo a facilitar sua localização no sistema.
+•	RF35 — Registro de Rastreabilidade: Devem ser registradas as informações necessárias à identificação do usuário responsável pela simulação, a data, a hora e os parâmetros utilizados.
+4.7 Geração de arquivos operacionais
+•	RF36 — Geração de Arquivo Operacional: Quando a simulação fizer relação com a folha de programas, o sistema deve gerar arquivo compatível com os leiautes do SIBEC, do SIPAS e do SIPBS.
+ 
+5. Regras de Negócio
+•	RN01 — Perfis Autorizados: O acesso à funcionalidade é restrito aos perfis Gestor Ente Externo Nacional, Estadual e Municipal e Gestor CAIXA, observada a Matriz de Acesso da Plataforma.
+•	RN02 — Vínculo com o Programa: A visibilidade de um programa está condicionada à existência de autorização e vínculo de acesso do perfil do usuário àquele programa.
+•	RN03 — Encadeamento das Cargas: A base de pagamento disponível para simulação obedece à sequência Pré-folha 1, Pré-folha 2 e Folha, cada uma substituindo a anterior à medida que é gerada.
+•	RN04 — Programas sem Conceito de Família: Caso o programa social não possua o conceito de família, as informações dos benefícios devem ser atribuídas ao titular, utilizando o CPF como chave. Exemplo: Programa Gás do Povo.
+•	RN05 — Cálculo do BRC: O BRC é calculado multiplicando o valor informado pela quantidade de membros da família, obtida no campo [QTD_PES_CALC_RND].
+•	RN06 — Acionamento do BCO: O BCO é pago às famílias beneficiárias para complementar o valor mínimo do programa, quando a soma dos demais benefícios recebidos pela família for inferior a esse valor. Valor vigente: R$ 600,00.
+•	RN07 — Não Sobreposição entre BPI e BV: As faixas do BPI e do BV (Criança) devem ser alteradas simultaneamente, de modo a evitar sobreposição de benefícios.
+•	RN08 — Identificação dos Benefícios na Folha: A identificação dos benefícios deve ser feita pelo campo [Tipo_Ben] da folha de pagamento, com os domínios BVG, BVN, BV e BCO.
+•	RN09 — Vigência do BVA: O BVA é pago às famílias com adolescentes de 16 a 18 anos incompletos, mantido até dezembro do ano em que o adolescente completa 18 anos, independentemente do mês do aniversário.
+•	RN10 — Fundamento da Regra de Proteção: A Lei prevê a permanência no programa da família que ultrapasse a linha de pobreza após aumento de renda, por determinado período de tempo.
+•	RN11 — Critério de Elegibilidade sobre a Base Municipal: São consideradas elegíveis as famílias que atendam cumulativamente às seguintes condições:
+○	Família com cadastro atualizado;
+○	Estado cadastral da pessoa e da família como "Cadastrado";
+○	Renda per capita menor ou igual a R$ 218,00;
+○	Sendo família unipessoal, assim entendido o código familiar com apenas um membro cadastrado, é necessário estar marcada com visita em domicílio selecionada;
+○	Famílias e pessoas sem pendência ou impedimentos.
+•	RN12 — Base de Apuração: O impacto financeiro e quantitativo decorrente da alteração de uma regra de elegibilidade deve ser apurado sobre a última folha de pagamento disponível.
+•	RN13 — Valor Médio por Família: O valor médio por família corresponde à divisão do valor total da folha pela quantidade de famílias na folha.
+•	RN14 — Natureza da Simulação: A simulação destina-se à construção de cenários e ao apoio à decisão. A eventual geração de arquivo operacional prevista no RF36 constitui exceção a essa natureza e depende da definição registrada na seção 8.1.
+ 
+6. TABELAS DE APOIO
+6.1 Cesta de benefícios e parâmetros
+Benefício	Valor vigente	Faixa ou condição	Parâmetros alteráveis
+BRC	R$ 142,00 por membro	Todos os membros da família	Valor unitário
+BPI	R$ 150,00 por criança	0 a 7 anos incompletos	Valor e faixa etária
+BVG	R$ 50,00	Gestante, 9 meses	Valor e prazo de recebimento
+BVN	R$ 50,00	Nutriz, 0 a 6 meses	Valor e faixa etária
+BV	R$ 50,00	Criança de 7 a 16 anos incompletos	Valor e faixa etária
+BVA	R$ 50,00	Adolescente de 16 a 18 anos incompletos	Valor e faixa etária
+BCO	Complemento até R$ 600,00	Soma dos demais benefícios inferior ao mínimo	Valor mínimo do programa
+6.2 Faixas de renda dos totalizadores da Base Municipal
+Faixa	Critério	Base legal ou de referência
+Pobreza	De R$ 0,00 a R$ 218,00	Linha administrativa de pobreza do PBF
+Baixa renda	De R$ 218,01 a meio salário mínimo	Salário mínimo
+Acima de meio salário mínimo	Superior a meio salário mínimo	Salário mínimo
+6.3 Demais parâmetros alteráveis
+Parâmetro	Valor vigente	Observação
+Linha de pobreza	R$ 218,00	Campo [VLR-RENDA-MEDIA-FAM] da BM
+Renda per capita para permanência	R$ 706,00	Campo [VLR-RENDA-MEDIA-FAM] da BM
+Prazo de atualização cadastral	24 meses	Apura famílias aptas e não aptas
+Regra de Proteção — prazo de permanência	24 meses	Parâmetro exclusivo desta HU
+Regra de Proteção — percentual do benefício	50% do valor recebido	Comum às duas HUs
+Regra de Proteção — prazo de recebimento	18 meses	Parâmetro exclusivo desta HU
+Regra de Proteção — renda máxima	R$ 706,00	Comum às duas HUs
+ 
+7. Matriz de divergências com as HUs derivadas
+O quadro abaixo confronta esta HU consolidada com as histórias dela derivadas. Cada linha representa uma divergência que precisa ser conciliada pela área de negócio, com indicação expressa de qual especificação prevalece. Enquanto a conciliação não ocorrer, os requisitos correspondentes não podem ser construídos com segurança.
+Tema	Esta HU consolidada	HU derivada	Natureza da divergência
+Faixas de renda dos totalizadores da BM	Pobreza (R$ 0 a R$ 218,00); Baixa renda (R$ 218,01 a 1/2 salário mínimo); Acima de 1/2 salário mínimo	STRY00069681: Extrema Pobreza; Pobreza; Renda máxima para participação	Faixas, nomes e critérios inteiramente distintos
+Elegibilidade da família unipessoal	Necessita estar marcada com visita em domicílio selecionada	STRY00070086: GPTE, ou domicílio coletivo, ou forma de coleta igual a 2 ou 3	Critérios sem qualquer interseção
+Estado cadastral na elegibilidade	Pessoa e família como "Cadastrado"	STRY00070086: "Cadastrado" (3) e "Sem Registro Civil" (2)	Universo de famílias diferente
+Amplitude do critério de elegibilidade	Cinco condições	STRY00070086: nove condições, incluindo presença e idade mínima do Responsável Familiar e grupos imunes	HU derivada é mais abrangente
+Parâmetros da Regra de Proteção	Prazo de permanência (24 meses), percentual (50%), prazo de recebimento (18 meses) e renda máxima (R$ 706,00)	Módulo de Utilização: percentual (50%), valor de entrada (R$ 218,01) e renda máxima (R$ 706,00)	Dois prazos existem apenas aqui; o valor de entrada existe apenas na derivada
+Faixa etária do BPI	0 a 7 anos incompletos, valor de R$ 150,00	Módulo de Utilização: 0 a 6 anos incompletos, valor não declarado	Divergência de faixa e de valor de referência
+Prazo do BVN	Valor e idade (0 a 6 meses), sem prazo	Módulo de Utilização: valor, idade e prazo de recebimento de 6 meses	Parâmetro adicional na derivada
+Chave de programas sem conceito de família	CPF	STRY00069681: NIS ou CPF	Precedência indefinida na derivada
+Custo projetado	Custo anual projetado	STRY00069681: custo projetado para o período selecionado pelo usuário	A seleção de período existe apenas na derivada
+Máscara da Pré-folha	Pré-folha — data DD/MM/AAAA — Referência MM/AAAA	STRY00069681: Pré-folha — Referência MM/AAAA — data da geração DD/MM/AAAA	Ordem dos elementos invertida
+Substituição das cargas	Pré-folha 1 substituída pela Pré-folha 2, que é substituída pela Folha mais recente	STRY00069681: sempre a Pré-folha e a Folha mais recentes geradas pelo SIBEC	Esta HU revela a existência de exatamente duas pré-folhas
+Formatos de exportação	PDF ou CSV	STRY00071242: apenas PDF	CSV suprimido na derivada
+Identificação da simulação	Identificação única para localização no sistema	STRY00071242: nome de até 50 caracteres e pesquisa por nome e data	A derivada não prevê identificador único
+Campos para análise dos resultados	Campos específicos da Base Municipal	STRY00071242: campos previamente parametrizados	A derivada restringe a um rol cadastrado
+Orçamento adicional	Informado por benefício, com exemplo de R$ 10 milhões para o BVG	STRY00069681: não detalhado	Esta HU resolve a granularidade do parâmetro
+Alteração de composição familiar	Prevista entre os parâmetros combináveis	Não prevista em nenhuma HU derivada	Parâmetro sem especificação
+Geração de arquivos operacionais	Arquivo compatível com os leiautes do SIBEC, SIPAS e SIPBS	Não previsto em nenhuma HU derivada	Requisito exclusivo desta HU
+Comparativo entre simulações	Comparar diferentes cenários, sem limite declarado	STRY00087376: até três simulações salvas e o cenário atual	A derivada detalha e limita
+Dashboards	Não citados	STRY00083689: exibição dos campos no Simulador e nos Dashboards	Funcionalidade sem origem nesta HU
+ 
+8. PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+8.1 Geração de arquivos operacionais
+•	Mudança de natureza da funcionalidade (RF36): todas as HUs derivadas declaram que a simulação é exclusivamente exploratória e não produz efeito sobre a folha real. Este requisito, ao prever a geração de arquivo compatível com os leiautes do SIBEC, do SIPAS e do SIPBS, transforma o resultado da simulação em insumo operacional de pagamento. É necessário definir expressamente se essa é a intenção e, em caso positivo, qual o rito de aprovação que separa o cenário de estudo do arquivo efetivamente transmitido.
+•	Leiaute aplicável: os três sistemas citados possuem leiautes distintos e finalidades diferentes. O leiaute do SIPBS, conforme o documento "Leiaute Padrão CAIXA — Remessas e Retornos", destina-se a remessa e retorno de pagamento, com registros de 300 posições contendo parcela, documento, valor e conta. Definir qual arquivo deve ser gerado, para qual sistema e em que momento do ciclo da folha.
+•	Consistência do arquivo gerado: um arquivo de remessa exige código de parcela único, data de pagamento em dia útil e documento válido na Receita Federal. Uma simulação não produz esses dados. Definir a origem de cada campo obrigatório e o tratamento das parcelas que não os possuam.
+•	Segregação de ambientes: confirmar se o arquivo gerado a partir de simulação será identificado de forma inequívoca, de modo a impedir sua transmissão acidental para o ambiente de produção de pagamento.
+8.2 Conciliação com as HUs derivadas
+•	Precedência entre as histórias: a seção 7 relaciona dezenove divergências materiais. É necessário estabelecer, para cada uma, qual especificação prevalece, e registrar a decisão em versão consolidada das HUs. Em especial, as faixas de renda dos totalizadores e o critério de elegibilidade da família unipessoal não possuem qualquer interseção entre os documentos.
+•	Critério de elegibilidade da família unipessoal: esta HU exige marcação de visita em domicílio; a STRY00070086 exige GPTE, domicílio coletivo ou forma de coleta igual a 2 ou 3. São regras distintas, que produzem universos distintos de famílias elegíveis. Além disso, o campo que registra a visita em domicílio não foi informado.
+•	Parâmetros da Regra de Proteção: esta HU prevê prazo de permanência de 24 meses e prazo de recebimento de 18 meses, ausentes na HU "Módulo de Utilização", que por sua vez prevê valor de entrada de R$ 218,01, ausente aqui. É necessário consolidar a relação definitiva de parâmetros.
+•	Sobreposição entre linha de pobreza e limite de ingresso: esta HU trata o valor de R$ 218,00 como linha de pobreza parametrizável e, separadamente, o valor de R$ 706,00 como limite de permanência. A HU "Módulo de Utilização" trata o mesmo R$ 218,00 como valor limite para ingresso no programa. Confirmar se são o mesmo parâmetro sob nomes diferentes.
+8.3 Definições de cálculo
+•	Custo anual projetado (RF08): definir a fórmula: folha simulada multiplicada por doze, ou projeção que considere sazonalidade, reajuste, entrada e saída de famílias e envelhecimento da base.
+•	Faixas de renda indexadas ao salário mínimo (RF09): duas das três faixas usam meio salário mínimo como referência. Definir a origem do valor do salário mínimo, se é parametrizável e o comportamento quando houver reajuste durante o período projetado.
+•	Orçamento adicional por benefício (RF29): o exemplo indica aporte destinado a um benefício específico. Definir como o sistema seleciona os beneficiários adicionais — fila por menor renda per capita, ordem cadastral ou divisão pelo valor unitário — e se essa fila existe como dado disponível.
+•	Alteração de composição familiar (RF24): a composição familiar é dado cadastral, não parâmetro de regra. Definir o que significa alterá-la em simulação: variação percentual da média de integrantes, alteração dos limites de acumulação por família, ou outra coisa.
+•	Quantidade de membros no cálculo do BRC (RN05): o campo [QTD_PES_CALC_RND] é descrito no leiaute da Base Municipal versão 6.29 como quantidade de pessoas na família para o cálculo da renda, que não equivale necessariamente ao número de integrantes. Confirmar a semântica, pois ela é o multiplicador do BRC.
+•	Cadastro atualizado e pendências (RN11): as expressões "cadastro atualizado" e "sem pendência ou impedimentos" precisam ser convertidas em campos e valores verificáveis. A STRY00079079 relaciona quatro indicadores de pendência de nível familiar que podem servir a esse propósito.
+8.4 Comportamento do sistema
+•	Atualização automática dos indicadores (RF11): o recálculo de todos os indicadores a cada alteração de parâmetro sobre base de abrangência nacional pode inviabilizar o tempo de resposta. Definir se haverá ação explícita de aplicação da simulação ou pré-agregação de dados.
+•	Cenário original na modalidade Base Municipal: nas simulações realizadas exclusivamente sobre a Base Municipal não existe folha de referência. Definir a linha de base do comparativo exigido pelo RF11.
+•	Identificação única e nome da simulação (RF34): confirmar se o identificador único é gerado pelo sistema e convive com o nome atribuído pelo usuário previsto na STRY00071242, e se ambos servem à pesquisa.
+•	Exportação em CSV (RF32): a STRY00071242 prevê apenas PDF, com exigência de fidelidade visual ao simulador. O CSV atende a finalidade analítica distinta. Confirmar se ambos permanecem no escopo e qual o conteúdo de cada um.
+•	Trilha de auditoria: o RF35 exige registro do usuário, data, hora e parâmetros. A STRY00087376 exige trilha de auditoria também para as ações comparativas. Definir se há um único registro de auditoria para toda a funcionalidade e qual o prazo de retenção.
+8.5 Proteção de dados e requisitos não funcionais
+•	Seleção de campos da Base Municipal (RF26): a seleção de campos específicos pode expor microdado do CadÚnico. Definir o rol de campos autorizados, os perfis que podem acessá-los e a necessidade de mascaramento, observada a LGPD.
+•	Abrangência territorial: esta HU não delimita o recorte de dados de cada perfil. A delimitação consta da STRY00064433 e deve ser observada em todos os totalizadores, painéis e exportações.
+•	Ausência de requisitos não funcionais: não há definição de volumetria, tempo máximo de resposta, quantidade de usuários simultâneos, acessibilidade nem navegadores suportados, todos necessários ao aceite da funcionalidade.
+ 
+9. RASTREABILIDADE — HU X REQUISITOS
+Bloco da HU	Requisitos	Regras de negócio
+Restrição do acesso e programas	RF01 a RF04	RN01, RN02
+Base de simulação	RF05 a RF07	RN03
+Informações gerais da simulação	RF08 a RF11	RN04, RN13
+Regras de elegibilidade — parâmetros gerais	RF12 a RF16	—
+Regras de elegibilidade — critério sobre a BM	RF17	RN11
+Regras de elegibilidade — linha de pobreza e renda	RF19, RF20	—
+Data de atualização cadastral	RF21	—
+Alteração nos benefícios	RF18, RF22	RN05 a RN09
+Regra de Proteção	RF23	RN10
+Combinação de alterações e simulação prospectiva	RF24, RF25	RN12
+Visualização dos resultados	RF26 a RF30	—
+Exportação, impressão e rastreabilidade	RF31 a RF35	—
+Geração de arquivos operacionais	RF36	RN14
+
+ 
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o Simulador da Plataforma do SIPGS. A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabelecidas, ressalvados os itens registrados na seção 8 e, em especial, a conciliação das divergências relacionadas na seção 7, cuja definição é condição para a construção.
+Data	Nome	Cargo / Área
+		
+		
+
