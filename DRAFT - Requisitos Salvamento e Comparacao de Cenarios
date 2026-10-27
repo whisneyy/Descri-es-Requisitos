@@ -1,0 +1,203 @@
+	
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+
+
+SIPGS — Salvamento e Comparação de Cenários de Simulação
+
+ 
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Consolidação das STRY00071242 e STRY00087376 e da HU consolidada do Simulador
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. DESCRIÇÃO
+Como gestor de programas sociais, quero salvar os cenários de simulação que construo, localizá-los depois, compartilhá-los com colegas do meu ente e confrontá-los entre si e com a situação atual do programa, para que os estudos técnicos que produzo possam ser conferidos, reaproveitados e comparados ao longo do tempo, e não se percam ao final da sessão.
+O tema hoje está distribuído por três histórias — STRY00071242, STRY00087376 e a HU consolidada do Simulador — com requisitos sobrepostos e, em alguns pontos, conflitantes. Este documento consolida o assunto em uma única especificação, resolvendo os conflitos conforme a seção 3, e trata o cenário como objeto com ciclo de vida próprio: criado, salvo, localizado, compartilhado, reaberto, reexecutado, comparado, exportado e, eventualmente, tornado não reproduzível pela substituição da base que o originou.
+3. DECISÕES DE CONSOLIDAÇÃO ADOTADAS
+As decisões abaixo resolvem sobreposições e conflitos entre as histórias de origem. Estão declaradas para que a área de negócio as confirme ou as altere expressamente.
+Tema	STRY00071242	STRY00087376	HU consolidada	Decisão adotada
+Quantidade de cenários comparáveis	Não declarada	Até 3 salvas mais o cenário atual	Sem limite declarado	Prevalece o limite de 3 cenários salvos mais o cenário de referência
+O que é persistido no salvamento	Não declarado	Não declarado	Não declarado	Parâmetros, referências das bases e resultado apurado, congelados no salvamento
+Comportamento na reabertura	Não declarado	Não declarado	Não declarado	Exibe o resultado congelado, com ação explícita de reexecução sobre a base vigente
+Mecanismo de compartilhamento	Inexistente	Pressuposto, sem mecanismo	Não declarado	Criado nesta HU: compartilhamento explícito pelo autor
+Alcance do compartilhamento	Não declarado	Colegas do mesmo ente com o mesmo perfil operacional	Não declarado	Mesmo ente, limitado pela abrangência do destinatário (STRY00064433)
+Nome do cenário	Até 50 caracteres alfanuméricos	Nome e data de criação exibidos	Identificação única	Nome de até 50 caracteres, com conjunto ampliado, mais identificador único gerado pelo sistema
+Formatos de exportação	PDF	Não declarado	PDF ou CSV	PDF, CSV e Excel, alinhado à STRY00111044
+Cenário de referência do comparativo	Cenário original	Folha vigente, com percentual sobre a última folha gerada	Não declarado	Base de referência declarada do próprio cenário, conforme seção 7.3
+Trilha de auditoria	Usuário, data, hora e parâmetros	Registro das ações comparativas	Usuário, data, hora e parâmetros	Trilha única, cobrindo salvamento, reabertura, reexecução, compartilhamento, comparação e exportação
+Retenção e reprodutibilidade	Não declarada	Não declarada	Não declarada	Cenário permanece legível indefinidamente; torna-se não reproduzível quando a base referenciada é substituída
+ 
+4. ESCOPO
+4.1 Está no escopo
+•	Salvamento sob demanda do cenário de simulação, com nomeação e identificação única.
+•	Definição do conteúdo persistido e do comportamento na reabertura.
+•	Localização dos cenários salvos por listagem e por pesquisa.
+•	Compartilhamento de cenários entre usuários do mesmo ente.
+•	Reexecução controlada do cenário sobre a base vigente.
+•	Comparação entre até três cenários salvos e o cenário de referência.
+•	Exportação do cenário e do comparativo.
+•	Trilha de auditoria de todas as ações sobre o cenário.
+4.2 Não está no escopo
+•	Execução da simulação e apuração dos indicadores, tratadas nas HUs do Simulador.
+•	Definição dos parâmetros simuláveis, tratada na HU "Módulo de Utilização".
+•	Definição das abrangências e perfis, tratada na STRY00064433.
+•	Guarda de bases históricas, dependente de decisão registrada na STRY00062314.
+•	Salvamento de consultas do assistente de IA, tratado na STRY00111044, ainda que as regras aqui definidas devam ser aproveitadas.
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Salvamento e identificação
+•	RF01 — Salvamento sob Demanda: O sistema deve permitir salvar o cenário de simulação em execução, mediante ação expressa do usuário. Cenários não salvos são descartados ao término da sessão.
+•	RF02 — Nomeação do Cenário: O salvamento exige a atribuição de nome pelo usuário, limitado a 50 caracteres, admitidos letras com ou sem acentuação, dígitos, espaço, hífen, sublinhado e ponto.
+•	RF03 — Identificação Única: O sistema deve atribuir a cada cenário salvo um identificador único, exibido ao usuário e utilizado nas exportações e na trilha de auditoria.
+•	RF04 — Conteúdo Persistido: O salvamento deve preservar os elementos relacionados na seção 7.1, compreendendo os parâmetros alterados, as referências das bases utilizadas e o resultado apurado.
+•	RF05 — Renomeação e Exclusão: O autor deve poder renomear e excluir os cenários que criou. A exclusão não pode remover os registros de auditoria nem os comparativos já exportados.
+•	RF06 — Duplicação: O usuário deve poder duplicar um cenário salvo, criando novo cenário editável a partir dos parâmetros do original, preservado o vínculo com o cenário de origem.
+5.2 Localização
+•	RF07 — Cenários Recentes: O sistema deve exibir, na tela inicial, os 10 cenários mais recentes do usuário, ordenados do mais recente para o mais antigo.
+•	RF08 — Pesquisa: O sistema deve permitir pesquisar os cenários acessíveis ao usuário por nome, admitida a busca parcial, e por data de criação, admitido o intervalo de datas.
+•	RF09 — Filtros Complementares: A pesquisa deve admitir, ainda, filtro por programa social, por base utilizada e por origem do cenário, distinguindo os próprios dos recebidos por compartilhamento.
+•	RF10 — Identificação da Situação: A listagem deve indicar a situação de cada cenário conforme a seção 7.4, sinalizando de forma destacada os cenários não reproduzíveis.
+5.3 Compartilhamento
+•	RF11 — Compartilhamento pelo Autor: O autor deve poder compartilhar um cenário salvo com outros usuários do seu ente, por ação expressa, indicando os destinatários ou o perfil destinatário.
+•	RF12 — Revogação: O autor deve poder revogar a qualquer tempo o compartilhamento concedido, deixando o cenário de ser acessível ao destinatário.
+•	RF13 — Visibilidade do Compartilhado: O cenário recebido deve ser exibido ao destinatário identificando o autor e a data do compartilhamento, sem possibilidade de alteração do original.
+•	RF14 — Limitação pela Abrangência: O compartilhamento somente pode ser efetivado quando a abrangência do destinatário contiver a abrangência sobre a qual o cenário foi construído. Não sendo o caso, o sistema deve impedir o compartilhamento e informar a razão.
+
+5.4 Reabertura e reexecução
+•	RF15 — Reabertura Congelada: Ao reabrir um cenário salvo, o sistema deve exibir o resultado tal como apurado no momento do salvamento, identificando as bases e as datas de referência então utilizadas.
+•	RF16 — Reexecução Explícita: O sistema deve disponibilizar ação expressa de reexecução do cenário sobre as bases vigentes, apresentando o novo resultado ao lado do resultado congelado, sem sobrescrevê-lo.
+•	RF17 — Registro do Recálculo: O resultado obtido por reexecução deve ser identificado como recálculo, com a data e a hora da nova apuração e as novas referências de base.
+•	RF18 — Cenário Não Reproduzível: Quando a base referenciada pelo cenário houver sido substituída e não estiver mais disponível, a reexecução deve ser impedida, permanecendo o cenário legível na sua forma congelada.
+5.5 Comparação de cenários
+•	RF19 — Seleção para Comparação: O usuário deve poder selecionar até 3 cenários salvos, dentre os que lhe são acessíveis, para comparação com o cenário de referência.
+•	RF20 — Comparação com Menos de Três: A comparação deve ser admitida com um ou dois cenários selecionados, suprimindo-se as colunas não utilizadas.
+•	RF21 — Validação de Compatibilidade: O sistema deve verificar a compatibilidade entre os cenários selecionados conforme os critérios da seção 7.2 e impedir a efetivação do comparativo quando houver divergência, informando ao usuário qual atributo divergiu.
+•	RF22 — Cabeçalho do Comparativo: O comparativo deve apresentar o nome do programa, a data do comparativo, a identificação do cenário de referência com a sua data de base e a relação dos cenários selecionados, com nome, identificador e data de criação.
+•	RF23 — Estrutura de Apresentação: Os resultados devem ser apresentados na estrutura de colunas abaixo, em todos os blocos, com valores absolutos e variações absoluta e percentual em relação ao cenário de referência:
+Referência | Cenário A | Δ A | Cenário B | Δ B | Cenário C | Δ C
+•	RF24 — Blocos do Comparativo: O comparativo deve contemplar os blocos relacionados na seção 7.3.
+•	RF25 — Ranking dos Cenários: O sistema deve indicar qual cenário é o melhor em cada um dos critérios da seção 7.5, sem produzir pontuação global, e informar a ocorrência de empate.
+•	RF26 — Salvamento do Comparativo: O comparativo produzido deve poder ser salvo, nomeado e recuperado, preservando a identificação dos cenários que o compuseram.
+
+5.6 Exportação
+•	RF27 — Formatos: O sistema deve permitir exportar o cenário e o comparativo nos formatos PDF, CSV e Excel.
+•	RF28 — Conteúdo da Exportação: O arquivo exportado deve conter o identificador do cenário, o programa selecionado, as bases e datas de referência, os filtros aplicados, os parâmetros alterados, as regras utilizadas, os resultados apurados e a indicação de resultado congelado ou recalculado.
+•	RF29 — Identificação do Documento: O arquivo exportado deve identificar o usuário que o gerou, a data e a hora da geração e a classificação da informação.
+•	RF30 — Aviso de Projeção: O arquivo exportado deve conter aviso de que os valores constituem projeção para fins de estudo técnico, sem gerar direito ou obrigação de pagamento.
+5.7 Auditoria
+•	RF31 — Trilha Única: Todas as ações sobre o cenário devem ser registradas em trilha única de auditoria, contemplando salvamento, renomeação, duplicação, exclusão, compartilhamento, revogação, reabertura, reexecução, comparação e exportação.
+•	RF32 — Conteúdo do Registro: Cada registro deve conter o identificador do cenário, a ação praticada, o usuário responsável, a data e a hora, o escopo aplicado e, nas ações de comparação, os cenários envolvidos.
+•	RF33 — Consulta à Trilha: A trilha deve ser consultável pelos perfis autorizados, com filtros por cenário, por usuário e por período.
+ 
+6. REGRAS DE NEGÓCIO
+•	RN01 — Persistência Não Automática: Nenhum cenário é gravado sem solicitação expressa do usuário.
+•	RN02 — Imutabilidade do Resultado Salvo: O resultado apurado no momento do salvamento é imutável. A reexecução produz novo resultado, que não substitui o original.
+•	RN03 — Vínculo com a Base: Todo cenário é indissociável das bases que o originaram, identificadas por tipo, competência e data de carga ou geração.
+•	RN04 — Cenário de Referência: O cenário de referência do comparativo é a base declarada do próprio cenário, e não necessariamente a folha mais recente. Nas simulações realizadas exclusivamente sobre a Base Municipal, a referência é a própria Base Municipal na data da carga utilizada, não havendo folha de comparação.
+•	RN05 — Impedimento por Incompatibilidade: A divergência de qualquer dos atributos de compatibilidade entre os cenários selecionados impede a efetivação do comparativo. O impedimento é absoluto e não admite prosseguimento mediante alerta.
+•	RN06 — Base de Cálculo da Variação: As variações absoluta e percentual são calculadas em relação ao cenário de referência do comparativo.
+•	RN07 — Escopo do Compartilhamento: O compartilhamento é restrito a usuários do mesmo ente e condicionado a que a abrangência do destinatário contenha a abrangência do cenário, observada a STRY00064433.
+•	RN08 — Autoria: A alteração, a renomeação e a exclusão do cenário são privativas do autor. O destinatário do compartilhamento pode visualizar, comparar, exportar e duplicar, não podendo alterar o original.
+•	RN09 — Perda de Reprodutibilidade: A substituição da base referenciada não invalida o cenário, que permanece legível, mas o torna não reproduzível, situação que deve ser sinalizada ao usuário em tela e nas exportações.
+•	RN10 — Ranking por Critério: O ranking indica um cenário vencedor por critério, isoladamente considerado, não constituindo recomendação. Critérios são naturalmente conflitantes entre si.
+•	RN11 — Natureza Exploratória: Cenários, comparativos e exportações constituem projeção destinada a estudo técnico e apoio à decisão, não gerando direito, obrigação de pagamento ou alteração na folha real.
+•	RN12 — Inalterabilidade da Trilha: Os registros de auditoria não podem ser alterados nem suprimidos, inclusive quando o cenário for excluído.
+ 
+7. TABELAS DE APOIO
+7.1 Conteúdo persistido do cenário
+Elemento	Conteúdo	Finalidade
+Identificação	Identificador único, nome, autor, data e hora de criação	Localização e auditoria
+Programa	Programa social selecionado	Compatibilidade e filtro
+Bases utilizadas	Tipo, competência e data de carga ou geração de cada base	Compatibilidade e reprodutibilidade
+Abrangência	Recorte territorial sobre o qual o cenário foi construído	Compartilhamento e reexecução
+Período de projeção	Período considerado na apuração do custo projetado	Compatibilidade
+Parâmetros alterados	Relação dos parâmetros, com valor vigente e valor simulado	Reexecução e transparência
+Filtros aplicados	Filtros utilizados na composição do universo	Reexecução e transparência
+Resultado apurado	Indicadores calculados no momento do salvamento	Exibição congelada e comparação
+Situação	Situação do cenário conforme a seção 7.4	Sinalização ao usuário
+7.2 Critérios de compatibilidade para o comparativo
+Atributo	Origem	Efeito da divergência
+Programa social	Cenário salvo	Impede o comparativo
+Referência da Base Municipal	Data da carga da BM	Impede o comparativo
+Referência da folha	Pré-folha ou Folha e respectiva competência	Impede o comparativo
+Período de projeção	Período selecionado no cenário	Impede o comparativo
+Abrangência territorial	Recorte do cenário	Impede o comparativo
+Situação do cenário	Cenário não reproduzível	Admitido no comparativo, com sinalização
+7.3 Blocos do comparativo
+Bloco	Conteúdo
+Parâmetros alterados	Relação dos parâmetros alterados em cada cenário, com valor vigente e valor simulado
+Impacto orçamentário	Custo total por cenário e variação em relação à referência
+Cobertura alcançada	Famílias atendidas, beneficiários atendidos, benefícios por tipo, parcelas e respectivas variações; composição por região, estado e microrregião, observada a abrangência do usuário
+Eficiência do programa	Custo total, custo por benefício, custo médio por família atendida e custo por recorte territorial
+Perfil do público impactado	Quantitativos por faixa de renda, faixa etária, sexo, famílias unipessoais, famílias com criança, adolescente ou gestante, grupos populacionais específicos e recorte territorial
+Ranking	Cenário vencedor em cada critério da seção 7.5
+	
+
+7.4 Situações do cenário
+Situação	Caracterização	Ações admitidas
+Em edição	Cenário em construção na sessão, ainda não salvo	Salvar ou descartar
+Salvo	Cenário persistido, com base referenciada disponível	Todas
+Compartilhado	Cenário salvo disponibilizado a outros usuários pelo autor	Todas para o autor; visualização, comparação, exportação e duplicação para o destinatário
+Não reproduzível	Base referenciada substituída e indisponível	Visualização, comparação, exportação e duplicação; reexecução impedida
+Excluído	Cenário removido pelo autor	Nenhuma; registros de auditoria preservados
+7.5 Critérios do ranking
+Critério	Definição adotada	Sentido
+Menor custo	Custo total do programa no período de projeção do cenário	Menor valor
+Maior cobertura de famílias	Quantidade de famílias atendidas	Maior valor
+Maior cobertura de beneficiários	Quantidade de beneficiários atendidos	Maior valor
+Menor exclusão de beneficiários	Beneficiários presentes na referência e ausentes no cenário	Menor valor
+Menor valor médio de benefícios	Valor total dividido pela quantidade de famílias atendidas	Menor valor
+ 
+8. PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção.
+8.1 Decisões de consolidação a confirmar
+•	Reabertura congelada com reexecução explícita (RF15 e RF16): a alternativa seria recalcular automaticamente o cenário sobre a base vigente. Optou-se pelo congelamento porque um estudo técnico precisa ser conferível na forma em que foi produzido. Confirmar com o negócio, pois a escolha determina o volume de dados persistidos.
+•	Limite de três cenários (RF19): a HU consolidada do Simulador não declara limite, enquanto a STRY00087376 fixa três. Adotou-se o limite de três, por ser o único valor especificado e por caber na estrutura de colunas. Confirmar.
+•	Conjunto de caracteres do nome (RF02): a restrição literal a caracteres alfanuméricos, constante da STRY00071242, impediria espaços e acentuação. Adotou-se conjunto ampliado. Confirmar.
+•	Compartilhamento limitado pela abrangência (RF14, RN07): a STRY00087376 fala em colegas do mesmo ente com o mesmo perfil operacional, termo que não consta da Matriz de Acesso. Adotou-se a abrangência da STRY00064433 como critério. Confirmar, inclusive quanto ao comportamento para o Gestor CAIXA, que não pertence a um ente.
+•	Impedimento absoluto por incompatibilidade (RN05): confirmar se não há hipótese em que o gestor deva poder prosseguir mediante ciência expressa, por exemplo ao comparar cenários de competências distintas para observar evolução.
+8.2 Dependências de outras histórias
+•	Guarda de bases históricas: a situação "não reproduzível" existe porque a STRY00062314 e a STRY00069681 determinam a substituição da carga anterior. Definida a guarda de versões históricas, essa situação deixa de ocorrer e os RF18 e RN09 tornam-se desnecessários. A decisão pertence àquelas histórias.
+•	Abrangência e perfis: os RF14 e RN07 dependem da definição do modelo de perfil e abrangência, pendente na STRY00064433.
+•	Grupos populacionais no perfil do público impactado: os campos de origem do GPTE e do público vulnerável permanecem indefinidos. Os leiautes da folha e da pré-folha trazem os indicadores de família quilombola, trabalho escravo, indígena, catador de material reciclável e trabalho infantil, candidatos a essa definição.
+•	Serviço de reexecução: o RF16 pressupõe que a apuração dos indicadores esteja disponível como serviço invocável a partir dos parâmetros persistidos. Confirmar se as HUs do Simulador preveem essa exposição.
+•	Aproveitamento pelo assistente de IA: a STRY00111044 prevê salvar consultas e compartilhá-las. Recomenda-se que consultas e cenários compartilhem o mesmo repositório, as mesmas regras de nome, pesquisa, compartilhamento e auditoria, evitando dois modelos distintos na mesma plataforma.
+8.3 Definições operacionais
+•	Limites de armazenamento: definir a quantidade máxima de cenários por usuário, a existência de expurgo automático e o prazo de retenção dos cenários e dos comparativos.
+•	Nomes duplicados: confirmar se o mesmo usuário pode manter dois cenários com nome idêntico, hipótese em que a distinção dependerá do identificador único.
+•	Exclusão de cenário compartilhado: definir o efeito sobre os destinatários e sobre comparativos salvos que o utilizaram. A solução usual é a exclusão lógica, preservando a integridade dos comparativos.
+•	Exportação de cenário compartilhado: confirmar se o destinatário pode exportar o cenário recebido e se o arquivo identifica o autor original além de quem exportou.
+•	Retenção da trilha de auditoria: definir o prazo de guarda e os perfis autorizados à consulta prevista no RF33.
+•	Volumetria e desempenho: o comparativo exige a apresentação simultânea de quatro cenários com recortes territoriais e por grupo populacional. Definir o tempo máximo de resposta aceitável e avaliar a pré-agregação dos indicadores no momento do salvamento, o que é possível justamente por serem congelados.
+ 
+9. RASTREABILIDADE — ORIGEM DOS REQUISITOS
+Requisitos	História de origem	Observação
+RF01, RF02, RF07, RF08	STRY00071242	Salvamento sob demanda, nomeação, recentes e pesquisa
+RF03	HU consolidada do Simulador	Identificação única
+RF04, RF15 a RF18	Esta HU	Conteúdo persistido e comportamento na reabertura, não tratados nas origens
+RF05, RF06, RF09, RF10	Esta HU	Ciclo de vida e localização, não tratados nas origens
+RF11 a RF14	Esta HU, a partir da STRY00087376	Mecanismo de compartilhamento pressuposto e não especificado na origem
+RF19 a RF25	STRY00087376	Comparativo, estrutura, blocos e ranking
+RF26	Esta HU	Salvamento do comparativo
+RF27 a RF30	STRY00071242, HU consolidada e STRY00111044	Formatos unificados e conteúdo da exportação
+RF31 a RF33	STRY00071242 e STRY00087376	Trilha de auditoria unificada
+
+ 
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para o Salvamento e a Comparação de Cenários de Simulação do SIPGS. A assinatura abaixo formaliza a aprovação do escopo, inclusive das decisões de consolidação relacionadas na seção 3, e autoriza o início das atividades de desenvolvimento, ressalvados os itens da seção 8.
+Data	Nome	Cargo / Área
+		
+		
+
