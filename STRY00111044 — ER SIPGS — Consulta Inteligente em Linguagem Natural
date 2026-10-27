@@ -1,0 +1,249 @@
+	
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00111044 — ER SIPGS — Consulta Inteligente em Linguagem Natural
+
+ 
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração do documento a partir da HU STRY00111044
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+
+Sumário
+1. Folha de revisão e aprovação	2
+1.1 Registro de mudanças	2
+1.2 Revisão do cliente	2
+2. OBJETIVO DA SOLICITAÇÃO	3
+3. ESCOPO	3
+3.1 Está no escopo	3
+3.2 Escopo compartilhado	3
+3.3 Não está no escopo desta HU	4
+4. REQUISITOS FUNCIONAIS	5
+4.1 Assistente de IA	5
+4.2 Combinação dinâmica de bases e variáveis	5
+4.3 Transparência e rastreabilidade dos resultados	5
+4.4 Consultas conversacionais e refinamento	6
+4.5 Segurança e perfil de acesso	6
+4.6 Criação de públicos-alvo	6
+4.7 Simulações de elegibilidade e cobertura	6
+4.8 Geração de folha interna SIPBS (HU STRY00111130)	7
+4.9 Salvamento e reutilização de análises	7
+4.10 Exportação dos resultados	8
+5. REGRAS DE NEGÓCIO	9
+6. TABELAS DE APOIO	10
+6.1 Variáveis combináveis	10
+6.2 Destinos previstos para os públicos-alvo	10
+6.3 Formatos de saída	11
+7. PONTOS DE ATENÇÃO PARA REFINAMENTO	12
+7.1 Arquitetura e governança do assistente	12
+7.2 Proteção de dados pessoais	12
+7.3 Segurança da consulta	13
+7.4 Definições funcionais	13
+7.5 Público-alvo e folha interna	14
+7.6 Compartilhamento e coerência com as demais HUs	15
+7.7 Requisitos não funcionais	15
+8. RASTREABILIDADE — HU X REQUISITOS	16
+9. ACEITE DA DOCUMENTAÇÃO	17
+
+
+2. OBJETIVO DA SOLICITAÇÃO
+Este documento especifica os requisitos do assistente de Inteligência Artificial da Plataforma de Benefícios Sociais, destinado a permitir que o gestor realize consultas em linguagem natural sobre as bases de dados disponíveis, identifique padrões, execute análises exploratórias, componha públicos-alvo e apoie a formulação e a gestão de políticas públicas e programas sociais.
+A funcionalidade abrange desde a interpretação da pergunta em linguagem natural até a conversão do resultado em público-alvo parametrizado e, por fim, em folha interna no leiaute do SIPBS, percorrendo portanto todo o caminho entre a análise exploratória e o processo operacional.
+Alcance desta HU: diferentemente das demais histórias do Simulador, cujos resultados são declaradamente exploratórios, esta HU produz artefatos com efeito operacional — públicos-alvo utilizados em programas de transferência de renda e busca ativa, e folha interna destinada aos processos de pagamento. Esse alcance impõe definições de governança, de proteção de dados e de responsabilidade que ainda não constam do texto, consolidadas na seção 7.
+3. ESCOPO
+3.1 Está no escopo
+•	Assistente de IA para consultas em linguagem natural sobre as bases autorizadas.
+•	Combinação dinâmica de bases e variáveis e cruzamentos não previstos nos painéis.
+•	Transparência e rastreabilidade de cada resultado produzido.
+•	Consultas conversacionais, com manutenção de contexto e refinamento.
+•	Aderência aos perfis de acesso e registro das consultas para auditoria.
+•	Criação, salvamento, reutilização e compartilhamento de públicos-alvo.
+•	Simulações de elegibilidade e cobertura sobre os públicos identificados.
+•	Exportação dos resultados em PDF, CSV e Excel.
+3.2 Escopo compartilhado
+Os requisitos RF32 a RF38, relativos à geração da folha interna no leiaute do SIPBS, são objeto da HU STRY00111130 e estão aqui especificados por constarem do texto desta história. A construção deve observar a HU específica, evitando duplicidade.
+3.3 Não está no escopo desta HU
+•	Ingestão, validação e armazenamento das bases, tratadas nas HUs STRY00079079, STRY00062314 e STRY00081356.
+•	Definição das abrangências dos perfis, tratada na STRY00064433.
+•	Simulação paramétrica dos programas sociais, tratada nas HUs do Simulador.
+•	Mapeamento De x Para das nomenclaturas dos campos, tratado na STRY00083689.
+ 
+4. REQUISITOS FUNCIONAIS
+4.1 Assistente de IA
+•	RF01 — Assistente de Consultas em Linguagem Natural: O painel deve disponibilizar assistente de Inteligência Artificial que permita ao usuário realizar consultas utilizando linguagem natural, sem necessidade de conhecimento técnico sobre banco de dados ou linguagem de consulta.
+•	RF02 — Interpretação e Conversão da Pergunta: A IA deve interpretar perguntas formuladas livremente pelo usuário e convertê-las automaticamente em consultas sobre as bases autorizadas.
+•	RF03 — Formatos de Resposta: A IA deve responder às consultas por meio de indicadores, números, tabelas, gráficos, mapas ou listas, conforme a natureza da solicitação.
+•	RF04 — Análises Não Previstas: A IA deve permitir a realização de análises que não estejam previamente disponíveis nos painéis e relatórios existentes.
+4.2 Combinação dinâmica de bases e variáveis
+•	RF05 — Bases Consultáveis: A IA deve realizar mineração de dados utilizando informações da Base Municipal vigente, da Pré-folha e da Folha de pagamento mais atual.
+•	RF06 — Combinação de Naturezas de Informação: A IA deve combinar dinamicamente informações cadastrais, socioeconômicas, territoriais e relacionadas aos benefícios sociais.
+•	RF07 — Combinação Livre de Variáveis: A IA deve permitir combinar livremente as variáveis disponíveis nas bases, incluindo as relacionadas na seção 6.1, sem limitar-se a elas.
+•	RF08 — Cruzamentos Não Configurados: A IA deve realizar cruzamentos de informações que não estejam previamente configurados nos painéis existentes.
+4.3 Transparência e rastreabilidade dos resultados
+•	RF09 — Conteúdo de Transparência do Resultado: Cada resultado deve apresentar:
+○	As variáveis utilizadas na construção da resposta;
+○	Os filtros aplicados na consulta;
+○	A origem dos dados utilizados;
+○	A data de referência das bases consultadas;
+○	A data e a hora de geração da consulta.
+•	RF10 — Explicação da Construção do Resultado: A IA deve apresentar explicação resumida sobre a construção do resultado obtido.
+
+4.4 Consultas conversacionais e refinamento
+•	RF11 — Refinamento sem Reinício: O usuário deve poder complementar ou refinar consulta anteriormente realizada, sem necessidade de reiniciar a análise.
+•	RF12 — Manutenção de Contexto: A IA deve manter o contexto da conversa durante a sessão de análise.
+•	RF13 — Comandos Complementares: A IA deve compreender comandos complementares, a exemplo de: "agora separe por município"; "compare com o mês anterior"; "mostre apenas famílias indígenas"; "apresente os dados por faixa etária"; "agrupe por território"; e "mostre apenas beneficiários ativos".
+•	RF14 — Atualização Automática: Os resultados devem ser atualizados automaticamente após o refinamento da consulta.
+4.5 Segurança e perfil de acesso
+•	RF15 — Aderência aos Perfis de Acesso: A IA deve respeitar integralmente os perfis de acesso e as permissões do usuário autenticado.
+•	RF16 — Restrição do Resultado: A IA deve retornar apenas dados e informações compatíveis com as autorizações do usuário.
+•	RF17 — Registro das Consultas: Todas as consultas realizadas devem ser registradas para fins de auditoria e rastreabilidade.
+4.6 Criação de públicos-alvo
+•	RF18 — Conversão em Público-Alvo: Os resultados das consultas devem poder ser convertidos em públicos-alvo parametrizados.
+•	RF19 — Salvamento dos Critérios: A plataforma deve permitir salvar os critérios utilizados para a composição do público-alvo.
+•	RF20 — Destinos do Público-Alvo: A plataforma deve permitir utilizar os públicos-alvo criados em programas de transferência de renda, benefícios sociais, ações de busca ativa, campanhas de atualização cadastral e políticas públicas municipais, estaduais e federais.
+•	RF21 — Reutilização: Os públicos-alvo criados devem poder ser reutilizados em novas análises, consultas ou processos operacionais.
+4.7 Simulações de elegibilidade e cobertura
+•	RF22 — Simulação sobre o Público Identificado: O usuário deve poder realizar simulações sobre os públicos identificados pela IA.
+•	RF23 — Alteração de Critérios: A simulação deve permitir incluir, excluir ou alterar critérios de elegibilidade.
+•	RF24 — Impacto Quantitativo Automático: A plataforma deve apresentar automaticamente o impacto quantitativo de cada alteração realizada.
+•	RF25 — Comparação de Cenários: O usuário deve poder comparar múltiplos cenários antes de confirmar um público-alvo.
+•	RF26 — Estimativa por Cenário: A plataforma deve apresentar a estimativa de famílias e de pessoas que compõem cada cenário simulado.
+•	RF27 — Geração do Público-Alvo Final: O público-alvo final deve poder ser gerado a partir de qualquer cenário validado pelo usuário, para exportação em arquivo.
+4.8 Geração de folha interna SIPBS (HU STRY00111130)
+•	RF28 — Conversão em Folha Interna: O público-alvo gerado por consulta ou simulação deve poder ser convertido em folha interna.
+•	RF29 — Aderência ao Leiaute do SIPBS: A folha interna deve ser gerada de acordo com o leiaute padronizado do SIPBS.
+•	RF30 — Fidelidade aos Critérios de Origem: A geração da folha interna deve utilizar exatamente os critérios e os parâmetros definidos na consulta ou na simulação que originou o público-alvo.
+•	RF31 — Validação de Consistência: A plataforma deve validar a consistência dos dados antes da geração da folha.
+•	RF32 — Informações Obrigatórias: A folha interna deve conter as informações obrigatórias exigidas pelo leiaute do SIPBS.
+•	RF33 — Registro de Origem: A folha interna deve registrar a origem dos dados, a data de referência e os parâmetros utilizados em sua construção.
+•	RF34 — Resumo Prévio à Exportação: A plataforma deve apresentar ao usuário resumo sintético dos quantitativos gerados antes da exportação da folha interna, contemplando a quantidade de famílias e a quantidade de pessoas.
+4.9 Salvamento e reutilização de análises
+•	RF35 — Salvamento de Consultas: As consultas realizadas pela IA devem poder ser salvas para reutilização posterior.
+•	RF36 — Conversão em Indicadores ou Painéis: As consultas salvas devem poder ser transformadas em indicadores ou painéis de acompanhamento contínuo.
+•	RF37 — Compartilhamento: Usuários autorizados devem poder compartilhar consultas, análises e públicos-alvo com outros usuários da plataforma.
+4.10 Exportação dos resultados
+•	RF38 — Formatos de Exportação: O gestor deve poder exportar os resultados das consultas nos formatos PDF, CSV e Excel.
+•	RF39 — Objetos Exportáveis: O gestor deve poder exportar gráficos, tabelas, indicadores e análises produzidos pela IA.
+•	RF40 — Conteúdo do Arquivo Exportado: Os arquivos exportados devem apresentar os filtros utilizados, a origem dos dados e a data de referência das informações, contemplando as datas da Base Municipal e da Folha.
+•	RF41 — Padrão Visual: Os resultados exportados devem manter a consistência e o padrão visual exibidos na plataforma.
+ 
+5. REGRAS DE NEGÓCIO
+•	RN01 — Bases Autorizadas: A mineração de dados alcança exclusivamente a Base Municipal vigente, a Pré-folha e a Folha de pagamento mais atual, não se estendendo a bases históricas ou a fontes externas.
+•	RN02 — Subordinação ao Perfil de Acesso: O assistente não pode ampliar o escopo de dados do usuário. A abrangência territorial, a autorização por produto e as permissões do perfil, definidas na STRY00064433, prevalecem sobre qualquer consulta formulada.
+•	RN03 — Conteúdo Mínimo de Transparência: Nenhum resultado pode ser apresentado sem as informações de variáveis utilizadas, filtros aplicados, origem dos dados, data de referência das bases e data e hora da geração.
+•	RN04 — Contexto Limitado à Sessão: A manutenção de contexto conversacional aplica-se à sessão de análise em curso, não constituindo histórico permanente salvo quando a consulta for expressamente salva.
+•	RN05 — Obrigatoriedade do Registro: Toda consulta realizada deve gerar registro de auditoria, independentemente de o resultado ser salvo, exportado ou convertido em público-alvo.
+•	RN06 — Rastreabilidade do Público-Alvo: Todo público-alvo deve preservar os critérios que o compuseram, de modo que sua formação possa ser reconstituída e auditada.
+•	RN07 — Fidelidade da Folha Interna: A folha interna deve refletir exatamente os critérios e parâmetros do público-alvo que lhe deu origem, não admitindo alteração no momento da geração.
+•	RN08 — Validação Prévia: A geração da folha interna é condicionada à validação de consistência dos dados e à apresentação do resumo sintético dos quantitativos ao usuário.
+•	RN09 — Compartilhamento Condicionado: O compartilhamento de consultas, análises e públicos-alvo é privativo de usuários autorizados e não pode resultar em acesso do destinatário a dados fora da sua abrangência.
+•	RN10 — Identificação da Origem: Todo artefato produzido pela funcionalidade — resultado, público-alvo, exportação e folha interna — deve identificar as bases utilizadas e suas datas de referência.
+ 
+6. TABELAS DE APOIO
+6.1 Variáveis combináveis
+Relação expressamente citada pela HU, que a declara exemplificativa.
+Variável	Origem provável	Situação
+Renda familiar	Base Municipal	Campo a confirmar
+Renda per capita	[VLR-RENDA-MEDIA-FAM] da BM	Definido
+Composição familiar — quantidade de pessoas	[QT_PSA_CLCO_RNDA] da BM	Semântica a confirmar
+Faixa etária	Data de nascimento da pessoa na BM	Faixas a definir
+Sexo	Base Municipal	Campo e domínio a confirmar
+Localização geográfica	UF, município e endereço	Granularidade a definir
+Benefícios recebidos	[Tipo_Ben] da Folha e Pré-folha	Definido
+Situação cadastral	[COD-EST-CADASTRAL-FAM] e [COD-EST-CADASTRAL-MEMB]	Definido
+Grupos prioritários	Indicadores de grupos populacionais	Campo de origem pendente
+Indicadores socioeconômicos	Não especificado	A definir
+Informações da Pré-folha e da Folha	Leiautes dos relatórios analíticos	Definido
+6.2 Destinos previstos para os públicos-alvo
+Destino	Natureza da utilização
+Programas de transferência de renda	Operacional — resulta em pagamento
+Benefícios sociais	Operacional — resulta em concessão
+Ações de busca ativa	Operacional — resulta em contato com a família
+Campanhas de atualização cadastral	Operacional — resulta em convocação
+Políticas públicas municipais, estaduais e federais	Planejamento e execução
+6.3 Formatos de saída
+Saída	Formato	Requisito
+Resultado da consulta	Indicadores, tabelas, gráficos, mapas e listas	RF03
+Exportação analítica	CSV e Excel	RF38
+Exportação documental	PDF	RF38
+Público-alvo	Arquivo, formato a definir	RF27
+Folha interna	Leiaute padronizado do SIPBS	RF29
+ 
+7. PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio, de segurança da informação e de arquitetura antes do início da construção. Enquanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+7.1 Arquitetura e governança do assistente
+•	Modelo de IA a ser utilizado: a HU não define se o assistente utilizará modelo próprio, serviço contratado de terceiro, execução em infraestrutura própria ou em nuvem pública. A decisão é estruturante e condiciona todas as demais definições de proteção de dados.
+•	Papel do modelo na consulta: é necessário definir se o modelo apenas traduz a pergunta em consulta estruturada, que o sistema executa com as credenciais e o escopo do usuário, ou se o próprio modelo acessa os dados. Somente a primeira arquitetura permite garantir o cumprimento dos RF15 e RF16, uma vez que o filtro de abrangência passa a ser aplicado pelo sistema e não pela instrução dada ao modelo.
+•	Tratamento de respostas incorretas: modelos de linguagem podem produzir resultados plausíveis, porém incorretos. Definir os mecanismos de mitigação, se a consulta gerada será exibida ao usuário como parte da explicação exigida pelo RF10 e se haverá validação antes da apresentação.
+•	Reprodutibilidade (RF02): a mesma pergunta deve produzir necessariamente o mesmo resultado sobre a mesma base? A reprodutibilidade é condição para o uso do resultado em estudo técnico e em processo administrativo.
+•	Responsabilidade pelo resultado: os públicos-alvo produzidos alimentam programas de transferência de renda e ações de busca ativa. Definir quem responde por erro de interpretação da IA e qual o rito de conferência humana antes da utilização operacional.
+•	Critério de aceite da funcionalidade: não há métrica declarada de qualidade. É necessário definir conjunto de perguntas de homologação, taxa de acerto aceitável e procedimento de reteste a cada atualização do modelo.
+7.2 Proteção de dados pessoais
+•	Base legal e finalidade: a funcionalidade permite consultar microdado do CadÚnico, inclusive a relação nominal de registros elegíveis, conforme o exemplo de uso do cenário 2. É necessário definir a base legal, a finalidade registrada e a observância do princípio da minimização.
+•	Dados pessoais sensíveis: as variáveis sexo e grupos prioritários alcançam origem racial e étnica, expressamente classificadas como dados sensíveis na STRY00062314. Definir se essas variáveis podem ser utilizadas como critério de consulta e por quais perfis.
+•	Trânsito e retenção pelo provedor do modelo: caso o assistente utilize serviço de terceiro, definir se dados pessoais integram o conteúdo enviado, qual a política de retenção do provedor, se há utilização para treinamento e onde os dados são processados.
+•	Risco de reidentificação: a combinação livre de variáveis prevista no RF07 permite estreitar o resultado até o nível individual, ainda que a consulta seja formulada de modo agregado. Definir limite mínimo de registros para exibição de resultados e política de supressão de pequenas contagens.
+•	Relatório de impacto: avaliar a necessidade de relatório de impacto à proteção de dados pessoais, dada a natureza dos dados, a escala do tratamento e o uso de decisão automatizada na formação de públicos-alvo.
+•	Conteúdo do registro de auditoria (RF17): o registro conterá a pergunta em linguagem natural, que pode incluir dados pessoais. Definir o conteúdo gravado, o mascaramento aplicável, o prazo de retenção e os perfis autorizados à consulta do registro.
+7.3 Segurança da consulta
+•	Tentativa de extrapolação de escopo: o usuário pode formular perguntas destinadas a induzir o assistente a retornar dados fora da sua abrangência. Definir que a restrição seja aplicada na execução da consulta pelo sistema, e não por instrução ao modelo, e estabelecer testes de segurança específicos para essa hipótese.
+•	Consultas de alto custo: uma pergunta pode gerar consulta sobre a totalidade da base nacional. Definir limites de volume, tempo máximo de execução, comportamento ao atingir o limite e eventual quota por usuário.
+•	Volume do resultado: definir o limite de registros exibidos em tela e exportados, e o comportamento quando o resultado excede esse limite.
+7.4 Definições funcionais
+•	Campos disponíveis à IA: a Base Municipal possui 688 campos na versão 6.29. Definir quais ficam disponíveis ao assistente, aproveitando o cadastro De x Para da STRY00083689, que já contém nomenclatura e domínios e pode servir de dicionário semântico para a interpretação das perguntas.
+•	Grupos prioritários: a variável é citada sem campo de origem, mesma pendência registrada na STRY00070086 e na STRY00087376. Os leiautes da Folha e da Pré-folha trazem os indicadores de família quilombola, trabalho escravo, indígena, catador de material reciclável e trabalho infantil, candidatos naturais a essa definição.
+•	Indicadores socioeconômicos: a expressão não possui definição nem origem declarada. É necessário relacionar quais indicadores compõem essa categoria.
+•	Comparação com período anterior (RF13): o comando "compare com o mês anterior" pressupõe a existência de bases históricas. A STRY00062314 e a STRY00069681 determinam que a carga mais recente substitua as anteriores. Sem guarda de versões históricas, esse comando não é atendível. Trata-se de definição que atravessa três HUs.
+•	Vencimento de cadastro (cenário 2): o exemplo menciona cadastros que vencem nos próximos trinta dias. Confirmar que o vencimento é calculado a partir do campo [DAT-ATUALIZACAO-FAMILIA] somado ao prazo parametrizado de 24 meses.
+•	Beneficiários ativos (RF13): definir o domínio correspondente a "ativo", considerando que os leiautes da Folha trabalham com as situações Liberado, Bloqueado e Suspenso nos campos SITBENEFICIO, SITBENEFICIARIO e SITFAM.
+•	Mapas (RF03): definir a granularidade territorial dos mapas — município, microrregião, estado — e a fonte da malha geográfica a ser utilizada.
+•	Painéis de acompanhamento contínuo (RF36): definir a periodicidade de atualização, o responsável pela manutenção e o comportamento quando a base sofrer alteração de leiaute que invalide a consulta salva.
+7.5 Público-alvo e folha interna
+•	Sobreposição com a HU consolidada do Simulador: a HU "Simulador da Plataforma" prevê, no seu último critério, a geração de arquivo compatível com os leiautes do SIBEC, do SIPAS e do SIPBS. Esta HU prevê a geração de folha interna no leiaute do SIPBS. Confirmar se são o mesmo requisito e consolidar a especificação, evitando duas implementações.
+•	Campos obrigatórios do leiaute SIPBS: o documento "Leiaute Padrão CAIXA — Remessas e Retornos" exige, no registro de detalhe, código de parcela único no programa social, valor da parcela, competência, data de pagamento em dia útil, data de fim de validade de no mínimo seis dias úteis após o pagamento, tipo e número de documento válido, além de header e trailer com totalizadores. Um público-alvo formado por consulta não produz esses dados. É necessário definir a origem de cada campo obrigatório.
+•	Conteúdo da validação de consistência (RF31): a HU não define o que se entende por consistência. Considerando o leiaute do SIPBS, a validação deveria alcançar, no mínimo, unicidade do código de parcela, validade do documento, ausência de duplicidade de beneficiário e conferência dos totalizadores do trailer.
+•	Rito de aprovação e segregação de função: a geração de folha interna converte uma análise exploratória em insumo de pagamento. Definir quem autoriza a geração, se há segregação entre quem compõe o público-alvo e quem autoriza a folha, e se há limite de valor ou de quantidade sujeito a alçada.
+•	Identificação do ambiente e do programa: o leiaute do SIPBS exige código de produto social no header e adota nomenclatura distinta de arquivo entre produção e homologação. Definir como a folha gerada é identificada e que controles impedem sua transmissão indevida ao ambiente de produção.
+•	Formato de exportação do público-alvo (RF27): o formato do arquivo do público-alvo não foi definido, tampouco se ele contém microdado nominal ou apenas os critérios e quantitativos.
+7.6 Compartilhamento e coerência com as demais HUs
+•	Compartilhamento entre abrangências distintas (RF37, RN09): um usuário de abrangência estadual pode compartilhar consulta com usuário municipal. Definir se o destinatário visualiza o resultado original ou se a consulta é reexecutada sob a sua própria abrangência. A mesma questão consta da STRY00087376.
+•	Sobreposição com o salvamento da STRY00071242: aquela HU já define salvamento, nomeação, pesquisa e exportação de simulações. Confirmar se consultas da IA e simulações compartilham o mesmo repositório e as mesmas regras de nome, pesquisa e retenção.
+•	Sobreposição com a simulação paramétrica: os RF22 a RF26 descrevem simulação de elegibilidade sobre o público identificado, função próxima da tratada nas HUs do Simulador. Definir a fronteira entre as duas funcionalidades.
+•	Exportação em Excel: esta HU prevê PDF, CSV e Excel; a STRY00071242 prevê apenas PDF e a HU consolidada prevê PDF ou CSV. Uniformizar os formatos suportados pela plataforma.
+7.7 Requisitos não funcionais
+•	Tempo de resposta: definir o tempo máximo aceitável entre a formulação da pergunta e a apresentação do resultado, considerando a soma do tempo de interpretação e do tempo de execução da consulta.
+•	Concorrência e custo: estimar a quantidade de usuários simultâneos e, havendo serviço de terceiro remunerado por uso, definir o modelo de custo e os limites de consumo.
+•	Disponibilidade e contingência: definir o comportamento da plataforma quando o serviço de IA estiver indisponível, e se as consultas salvas e os painéis contínuos devem continuar operando sem o assistente.
+•	Idioma e acessibilidade: confirmar que o assistente opera exclusivamente em português e definir a aderência aos requisitos de acessibilidade aplicáveis a sistemas governamentais.
+ 
+8. RASTREABILIDADE — HU X REQUISITOS
+Bloco da HU	Requisitos	Regras de negócio
+Assistente de IA para consultas em linguagem natural	RF01 a RF04	—
+Combinação dinâmica de bases e variáveis	RF05 a RF08	RN01
+Transparência e rastreabilidade dos resultados	RF09, RF10	RN03, RN10
+Consultas conversacionais e refinamento	RF11 a RF14	RN04
+Segurança e perfil de acesso	RF15 a RF17	RN02, RN05
+Criação de públicos-alvo	RF18 a RF21	RN06
+Simulações de elegibilidade e cobertura	RF22 a RF27	RN06
+Geração de folha interna SIPBS	RF28 a RF34	RN07, RN08, RN10
+Salvamento e reutilização de análises	RF35 a RF37	RN09
+Exportação dos resultados	RF38 a RF41	RN10
+
+ 
+9. ACEITE DA DOCUMENTAÇÃO
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para a Consulta Inteligente em Linguagem Natural do SIPGS (STRY00111044). A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabelecidas, ressalvados os itens registrados na seção 7, em especial as definições de arquitetura do assistente, de proteção de dados pessoais e de governança da geração de folha interna, cuja definição é condição para a construção.
+Data	Nome	Cargo / Área
+		
+		
+
