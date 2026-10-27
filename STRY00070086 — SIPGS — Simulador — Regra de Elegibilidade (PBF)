@@ -1,0 +1,187 @@
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+DRAFT
+
+
+STRY00070086 — SIPGS — Simulador — Regra de Elegibilidade (PBF)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sumário
+Folha de revisão e aprovação	3
+1.1	Registro de mudanças	3
+1.2	Revisão do cliente	3
+2	Objetivo da solicitação	4
+3	Escopo	5
+3.1	Está no escopo	5
+3.2	Não está no escopo desta HU	5
+4	Requisitos Funcionais	6
+4.1	Requisitos propostos (não constantes da HU)	6
+5	Regras de Negócio	7
+5.1	Critérios de composição e cadastro	7
+5.2	Critérios de renda e atualização	7
+5.3	Família unipessoal	7
+5.4	Pendências cadastrais	8
+5.5	Regras gerais	8
+6	Tabelas de apoio	9
+6.1	Critérios parametrizáveis	9
+6.2	Indicadores de pendência (RN10)	9
+6.3	Matriz de decisão da família unipessoal (RN09)	9
+7	Pontos de atenção para refinamento	10
+7.1	Lacunas que impedem a construção	10
+7.2	Precisão das regras	10
+7.3	Comportamento do sistema	11
+8	Rastreabilidade — HU x Requisitos	12
+9	Aceite da documentação	13
+
+ 
+Folha de revisão e aprovação 
+
+1.1	Registro de mudanças
+
+Data	Autor	Versão	Referência da mudança
+23/09/2026	Priscila Magalhães	2.0	Elaboração dos requisitos funcionais
+
+1.2	Revisão do cliente
+
+Data	Autor	Cargo	Versão Aprovada
+			
+
+
+
+
+2	 OBJETIVO DA SOLICITAÇÃO
+Este documento especifica o conjunto de critérios de elegibilidade do Programa Bolsa Famí-lia a serem aplicados sobre a Base Municipal quando o usuário do Simulador selecionar essa base e manifestar o interesse de utilizar o critério de elegibilidade na composição do resultado.
+A funcionalidade determina, para cada família da Base Municipal, se ela seria ou não elegí-vel ao PBF segundo os parâmetros vigentes ou segundo os parâmetros alterados pelo usuário na si-mulação, permitindo ao gestor dimensionar o público potencial do programa antes da geração da folha de pagamento.
+Esta HU é dependente da STRY00069681 (Simulador Orçamentário), que define a seleção da base e a manifestação de interesse pela aplicação do critério de elegibilidade.
+3	ESCOPO
+3.1	Está no escopo
+•	Aplicação dos critérios de elegibilidade do PBF sobre os registros da Base Municipal.
+•	Parametrização dos critérios identificados na HU como parametrizáveis.
+•	Composição e exibição do resultado de elegibilidade do universo simulado.
+3.2	Não está no escopo desta HU
+•	Seleção da base e manifestação de interesse pela aplicação do critério, tratadas na STRY00069681.
+•	Cálculo dos valores dos benefícios da cesta, tratado na HU "Módulo de Utilização".
+•	Regra de Proteção e critérios de permanência de famílias já beneficiárias, por dependerem da Folha de Pa-gamento.
+•	Efetivação da concessão: o resultado é exclusivamente simulatório.
+ 
+4	REQUISITOS FUNCIONAIS
+•	RF01 — Aplicação Condicionada dos Critérios: Quando o usuário tiver selecionado a Base Municipal para a simulação e manifestado o interesse de utilizar o critério de elegibilidade, o sistema deve aplicar o conjunto de regras descrito na seção 5 para a composição do resultado.
+•	RF02 — Parametrização dos Critérios: O sistema deve permitir a alteração dos critérios identificados como parametrizáveis, conforme relacionados na seção 6, sem alterar os parâmetros vigentes do programa.
+•	RF03 — Composição do Resultado: O sistema deve apurar e exibir, a partir da aplicação dos critérios, o universo de famílias e pessoas elegíveis e não elegíveis ao PBF na Base Municipal selecionada.
+•	RF04 — Recomposição Automática: Qualquer alteração em um critério parametrizável deve provocar a reapuração da elegibilidade e a atualização dos indicadores exibidos.
+4.1	Requisitos propostos (não constantes da HU)
+Os itens abaixo não constam do texto da HU e são propostos pela equipe de requisitos por serem necessários ao uso efetivo da funcionalidade. Dependem de confirmação da área de negócio.
+•	RF05 — Demonstrativo por Critério (proposto): O sistema deveria exibir, em formato de funil, a quanti-dade de famílias eliminadas por cada critério de elegibilidade, permitindo ao gestor identificar qual regra é mais restritiva no universo analisado.
+•	RF06 — Motivo de Inelegibilidade (proposto): O sistema deveria registrar, para cada família não elegível, o critério ou os critérios que motivaram a exclusão, viabilizando conferência e auditoria do resultado.
+ 
+5	REGRAS DE NEGÓCIO
+Salvo indicação em contrário, os critérios abaixo são cumulativos: a família somente é considerada elegível quando atender simultaneamente a todos eles.
+5.1	Critérios de composição e cadastro
+•	RN01 — Presença de Responsável Familiar: A família deve possuir ao menos um membro identificado como Responsável Familiar, assim caracterizado quando o campo [COD-PARENTESCO-RF-PESSOA] tiver valor igual a 1.
+•	RN02 — Estado Cadastral da Família: A família deve estar na situação "Cadastrado", verificada no campo [COD-EST-CADASTRAL-FAM] da Base Municipal, cujo código deve ser igual a 3. Critério parametrizável.
+•	RN03 — Estado Cadastral do Responsável Familiar: O Responsável Familiar deve estar na situação "Ca-dastrado", verificada no campo [COD-EST-CADASTRAL-MEMB] da Base Municipal, cujo código deve ser igual a 3. Critério parametrizável.
+•	RN04 — Responsável Familiar Válido: O Responsável Familiar deve possuir idade maior ou igual à idade mínima parametrizada. Critério parametrizável.
+5.2	Critérios de renda e atualização
+•	RN05 — Renda per Capita: A renda per capita da família, registrada no campo [VLR-RENDA-MEDIA-FAM] da Base Municipal, deve ser menor ou igual ao "Valor limite de Pobreza". Critério parametrizável.
+•	RN06 — Status de Atualização Cadastral: O cadastro da família deve estar atualizado, verificado pela comparação entre o campo [DAT-ATUALIZACAO-FAMILIA] da Base Municipal e o prazo parametrizado. Critério parametrizável.
+•	RN07 — Dispensa por Grupo Imune: Antes de considerar a família inelegível por desatualização cadas-tral, o sistema deve verificar se ela pertence ao rol de grupo imune parametrizado. Em caso positivo, a família fica dispensada da exigência da RN06. Critério parametrizável.
+5.3	Família unipessoal
+•	RN08 — Identificação da Família Unipessoal: A família é considerada unipessoal quando o campo [QTD-PES-CALC-RND] da Base Municipal indicar a existência de um único membro (valor igual a 1).
+•	RN09 — Elegibilidade da Família Unipessoal: A família unipessoal é considerada elegível quando satisfi-zer, alternativamente, qualquer uma das condições abaixo, avaliadas na ordem indicada:
+○	Pertencer aos grupos prioritários (GPTE), critério parametrizável — neste caso a família é elegível independentemente da forma de coleta e da espécie do domicílio;
+○	Possuir espécie de domicílio coletivo, verificada no campo [COD-ESPECIE-DOMIC-FAM] com valor igual a 3 — neste caso a família é elegível independentemente da forma de coleta;
+○	Possuir forma de coleta registrada no campo [COD-FORMA-COLETA-FAM] com valor igual a 2 ou 3.
+5.4	Pendências cadastrais
+•	RN10 — Famílias e Pessoas sem Pendências: A família não é elegível ao PBF se um ou mais dos indicadores relacionados na tabela da seção 6.2 estiver com valor igual a 1.
+5.5	Regras gerais
+•	RN11 — Cumulatividade dos Critérios: Os critérios das seções 5.1, 5.2, 5.4 e, quando aplicável, 5.3 são cumulativos. A inobservância de qualquer um deles torna a família não elegível.
+•	RN12 — Aplicação Restrita à Base Municipal: Os critérios deste documento aplicam-se exclusiva-mente às simulações que utilizem a Base Municipal com a opção de critério de elegibilidade ativada, não se aplicando às simulações realizadas exclusivamente sobre Pré-folha ou Folha de Pagamento.
+•	RN13 — Imutabilidade dos Parâmetros Vigentes: A alteração de qualquer critério parametrizável no simulador produz efeito apenas no cenário simulado, não alterando os parâmetros vigentes do pro-grama.
+ 
+6	TABELAS DE APOIO
+6.1	Critérios parametrizáveis
+Parâmetro	Campo da Base Municipal	Valor vigente	Regra
+Estado cadastral da família	[COD-EST-CADASTRAL-FAM]	3 (Cadastrado)	RN02
+Estado cadastral do Responsável Familiar	[COD-EST-CADASTRAL-MEMB]	3 (Cadastrado)	RN03
+Idade mínima do Responsável Fami-liar	A definir	A definir	RN04
+Valor limite de Pobreza	[VLR-RENDA-MEDIA-FAM]	A confirmar	RN05
+Prazo de atualização cadastral	[DAT-ATUALIZACAO-FAMILIA]	A confirmar (24 meses)	RN06
+Rol de grupos imunes	A definir	A definir	RN07
+Grupos prioritários (GPTE)	A definir	A definir	RN09
+Os campos assinalados como "a definir" não foram informados na HU e constituem pendência para a constru-ção.
+6.2	Indicadores de pendência (RN10)
+Campo	Natureza	Condição de inelegibilida-de
+[IND-PAUD-CPO-OBR-PRIN-FAM]	Pendência de auditoria — campo obriga-tório principal	Valor igual a 1
+[IND-PAUD-CPO-OBR-SUP1-FAM]	Pendência de auditoria — campo obriga-tório suplementar	Valor igual a 1
+[IND-PAUD-FAM-SEM-UPLOAD-DOC]	Pendência de auditoria — família sem upload de documento	Valor igual a 1
+[IND-OAUD-FAM-SEM-UPLOAD-DOC]	Ocorrência de auditoria — família sem upload de documento	Valor igual a 1
+6.3	Matriz de decisão da família unipessoal (RN09)
+GPTE	Domicílio coletivo ([COD-ESPECIE-DOMIC-FAM] = 3)	Forma de coleta ([COD-FORMA-COLETA-FAM] = 2 ou 3)	Resultado
+Sim	Indiferente	Indiferente	Elegível
+Não	Sim	Indiferente	Elegível
+Não	Não	Sim	Elegível
+Não	Não	Não	A confirmar (ver seção 7.1)
+ 
+7	PONTOS DE ATENÇÃO PARA REFINAMENTO
+Os itens abaixo dependem de definição da área de negócio antes do início da construção. En-quanto não respondidos, os requisitos correspondentes permanecem com especificação incompleta.
+7.1	Lacunas que impedem a construção
+•	Campo identificador do GPTE (RN09): a HU cita os grupos prioritários como critério, mas não in-forma o campo da Base Municipal que os identifica nem a regra de composição do grupo. Sem essa defini-ção, a regra da família unipessoal não é implementável.
+•	Rol de grupos imunes (RN07): não foram informados o campo de origem, a lista de grupos nem a forma de parametrização. É necessário definir se a imunidade dispensa apenas a atualização cadastral ou também outros critérios.
+•	Idade mínima do Responsável Familiar (RN04): não foi informado o valor vigente, o campo de data de nascimento na BM, nem a data de referência para o cálculo da idade (data da carga da base ou data da simulação).
+•	Família unipessoal que não atende a nenhuma das três condições (RN09): a HU descreve apenas as hipóteses de elegibilidade. Confirmar que a família unipessoal que não se enquadra em nenhuma delas é considerada inelegível.
+•	Valor limite de Pobreza (RN05): a STRY00069681 define três linhas administrativas (extrema pobre-za, pobreza e renda máxima para participação) e a HU "Módulo de Utilização" cita o valor de ingresso de R$ 218,00. Confirmar que o critério de elegibilidade utiliza a linha de pobreza e que ela corresponde ao mesmo parâmetro de ingresso.
+7.2	Precisão das regras
+•	Escopo do estado cadastral (RN03): o título do item na HU menciona "Estado cadastral da pessoa e família", mas o detalhamento verifica apenas o Responsável Familiar. Confirmar se os demais membros também devem estar na situação "Cadastrado" e qual o tratamento dos membros não cadastrados na contagem de pessoas e no cálculo da renda per capita.
+•	Sobreposição entre RN01 e RN03: a HU exige que a família tenha um membro com estado cadastral "cadastrado" e marcação de Responsável Familiar, e separadamente exige o estado cadastral do RF. Con-firmar que se trata da mesma verificação, para evitar duplicidade de regra.
+•	Múltiplos Responsáveis Familiares: qual o tratamento quando mais de um membro da família apre-sentar [COD-PARENTESCO-RF-PESSOA] igual a 1, ou quando nenhum apresentar?
+•	Fronteira da renda (RN05): o critério é "menor ou igual" ao limite. Confirmar o comportamento no valor exato do limite e a regra de arredondamento aplicada à renda per capita.
+•	Contagem do prazo de atualização (RN06): o prazo é contado a partir de qual data de referência: data da carga da Base Municipal, data corrente ou data informada pelo usuário na simulação?
+•	Natureza dos indicadores de pendência (RN10): o item da HU é intitulado "Famílias e pessoas sem pendências", mas os quatro campos listados são de nível familiar. Confirmar se existem pendências de nível pessoa a serem verificadas e, em caso positivo, quais campos as representam.
+•	Divergência de grafia do campo de membros: esta HU utiliza [QTD-PES-CALC-RND] e a HU "Módu-lo de Utilização" utiliza [QTD_PES_CALC_RND]. Confirmar a nomenclatura correta e se ambos represen-tam o mesmo dado.
+•	Valores nulos ou fora de domínio: qual o tratamento quando um campo utilizado nos critérios esti-ver nulo, em branco ou com valor fora do domínio esperado? A família é excluída, incluída ou relacionada em relatório de descarte?
+7.3	Comportamento do sistema
+•	Ordem de avaliação e desempenho (RF04): a aplicação de nove critérios sobre a Base Municipal em abrangência nacional a cada alteração de parâmetro pode inviabilizar a atualização automática. Defi-nir se será adotada ação explícita de reprocessamento ou pré-agregação dos dados.
+•	Elegibilidade x concessão: a elegibilidade apurada nesta HU representa apenas o público potencial. Confirmar se o resultado deve ser confrontado com a capacidade orçamentária e com a fila de espera, ou se essa análise pertence a outra HU.
+•	Famílias já beneficiárias: na simulação exclusiva sobre a Base Municipal não há informação de fo-lha. Confirmar se as famílias atualmente beneficiárias devem ser identificadas de alguma forma, ou se todo o universo é tratado como candidato.
+•	Regra de Proteção: famílias com renda per capita acima da linha de pobreza e abaixo do limite de permanência não são elegíveis por esta regra. Confirmar que o tratamento da Regra de Proteção está fora do escopo desta HU por depender da Folha de Pagamento.
+•	Versionamento dos critérios: quando a legislação alterar um critério, o resultado de um estudo anterior deve permanecer reproduzível? Haverá guarda dos parâmetros utilizados em cada simulação?
+ 
+8	RASTREABILIDADE — HU X REQUISITOS
+Item da HU	Requisito	Regra de negócio
+Aplicação condicionada dos critérios	RF01	RN12
+Presença de Responsável Familiar	RF01	RN01
+Estado cadastral da pessoa e família	RF02	RN02, RN03
+Família com responsável familiar válido	RF02	RN04
+Renda per capita menor ou igual ao limite de pobreza	RF02	RN05
+Status do cadastro da família	RF02	RN06
+Rol de grupo imune	RF02	RN07
+Família unipessoal	RF01	RN08, RN09
+Famílias e pessoas sem pendências na BM	RF01	RN10
+Composição do resultado	RF03, RF04	RN11
+9	ACEITE DA DOCUMENTAÇÃO
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento para as Regras de Elegibilidade do PBF no Simulador do SIPGS (STRY00070086). A assinatura abaixo formaliza a aprovação do escopo e autoriza o início das atividades de desenvolvimento com base nas premissas aqui estabelecidas, ressalvados os itens registrados na seção 7, cuja definição é condição para a construção.
+Data	Nome	Cargo / Área
+		
+		
+
