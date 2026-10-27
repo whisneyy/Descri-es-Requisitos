@@ -1,0 +1,212 @@
+
+
+
+
+
+
+Documento de Requisitos Funcionais
+
+SIPGS — API Gateway e Autenticação por JWT
+
+ 
+ 
+
+1. Folha de revisão e aprovação
+1.1 Registro de mudanças
+Data	Autor	Versão	Referência da mudança
+24/09/2026		1.0	Elaboração como documento base, a partir das HUs existentes
+1.2 Revisão do cliente
+Data	Autor	Cargo	Versão aprovada
+			
+
+ 
+2. DESCRIÇÃO
+Como plataforma, preciso de uma porta de entrada única para as APIs do SIPGS, responsável por autenticar o usuário, emitir e validar o token de acesso, aplicar as verificações de segurança comuns a todas as chamadas e propagar aos serviços internos a identidade do usuário e o seu escopo de atuação, de modo que nenhum componente interno precise reimplementar essas verificações e que o escopo de acesso não dependa de informação enviada pelo cliente.
+O API Gateway é o ponto em que se materializa a exigência transversal registrada em praticamente todas as histórias do SIPGS: a de que o usuário só alcance dados compatíveis com o seu perfil, a sua abrangência territorial e os produtos para os quais possui autorização ativa. As demais histórias declaram essa exigência; este documento define onde e como ela é verificada.
+Natureza deste documento: trata-se de documento base. Diferentemente das demais histórias, que partem de critérios de aceitação fornecidos pela área de negócio, esta foi construída por dedução a partir das exigências espalhadas pelas demais HUs, uma vez que a autenticação não é tratada em nenhuma delas. Por essa razão, o conjunto de premissas da seção 3 é mais extenso que o habitual e a seção 8 concentra decisões que precisam ser tomadas com a área de segurança da informação e com a arquitetura corporativa antes da construção.
+ 
+3. PREMISSAS ADOTADAS
+Nº	Premissa adotada	Origem da pendência
+P01	A autenticação do usuário ocorre em provedor de identidade corporativo, externo a este componente, que o Gateway consome.	Autenticação não especificada em nenhuma HU
+P02	O token de acesso adota o formato JWT assinado, transportado no cabeçalho de autorização das requisições.	Formato não definido em nenhuma HU
+P03	A Matriz de Acesso da Plataforma existe como serviço consultável, do qual derivam perfil, abrangência e produtos autorizados.	STRY00064433 — Matriz não especificada
+P04	Perfil, abrangência e produtos autorizados são resolvidos no momento da emissão do token e nele transportados, sendo o token de vida curta para limitar a defasagem.	Decisão registrada na seção 8.1
+P05	Existe processo de concessão e revogação de perfis, capaz de notificar a plataforma quando um acesso for alterado.	Provisionamento sem HU identificada
+P06	Os serviços internos confiam na identidade propagada pelo Gateway e não são alcançáveis diretamente a partir da rede externa.	Topologia não definida
+P07	A autorização fina, no nível do registro, permanece nos BFF e nos serviços de domínio, que aplicam os predicados de escopo nas consultas.	Documentos dos BFF de Simulação e Agente
+ 
+4. ESCOPO
+4.1 Está no escopo
+•	Exposição única das APIs do SIPGS e roteamento para os serviços internos.
+•	Integração com o provedor de identidade e emissão do token de acesso.
+•	Definição do conteúdo do token e validação a cada requisição.
+•	Verificação de autorização de granularidade grossa, por rota, perfil e produto.
+•	Propagação da identidade e do escopo aos serviços internos.
+•	Renovação, expiração e revogação de tokens.
+•	Proteções comuns de API e registro de auditoria das chamadas.
+4.2 Não está no escopo
+•	Cadastro de usuários e concessão de perfis, objeto de história própria a ser identificada.
+•	Definição do conteúdo da Matriz de Acesso, pendente na STRY00064433.
+•	Autorização no nível do registro, aplicada pelos BFF e pelos serviços de domínio.
+•	Regras de negócio de qualquer natureza, que permanecem nos serviços de domínio.
+•	Autenticação de cidadãos ou beneficiários, uma vez que a plataforma atende a gestores.
+ 
+5. REQUISITOS FUNCIONAIS
+5.1 Exposição e roteamento
+•	RF01 — Ponto Único de Entrada: Todas as chamadas às APIs do SIPGS devem transitar pelo API Gateway, não sendo admitido acesso direto aos serviços internos a partir da rede externa.
+•	RF02 — Roteamento: O Gateway deve encaminhar cada requisição ao serviço responsável, conforme cadastro de rotas, sem conhecer as regras de negócio do destino.
+•	RF03 — Transporte Seguro: Toda comunicação deve ocorrer sobre canal cifrado, sendo rejeitadas requisições em canal não seguro.
+•	RF04 — Versionamento do Contrato: O Gateway deve suportar a convivência de versões distintas de uma mesma API, permitindo a evolução dos serviços sem interrupção dos consumidores.
+5.2 Autenticação
+•	RF05 — Integração com o Provedor de Identidade: O Gateway deve integrar-se ao provedor de identidade corporativo para autenticar o usuário, não armazenando credenciais.
+•	RF06 — Emissão do Token: Autenticado o usuário, deve ser emitido token de acesso contendo os elementos da seção 7.1, resolvidos a partir da Matriz de Acesso.
+•	RF07 — Token de Renovação: Deve ser emitido token de renovação, de validade superior à do token de acesso, destinado exclusivamente à obtenção de novo token de acesso.
+•	RF08 — Recusa de Autenticação: Falhas de autenticação devem produzir resposta padronizada, sem revelar se o insucesso decorreu de identificação inexistente, credencial incorreta ou acesso bloqueado.
+5.3 Validação do token
+•	RF09 — Validação a Cada Requisição: O Gateway deve validar, em toda requisição, a assinatura do token, o emissor, o destinatário, a vigência e a ausência de revogação, rejeitando a requisição antes do roteamento quando qualquer verificação falhar.
+•	RF10 — Rejeição de Token Inválido: Token ausente, malformado, expirado, revogado, assinado por chave desconhecida ou destinado a outro destinatário deve produzir recusa, conforme a seção 7.4.
+•	RF11 — Rotação de Chaves: O Gateway deve suportar a rotação das chaves de assinatura, admitindo a convivência temporária de chaves durante a transição.
+•	RF12 — Vedação de Confiança em Dado do Cliente: O perfil, a abrangência e os produtos autorizados devem ser obtidos exclusivamente do token validado. Informação equivalente enviada no corpo, na consulta ou em cabeçalho da requisição deve ser ignorada.
+
+5.4 Autorização
+•	RF13 — Autorização por Rota: O Gateway deve verificar se o perfil constante do token possui permissão para a rota e o método solicitados, conforme cadastro de rotas.
+•	RF14 — Autorização por Produto: Quando a rota se referir a um produto específico, o Gateway deve verificar se ele consta dos produtos autorizados no token.
+•	RF15 — Delegação da Autorização Fina: A verificação de abrangência no nível do registro é delegada aos serviços de destino, aos quais o Gateway entrega o escopo do usuário de forma confiável.
+•	RF16 — Resposta à Negativa: A negativa de autorização deve produzir resposta padronizada que não revele a existência ou a inexistência do recurso solicitado.
+5.5 Propagação
+•	RF17 — Propagação da Identidade: O Gateway deve propagar aos serviços internos a identidade do usuário e o seu escopo, em formato verificável pelo destinatário.
+•	RF18 — Remoção de Cabeçalhos Não Confiáveis: Cabeçalhos de identidade eventualmente presentes na requisição de origem devem ser removidos antes do encaminhamento, evitando que o cliente influencie a identidade propagada.
+•	RF19 — Identificação de Correlação: O Gateway deve gerar identificador de correlação para cada requisição e propagá-lo aos serviços internos, de modo que a cadeia de chamadas seja rastreável de ponta a ponta.
+•	RF20 — Autenticação entre Serviços: A comunicação entre o Gateway e os serviços internos deve ser autenticada, não bastando a confiança na topologia de rede.
+5.6 Sessão, renovação e revogação
+•	RF21 — Renovação do Token: O Gateway deve permitir a obtenção de novo token de acesso mediante apresentação de token de renovação válido, revalidando o perfil, a abrangência e os produtos junto à Matriz de Acesso.
+•	RF22 — Revogação: O Gateway deve impedir o uso de tokens revogados, observados os eventos da seção 7.3.
+•	RF23 — Encerramento de Sessão: O encerramento da sessão pelo usuário deve invalidar os tokens de acesso e de renovação a ela vinculados.
+•	RF24 — Efeito da Alteração de Acesso: A alteração ou a revogação do perfil, da abrangência ou da autorização de produto deve produzir efeito no prazo máximo correspondente à vigência do token de acesso, ou imediatamente quando houver revogação explícita.
+5.7 Proteção da API
+•	RF25 — Controle de Taxa: O Gateway deve aplicar limites de requisições por usuário e por rota, protegendo os serviços internos contra consumo excessivo.
+•	RF26 — Limite de Carga: Requisições cujo corpo exceda o tamanho máximo parametrizado devem ser rejeitadas antes do roteamento.
+•	RF27 — Validação de Contrato: O Gateway deve rejeitar requisições que não observem o contrato declarado da rota, sem repassá-las ao serviço de destino.
+•	RF28 — Origens Permitidas: O Gateway deve restringir as origens autorizadas a consumir as APIs a partir de navegador.
+•	RF29 — Tempo Limite: O Gateway deve aplicar tempo limite às chamadas aos serviços internos, devolvendo resposta explícita quando excedido.
+5.8 Auditoria e observabilidade
+•	RF30 — Registro das Chamadas: O Gateway deve registrar cada requisição, contendo identificador de correlação, identificador do usuário, rota, método, resultado, momento e tempo de resposta.
+•	RF31 — Registro de Eventos de Segurança: Autenticações recusadas, tokens inválidos e negativas de autorização devem ser registrados de forma distinta das requisições bem-sucedidas.
+•	RF32 — Vedação de Dado Sensível no Registro: Os registros não podem conter credenciais, tokens completos nem dados pessoais transportados no corpo das requisições.
+5.9 Resiliência
+•	RF33 — Indisponibilidade do Provedor de Identidade: Na indisponibilidade do provedor de identidade, tokens já emitidos e válidos devem continuar sendo aceitos até a expiração, ficando suspensas apenas as novas autenticações.
+•	RF34 — Isolamento de Falhas: A indisponibilidade de um serviço interno não pode comprometer o atendimento das rotas dos demais serviços.
+ 
+6. REGRAS DE NEGÓCIO
+•	RN01 — Escopo Originado do Token: O escopo de atuação do usuário é aquele constante do token validado. Nenhuma informação enviada pelo cliente pode ampliá-lo, alterá-lo ou substituí-lo.
+•	RN02 — Validação Prévia ao Roteamento: Nenhuma requisição é encaminhada a serviço interno antes da validação do token e da verificação de autorização por rota e por produto.
+•	RN03 — Separação de Responsabilidades: O Gateway verifica autorização de granularidade grossa, por rota e por produto. A delimitação dos registros acessíveis é aplicada pelos serviços de destino, com base no escopo propagado.
+•	RN04 — Independência entre Produtos: A autorização para um produto não implica acesso aos demais, ainda que o ente do usuário possua mais de um produto na plataforma, conforme a STRY00064433.
+•	RN05 — Conteúdo do Token: O token não pode conter dados pessoais além do estritamente necessário à identificação funcional do usuário, tampouco dados pessoais sensíveis, uma vez que é assinado e não cifrado.
+•	RN06 — Vida Curta e Renovação: O token de acesso é de vida curta. A defasagem máxima entre a alteração de um acesso e o seu efeito corresponde ao prazo de vigência do token, salvo revogação explícita.
+•	RN07 — Revogação Prevalente: A revogação prevalece sobre a vigência: token revogado é recusado ainda que dentro do prazo de validade.
+•	RN08 — Inalterabilidade dos Registros: Os registros de auditoria e de eventos de segurança não podem ser alterados nem suprimidos.
+•	RN09 — Padronização das Recusas: As respostas de recusa devem observar a seção 7.4, sem revelar a existência de recursos, a razão específica da falha de autenticação ou a estrutura interna da plataforma.
+ 
+7. TABELAS DE APOIO
+7.1 Conteúdo do token de acesso
+Proposta de composição, a ser confirmada com a área de segurança da informação.
+Elemento	Significado	Conteúdo	Obrigatoriedade
+iss	Emissor do token	Identificação do provedor de identidade da plataforma	Obrigatório
+aud	Destinatário	Identificação da API do SIPGS	Obrigatório
+sub	Identificador do usuário	Identificador interno, não reutilizável e não derivado de dado pessoal	Obrigatório
+iat	Momento da emissão	Data e hora da emissão	Obrigatório
+exp	Momento da expiração	Data e hora a partir da qual o token é inválido	Obrigatório
+jti	Identificador do token	Identificador único, utilizado na revogação	Obrigatório
+sid	Identificador da sessão	Vincula os tokens emitidos à mesma sessão de autenticação	Obrigatório
+perfil	Perfil do usuário	Perfil conforme a Matriz de Acesso	Obrigatório
+ente	Ente de vinculação	Identificação do ente ao qual o usuário está vinculado	Obrigatório, salvo Gestor CAIXA
+abrangencia	Escopo territorial	Nível (nacional, estadual, municipal ou organizacional) e, conforme o nível, a UF e o município	Obrigatório
+produtos	Produtos autorizados	Relação dos programas sociais com autorização ativa	Obrigatório
+permissoes	Permissões funcionais	Relação das permissões concedidas ao perfil	Obrigatório
+amr	Meio de autenticação	Forma pela qual o usuário se autenticou	Recomendado
+7.2 Matriz de autorização por rota
+Exemplo de composição do cadastro de rotas, a ser completado conforme as funcionalidades entrarem em construção.
+Grupo de rotas	Perfis autorizados	Verificação de produto	HU de origem
+Simulação	Gestor Ente Externo e Gestor CAIXA	Sim	STRY00069681
+Cenários e comparativos	Gestor Ente Externo e Gestor CAIXA	Sim	STRY00071242, STRY00087376
+Assistente de IA	Conforme definição da STRY00111044	Sim	STRY00111044
+Parametrização do programa	Perfis com permissão específica	Sim	HU não recebida
+Manutenção do De x Para	Gestor CAIXA	Não	STRY00083689
+Painel de monitoramento da carga	Gestor CAIXA	Não	STRY00079079, STRY00062314
+Geração de folha interna	Perfis com alçada específica	Sim	STRY00111130
+7.3 Eventos de revogação
+Evento	Efeito	Origem
+Encerramento de sessão pelo usuário	Revoga os tokens da sessão	RF23
+Revogação de perfil ou de abrangência	Revoga os tokens do usuário	STRY00064433
+Revogação de autorização de produto	Revoga os tokens do usuário	STRY00064433
+Desligamento ou bloqueio do usuário	Revoga os tokens do usuário	Processo de provisionamento
+Suspeita de comprometimento	Revoga os tokens do usuário ou da sessão	Segurança da informação
+Rotação de chave por incidente	Invalida os tokens assinados pela chave comprometida	RF11
+7.4 Padronização das recusas
+Situação	Tratamento	Observação
+Token ausente ou malformado	Recusa por falta de autenticação	Sem detalhamento da causa
+Token expirado	Recusa por falta de autenticação	O cliente deve renovar
+Token revogado	Recusa por falta de autenticação	Tratado como não autenticado
+Perfil sem permissão para a rota	Recusa por falta de autorização	Sem revelar a existência do recurso
+Produto não autorizado	Recusa por falta de autorização	Sem revelar a existência do recurso
+Limite de requisições excedido	Recusa por excesso de requisições	Com indicação do momento de nova tentativa
+Contrato da rota não observado	Recusa por requisição inválida	Sem expor estrutura interna
+Serviço interno indisponível	Recusa por indisponibilidade	Com identificador de correlação
+7.5 Parâmetros a definir
+Parâmetro	Finalidade	Situação
+Vigência do token de acesso	Limita a defasagem de alterações de acesso	Valor a definir
+Vigência do token de renovação	Duração da sessão sem nova autenticação	Valor a definir
+Inatividade máxima da sessão	Encerramento automático	Valor a definir
+Limite de requisições por usuário	Proteção dos serviços internos	Valor a definir
+Tamanho máximo do corpo da requisição	Proteção contra carga excessiva	Valor a definir
+Tempo limite das chamadas internas	Evita retenção de recursos	Valor a definir, por rota
+Periodicidade de rotação de chaves	Higiene criptográfica	Valor a definir
+Retenção dos registros de auditoria	Conformidade	Prazo a definir
+ 
+8. Pontos de atenção para refinamento
+8.1 Decisão estruturante: onde reside o escopo
+•	Escopo no token ou consultado a cada requisição (P04): transportar perfil, abrangência e produtos no token torna a verificação rápida e independente de terceiros, mas cria defasagem entre a alteração de um acesso e o seu efeito. Consultar a Matriz de Acesso a cada requisição elimina a defasagem, ao custo de latência e de acoplamento. A alternativa intermediária, aqui adotada, é o token de vida curta com revogação explícita para os casos críticos. A decisão responde diretamente à pergunta registrada na STRY00064433 sobre o efeito da alteração de perfil em sessão ativa.
+•	Tolerância de defasagem: definir o prazo aceitável entre a revogação de um acesso e o seu efeito. Para perfis com acesso a microdado do Cadastro Único, a tolerância tende a ser menor.
+8.2 Definições que dependem de outras histórias
+•	Provedor de identidade (P01): nenhuma HU trata de autenticação. É necessário definir o provedor e o protocolo, considerando que a plataforma atende tanto a empregados da CAIXA quanto a gestores de entes externos, o que pode exigir mais de um caminho de autenticação.
+•	Matriz de Acesso (P03): o Gateway depende da Matriz para resolver o conteúdo do token. Ela é citada em quatro histórias e não está especificada em nenhuma.
+•	Provisionamento (P05): a revogação prevista no RF22 pressupõe que a plataforma seja notificada quando um acesso for alterado. Não há história que trate da concessão e da revogação de perfis.
+•	Múltiplo fator de autenticação: considerando o acesso a dados pessoais em escala nacional, avaliar a exigência de segundo fator, ao menos para perfis com acesso a microdado ou com alçada para geração de folha.
+•	Perfis de entidades externas: a STRY00064433 prevê acesso de órgãos de controle. Definir como TCU e CGU se autenticam, uma vez que não pertencem à CAIXA nem aos entes gestores.
+8.3 Conteúdo e proteção do token
+•	Identificador do usuário (RN05): o identificador não deve ser derivado de CPF ou de matrícula, por ser o token legível por quem o detém. Confirmar a adoção de identificador interno.
+•	Tamanho do token: a relação de produtos e de permissões pode tornar o token extenso. Avaliar o uso de referências a conjuntos de permissões em vez da enumeração completa.
+•	Abrangência de perfis com múltiplo vínculo: a STRY00064433 pressupõe vínculo único. Caso venham a ser admitidos vínculos múltiplos, é necessário definir como a abrangência é representada no token e se o usuário escolhe o vínculo ativo na autenticação.
+•	Armazenamento do token no cliente: definir a forma de guarda no navegador e as proteções contra roubo de token, tema que envolve também o front-end.
+8.4 Operação
+•	Cadastro de rotas (RF13): a matriz da seção 7.2 é ilustrativa. É necessário construí-la integralmente à medida que as funcionalidades forem especificadas, e definir quem a mantém e sob qual rito.
+•	Ambientes: definir a segregação entre produção e homologação, inclusive quanto a chaves de assinatura distintas, de modo que token de um ambiente não seja aceito no outro.
+•	Consumidores externos: avaliar se a plataforma exporá APIs a sistemas de terceiros, hipótese em que será necessário tratar de credenciais de aplicação, distintas das de usuário.
+•	Retenção e consulta aos registros (RF30): definir o prazo de guarda, os perfis autorizados à consulta e a integração com a solução corporativa de monitoramento.
+8.5 Requisitos não funcionais
+•	Latência acrescida: definir o acréscimo máximo aceitável de tempo de resposta introduzido pelo Gateway, medido separadamente do tempo dos serviços de destino.
+•	Disponibilidade: sendo ponto único de entrada, o Gateway é ponto único de falha. Definir a meta de disponibilidade e a estratégia de redundância.
+•	Volumetria: estimar requisições por segundo em pico, considerando que o Simulador produz muitas interações por sessão e o assistente de IA produz requisições longas.
+ 
+9. RASTREABILIDADE — ORIGEM DAS EXIGÊNCIAS
+Este documento não deriva de critérios de aceitação próprios. A tabela relaciona as exigências dispersas nas demais histórias que motivaram cada bloco de requisitos.
+Requisitos	Exigência de origem	História
+RF05 a RF08	Menção a "usuário autenticado", sem especificação	STRY00111044
+RF06, RF13, RF14, RN04	Perfis, abrangência e restrição por produto	STRY00064433
+RF09, RF12, RN01	Escopo aplicado pelo sistema e não pelo cliente	Documentos dos BFF de Simulação e Agente
+RF15, RN03	Autorização fina nos serviços de domínio	Documentos dos BFF
+RF17 a RF20	Propagação de identidade pressuposta pelos BFF	Documentos dos BFF
+RF22, RF24, RN06, RN07	Efeito da alteração de perfil em sessão ativa	STRY00064433, ponto de atenção
+RF30, RF31, RN08	Registro de consultas para auditoria e rastreabilidade	STRY00111044, STRY00087376
+RN05	Proteção de dados pessoais e sensíveis	STRY00062314, STRY00111044
+RF25 a RF29	Proteção dos serviços contra consumo excessivo	Esta HU
+RF33, RF34	Resiliência	Esta HU
+
+ 
+10. Aceite da documentação
+Declaramos que revisamos e estamos de acordo com os requisitos, regras de negócio e especificações funcionais descritos neste documento base para o API Gateway e a Autenticação por JWT do SIPGS. A assinatura formaliza a aprovação do escopo com base nas premissas da seção 3 e ressalvados os itens da seção 8. Por se tratar de documento construído por dedução, sua aprovação pressupõe validação prévia pela área de segurança da informação e pela arquitetura corporativa.
+Data	Nome	Cargo / Área
+		
+		
+
